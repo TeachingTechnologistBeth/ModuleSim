@@ -94,7 +94,10 @@ public class ModuleClipboard {
 
             // Data copy
             HashMap<String, String> moduleData = oldM.dataOut();
-            if (moduleData != null) m.dataIn(moduleData);
+            if (moduleData != null) {
+                m.dataIn(moduleData);
+                m.propagate();
+            }
 
             // Link creation between copied modules
             for (int j = 0; j < m.ports.size(); j++) {
