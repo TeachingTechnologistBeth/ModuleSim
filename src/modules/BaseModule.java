@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import modules.parts.*;
@@ -39,9 +40,9 @@ public abstract class BaseModule extends PickableEntity {
     public List<VisiblePart> parts = new ArrayList<VisiblePart>();
 
     public int ID;
-    
+
     public abstract AvailableModules getModType();
-    
+
     public boolean error = false;
 
     /**
@@ -51,7 +52,7 @@ public abstract class BaseModule extends PickableEntity {
     public int getID() {
         return ID;
     }
-    
+
     /**
      * Allows action to be taken after connection
      */
@@ -97,7 +98,7 @@ public abstract class BaseModule extends PickableEntity {
         ports.add(i);
         return i;
     }
-    
+
     /**
      * Returns ports affected by changes to the given input
      * Should be overwritten by subclasses to improve loop detector accuracy.
@@ -105,8 +106,8 @@ public abstract class BaseModule extends PickableEntity {
     public List<Port> getAffected(Port in) {
         return ports;
     }
-    
-    
+
+
     /**
      * Adds a part
      */
@@ -220,7 +221,7 @@ public abstract class BaseModule extends PickableEntity {
                 base = (int)w/2;
                 angle = 270;
             }
-            
+
             int[] aPoints;
             int[] bPoints;
             int num;
@@ -234,7 +235,7 @@ public abstract class BaseModule extends PickableEntity {
                 bPoints = new int[]{base, base, base-aw};
                 num = 3;
             }
-            
+
             // Draw internal shape
             if (!side)
                 g.fillPolygon(aPoints, bPoints, num);
@@ -259,7 +260,7 @@ public abstract class BaseModule extends PickableEntity {
                 x = y;
                 y = temp;
             }
-            
+
             if (i.bidir)
                 g.fillArc(x, y, 10, 10, angle, 180);
             else
@@ -479,7 +480,7 @@ public abstract class BaseModule extends PickableEntity {
             return false;
         }
     }
-    
+
     @Override
     public int getType() {
         return PickableEntity.MODULE;
@@ -495,7 +496,7 @@ public abstract class BaseModule extends PickableEntity {
      * Resets to initial simulation state (needs override)
      */
     protected abstract void reset();
-    
+
     /**
      * Run tests on the module
      * @return True if tests ran successfully
@@ -503,18 +504,18 @@ public abstract class BaseModule extends PickableEntity {
     public boolean test() {return true;}
 
     /**
-     * Initialize with a loaded XML Data Element (module-specific implementation)
-     * Called by XMLReader. Default behaviour is no-op.
-     * @param dataElem
+     * Initialize state with a loaded hash map structure (module-specific implementation)
+     * Called by XMLReader and copy routines. Default behaviour is no-op.
+     * @param data Structure containing state to load (module-defined elements)
      */
-    public void dataIn(Element dataElem) {}
+    public void dataIn(HashMap<String, String> data) {}
 
     /**
-     * Fill an XML data element with module-specific data for retrieval with dataIn.
-     * Called by XMLWriter. Default behaviour is to return false, indicating the element was not modified.
-     * @param dataElem
+     * Fill a string-string hash map with module-specific data for retrieval with dataIn.
+     * Called by XMLWriter and the copy routines. Default behaviour is to return null, indicating that no relevant
+     * @return A filled hash map structure, or null if no state is stored
      */
-    public boolean dataOut(Element dataElem) { return false; }
+    public HashMap<String, String> dataOut() { return null; }
 
     public enum AvailableModules {
         // Enum members should not be renamed!
@@ -531,36 +532,36 @@ public abstract class BaseModule extends PickableEntity {
         RIGHT_SHIFT(new Shift(false), "Right-shift"),
         SPLIT_MERGE(new SplitMerge(), "Splitter / Merger"),
         SWITCH(new SwitchInput(), "Switch Input");
-        
+
         /**
          * The module represented by this enum value, to use to instantiate and display in GUI.
          */
         private final BaseModule module;
         private final String name;
-        
+
         private AvailableModules(BaseModule mod, String name) {
             this.module = mod;
             this.name = name;
         }
-        
+
         public BaseModule getSrcModule() {
             return module;
         }
-        
+
         @Override
         public String toString() {
             return name;
         }
-        
+
         public static AvailableModules fromModule(BaseModule mod) throws IllegalArgumentException {
             for (AvailableModules am : values()) {
                 if (am.module.getClass().equals(mod.getClass())) {
                     return am;
                 }
             }
-            
+
             throw new IllegalArgumentException("Module of type " + mod.getClass() + " is not available!");
         }
     }
-    
+
 }

@@ -33,12 +33,12 @@ public class Link {
      * @return New link, or null if link was invalid
      */
     public static Link createLink(Port source, Port target, BezierPath path) {
-    	
+
     	if (source == null || target == null) {
     	    System.err.println("No connect: Port(s) do not exist");
     	    return null;
     	}
-    	
+
     	if (source == target) {
     	    JOptionPane.showMessageDialog(null, "Cannot link port to itself");
     	    System.err.println("No connect: Ports are the same");
@@ -51,63 +51,78 @@ public class Link {
             return null;
         }
         else {
-            Link l = new Link();
-            source.link = l;
-            target.link = l;
-            
+            // Start a compound operation (likely nested) so we can abort cleanly
+            Main.ui.view.opStack.beginCompoundOp();
+
+            // Cleanup old links
+            if (source.link != null) {
+                source.link.delete();
+            }
+            if (target.link != null) {
+                target.link.delete();
+            }
+
+            Link newLink = new Link();
+            source.link = newLink;
+            target.link = newLink;
+
             // Pick direction of link
             if ((source.isOutput && (!target.isOutput || target.bidir)) ||
                 (source.bidir && !target.isOutput)) {
                 source.isOutput = true;
                 target.isOutput = false;
-                l.src = source;
-                l.targ = target;
-                l.curve = path;
+                newLink.src = source;
+                newLink.targ = target;
+                newLink.curve = path;
             }
             else if ((target.isOutput && (!source.isOutput || source.bidir)) ||
                      (target.bidir && !source.isOutput)) {
                 target.isOutput = true;
                 source.isOutput = false;
-                l.src = target;
-                l.targ = source;
-                l.curve = path;
-                l.curve.reverse();
+                newLink.src = target;
+                newLink.targ = source;
+                newLink.curve = path;
+                newLink.curve.reverse();
             }
-            
+
             // Check loops
             List<BaseModule> modules = new ArrayList<BaseModule>();
-            if (l.checkLoops(l, modules)) {
+            if (newLink.checkLoops(newLink, modules)) {
                 JOptionPane.showMessageDialog(null, "Link would create a loop. Have you forgotten a register?");
                 System.err.println("No connect: Loop detected");
                 source.link = null;
                 target.link = null;
-                
+
                 for (BaseModule m : modules) {
                     m.error = true;
                 }
-                
+
+                Main.ui.view.opStack.cancelCompoundOp();
                 return null;
             }
-            
+
+            // Changes are done
+            Main.ui.view.opStack.endCompoundOp();
+
             // Propagate
-            l.targ.setVal(l.src.getVal());
-            Main.sim.propagate(l.targ.owner);
-            
-            return l;
+            newLink.targ.setVal(newLink.src.getVal());
+            Main.sim.propagate(newLink.targ.owner);
+
+            return newLink;
         }
     }
-    
+
     /**
      * Recursively check for loops in the design
      * @param check Link to check for
-     * @param modules 
+     * @param modules
      * @return Whether the check link was found
      */
     private boolean checkLoops(Link check, List<BaseModule> modules) {
         // Registers & RAM *should* terminate loops
         Class<?> c = targ.owner.getClass();
         if (c == Register.class || c == RAM.class) return false;
-        
+
         // Follow every affected outbound link
         boolean result = false;
         for (Port p : targ.owner.getAffected(targ)) {
@@ -122,7 +137,7 @@ public class Link {
                 }
             }
         }
-        
+
         return result;
     }
 
@@ -172,11 +187,11 @@ public class Link {
     public void delete() {
         src.link = null;
         targ.link = null;
-        
+
         // Propagate change
         targ.setVal(new BinData());
         Main.sim.propagate(targ.owner);
-        
+
         // Remove from listings
         Main.sim.removeLink(this);
 

@@ -84,6 +84,7 @@ public class Menu {
         // Open simulation (with native dialog box)
         JMenuItem menuItem = new JMenuItem("Open");
         menuItem.setMnemonic(KeyEvent.VK_O);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         menuItem.setToolTipText("Open a saved simulation (discards the current one)");
 
         menuItem.addActionListener(new ActionListener() {
@@ -122,6 +123,7 @@ public class Menu {
         // Save simulation (native dialog box)
         menuItem = new JMenuItem("Save");
         menuItem.setMnemonic(KeyEvent.VK_S);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         menuItem.setToolTipText("Save the current simulation");
 
         menuItem.addActionListener(new ActionListener() {
@@ -140,6 +142,8 @@ public class Menu {
 
         // Save as
         menuItem = new JMenuItem("Save As");
+        KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
+        menuItem.setAccelerator(key);
         menuItem.setToolTipText("Save the current simulation");
         menuItem.addActionListener(new ActionListener() {
             @Override
@@ -151,6 +155,7 @@ public class Menu {
 
         menuItem = new JMenuItem("New");
         menuItem.setMnemonic(KeyEvent.VK_N);
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK));
         menuItem.setToolTipText("Start editing a new simulation (discard the current one)");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -173,7 +178,7 @@ public class Menu {
 
         app_menu.add(fileMenu);
     }
-    
+
     private void addEditMenu() {
         JMenu edit = new JMenu("Edit");
         edit.setMnemonic(KeyEvent.VK_E);
@@ -186,7 +191,7 @@ public class Menu {
             }
         });
         edit.add(item);
-        
+
         KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
         item.setAccelerator(key);
 
@@ -198,7 +203,7 @@ public class Menu {
             }
         });
         edit.add(item);
-        
+
         key = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
         item.setAccelerator(key);
 
@@ -225,7 +230,7 @@ public class Menu {
 
         key = KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK);
         item.setAccelerator(key);
-        
+
         app_menu.add(edit);
     }
 
@@ -233,24 +238,20 @@ public class Menu {
         JMenu sim = new JMenu("Simulation");
         sim.setMnemonic(KeyEvent.VK_S);
 
-        JMenuItem menuItem = new JMenuItem("Start");
-        menuItem.setToolTipText("Starts the simulation, if it's not already running");
+        JMenuItem menuItem = new JMenuItem("Run/Pause");
+        menuItem.setToolTipText("Toggles the running state of the simulation");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Main.sim.start();
+                if (Main.sim.running) {
+                    Main.sim.stop();
+                } else {
+                    Main.sim.start();
+                }
             }
         });
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
         sim.add(menuItem);
-        
-        menuItem = new JMenuItem("Stop");
-        menuItem.setToolTipText("Halts (pauses) the simulation");
-        menuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Main.sim.stop();
-            }
-        });
-        sim.add(menuItem);
-        
+
         menuItem = new JMenuItem("Step");
         menuItem.setToolTipText("Steps, then pauses the simulation");
         menuItem.addActionListener(new ActionListener() {
@@ -259,31 +260,17 @@ public class Menu {
                 Main.sim.step();
             }
         });
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0));
         sim.add(menuItem);
-        
-        menuItem.setAccelerator(KeyStroke.getKeyStroke((char) KeyEvent.VK_ENTER));
-        
-        menuItem = new JMenuItem("Reset");
-        menuItem.setToolTipText("Resets every module in the simulation");
-        menuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                synchronized (Main.sim) {
-                    for (BaseModule m : Main.sim.getModules()) {
-                        m.doReset();
-                        //Main.sim.propagate(m);
-                    }
-                }
-            }
-        });
-        sim.add(menuItem);
+
 
         app_menu.add(sim);
     }
-    
+
     private void addViewMenu() {
         JMenu view = new JMenu("View");
         view.setMnemonic(KeyEvent.VK_V);
-        
+
         JMenuItem menuItem = new JMenuItem("Toggle AA");
         menuItem.setToolTipText("Toggles high-quality rendering on/off");
         menuItem.addActionListener(new ActionListener() {
@@ -292,7 +279,7 @@ public class Menu {
             }
         });
         view.add(menuItem);
-        
+
         app_menu.add(view);
     }
 

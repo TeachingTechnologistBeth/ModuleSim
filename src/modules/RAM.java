@@ -5,6 +5,7 @@ import gui.MemEdit;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.logging.Logger;
 
@@ -27,22 +28,22 @@ import util.HexWriter;
  *
  */
 public class RAM extends BaseModule {
-    
+
     private MemEdit editor = null;
-    
+
     /**
      * The maximum VALID address
      */
     public static final int MAX_ADDR = 0xFFFF;
-    
+
     // The number of BinData locations in the store
     private static final int LOCATIONS = 0x20000;
     private static final int CLOCK_PIN = 0;
     private static final int WRITE_PIN = 2;
-    
+
     private final BinData[] store = new BinData[LOCATIONS];
     private final boolean clearOnReset;
-    
+
     // Port definitions
     private final Input dInA;
     private final Input dInB;
@@ -54,11 +55,11 @@ public class RAM extends BaseModule {
     private final Output dOutA;
     private final Output dOutB;
     private final Output contOut;
-    
+
     private final LEDRow dLEDA;
     private final LEDRow dLEDB;
     private final LED cLED;
-    
+
     RAM(boolean cleared) {
         w = 150;
         h = 200;
@@ -82,10 +83,10 @@ public class RAM extends BaseModule {
 
         // Control out
         contOut = addOutput("Control out", 0, Port.CLK);
-        
+
         clearOnReset = cleared;
         reset();
-        
+
         dLEDA = new LEDRow(25, -80);
         addPart(dLEDA);
         dLEDB = new LEDRow(-25, -80);
@@ -94,7 +95,7 @@ public class RAM extends BaseModule {
         // Add display
         cLED = new LED(50, 50);
         addPart(cLED);
-        
+
         propagate();
     }
 
@@ -113,7 +114,7 @@ public class RAM extends BaseModule {
         g.setColor(new Color(120, 120, 120));
         drawInputs(g);
         drawOutputs(g);
-        
+
         // Show LEDs
         drawParts(g);
 
@@ -127,14 +128,14 @@ public class RAM extends BaseModule {
     public void propagate() {
         int address = combineAddress(addrA.getVal(), addrB.getVal(), addrC.getVal(), addrD.getVal());
         contOut.setVal(contIn.getVal());
-        
+
         if (contIn.getVal().getBit(WRITE_PIN) == BinData.HIGH) {
             // Write high, disable output
             dOutA.setVal(new BinData());
             dOutB.setVal(new BinData());
             dLEDA.setVal(dOutA.getVal());
             dLEDB.setVal(dOutB.getVal());
-            
+
             if (contIn.getVal().getBit(CLOCK_PIN) == BinData.HIGH) {
                 // Clock high, write to memory.
                 write(address, dInA.getVal(), dInB.getVal());
@@ -147,10 +148,10 @@ public class RAM extends BaseModule {
             dLEDA.setVal(read[0]);
             dLEDB.setVal(read[1]);
         }
-        
+
         cLED.setEnabled(contIn.getVal().getBit(WRITE_PIN) == BinData.HIGH);
     }
-    
+
     public void clear() {
         final BinData blank = new BinData(BinData.LOW, BinData.LOW, BinData.LOW, BinData.LOW);
 
@@ -162,21 +163,21 @@ public class RAM extends BaseModule {
     }
 
     @Override
-    public void dataIn(Element dataElem) {
-        if (dataElem.hasAttribute("memory_store")) {
-            String store = dataElem.getAttribute("memory_store");
-            HexReader.readString(store, this);
+    public void dataIn(HashMap<String, String> data) {
+        if (data.containsKey("memory_store")) {
+            String storeStr = data.get("memory_store");
+            HexReader.readString(storeStr, this);
         }
     }
 
     @Override
-    public boolean dataOut(Element dataElem) {
-        String store = HexWriter.hexString(this, false);
+    public HashMap<String, String> dataOut() {
+        String storeStr = HexWriter.hexString(this, false);
+        if (storeStr.isEmpty()) return null;
 
-        if (store.isEmpty()) return false;
-
-        dataElem.setAttribute("memory_store", store);
-        return true;
+        HashMap<String, String> data = new HashMap<>();
+        data.put("memory_store", storeStr);
+        return data;
     }
 
     @Override
@@ -187,25 +188,25 @@ public class RAM extends BaseModule {
             clear();
         } else {
             Random rng = new Random();
-            
+
             for (int i = 0; i < LOCATIONS; i++) {
                 store[i] = new BinData();
                 store[i].setUInt(rng.nextInt());
             }
         }
     }
-    
+
     private static int combineAddress(BinData a0, BinData a1, BinData a2, BinData a3) {
         return a0.getUInt() | (a1.getUInt() << 4) | (a2.getUInt() << 8) | (a3.getUInt() << 12);
     }
-    
+
     public void write(int address, BinData d0, BinData d1) {
         if (address <= MAX_ADDR) {
             address = address << 1;
-            
+
             store[address] = d0;
             store[address | 1] = d1;
-            
+
             // Update the memory editor, if any
             if (editor != null) {
                 editor.updAdr = address >> 1;
@@ -219,7 +220,7 @@ public class RAM extends BaseModule {
             Logger.getLogger(RAM.class.getName()).warning("RAM tile index out of bounds.");
         }
     }
-    
+
     public BinData[] read(int address) {
         if (address <= MAX_ADDR) {
             address = address << 1;
@@ -227,10 +228,10 @@ public class RAM extends BaseModule {
             return new BinData[]{store[address], store[address | 1]};
         } else {
             Logger.getLogger(RAM.class.getName()).warning("RAM tile index out of bounds.");
-            return new BinData[]{new BinData(), new BinData()}; 
+            return new BinData[]{new BinData(), new BinData()};
         }
     }
-    
+
     /**
      * Attaches an editor to the module
      * @param e Editor to attach

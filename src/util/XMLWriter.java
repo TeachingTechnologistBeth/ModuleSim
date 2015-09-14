@@ -3,6 +3,7 @@ package util;
 import gui.View;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,18 +25,18 @@ import org.w3c.dom.Element;
 import simulator.Main;
 
 public class XMLWriter {
-    
+
     /**
      * Generates unique IDs for entities in the simulation
      */
     private static void genIDs() {
         synchronized (Main.sim) {
             int id = 0;
-            
+
             // Loop the modules and their ports
             for (BaseModule m : Main.sim.getModules()) {
                 m.ID = id++;
-                
+
                 for (Port p : m.ports) {
                     p.ID = id++;
                 }
@@ -70,7 +71,7 @@ public class XMLWriter {
             synchronized (Main.sim) {
                 // Generate IDs for storage
                 genIDs();
-                
+
                 // Store the modules
                 List<BaseModule> modules = Main.sim.getModules();
                 Element mods = doc.createElement("modules");
@@ -112,7 +113,11 @@ public class XMLWriter {
 
                     // Data - stored only if the module's dataOut override indicates a modification has been made
                     Element data = doc.createElement("data");
-                    if (m.dataOut(data)) {
+                    HashMap<String, String> dataMap = m.dataOut();
+                    if (dataMap != null) {
+                        for (String key : dataMap.keySet()) {
+                            data.setAttribute(key, dataMap.get(key));
+                        }
                         modElem.appendChild(data);
                     }
 

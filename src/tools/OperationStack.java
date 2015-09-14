@@ -8,6 +8,7 @@ public class OperationStack {
     private int futureHead = 0, head = 0, tail = 0, size = 0;
 
     private CompoundOperation compoundOp;
+    private int compound_stackSize = 0;
 
     public static int MAX_HISTORY = 500;
 
@@ -98,9 +99,12 @@ public class OperationStack {
      * call. Throws UnsupportedOperationException if called while a compound operation is already in progress.
      */
     public void beginCompoundOp() {
-        if (compoundOp != null) throw new UnsupportedOperationException("Already in a compound operation");
+        if (compoundOp != null) {
+            compound_stackSize++;
+        }
         else {
             compoundOp = new CompoundOperation();
+            compound_stackSize = 1;
         }
     }
 
@@ -109,12 +113,24 @@ public class OperationStack {
      * otherwise an UnsupportedOperationException will be thrown.
      */
     public void endCompoundOp() {
-        if (compoundOp == null) throw new UnsupportedOperationException("Not in a compound operation");
+        if (compoundOp == null && compound_stackSize == 0) {
+            throw new UnsupportedOperationException("Not in a compound operation");
+        }
         else {
-            // Do the pointer-shuffle ?( ?_?)?
-            CompoundOperation temp = compoundOp;
-            compoundOp = null;
-            pushOp(temp);
+            compound_stackSize--;
+            assert(compound_stackSize >= 0);
+            if (compound_stackSize == 0) {
+                if (compoundOp.getLength() > 0) {
+                    // Do the pointer-shuffle ?( ?_?)?
+                    CompoundOperation temp = compoundOp;
+                    compoundOp = null;
+                    pushOp(temp);
+                }
+                else {
+                    // Don't do anything with empty compound operations
+                    compoundOp = null;
+                }
+            }
         }
     }
 
@@ -123,10 +139,11 @@ public class OperationStack {
      * beginCompoundOp() call.
      */
     public void cancelCompoundOp() {
-        if (compoundOp == null) throw new UnsupportedOperationException("Not in a compoud operation");
+        if (compoundOp == null) throw new UnsupportedOperationException("Not in a compound operation");
         else {
             compoundOp.undo();
             compoundOp = null;
+            compound_stackSize--;
         }
     }
 }

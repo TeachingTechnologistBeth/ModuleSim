@@ -4,6 +4,7 @@ import gui.View;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -15,10 +16,7 @@ import modules.BaseModule.AvailableModules;
 import modules.Link;
 import modules.parts.Port;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import simulator.Main;
 
@@ -97,10 +95,16 @@ public class XMLReader {
 
                     // Additional module data (for RAM and inputs)
                     NodeList data = module.getElementsByTagName("data");
+                    HashMap<String, String> dataMap = new HashMap<>();
                     for (int j = 0; j < data.getLength(); j++) {
-                        Element d = (Element) data.item(j);
-                        m.dataIn(d);
+                        NamedNodeMap nodeMap = data.item(j).getAttributes();
+                        for (int k = 0; k < nodeMap.getLength(); k++) {
+                            Node item = nodeMap.item(k);
+                            dataMap.put(item.getNodeName(), item.getNodeValue());
+                        }
                     }
+                    m.dataIn(dataMap);
+                    m.propagate();
 
                     // Add to the simulation
                     Main.sim.addEntity(m);
@@ -120,7 +124,7 @@ public class XMLReader {
 
                     int srcID = Integer.parseInt(link.getAttribute("src"));
                     int targID = Integer.parseInt(link.getAttribute("targ"));
-                    
+
                     if (srcID == targID) {
                         System.err.println("Warning: Link's source and target are the same ("+srcID+"). Skipping link");
                         continue;
@@ -161,7 +165,7 @@ public class XMLReader {
                     }
                 }
             }
-            
+
             // Notify user of partially corrupted file
             if (badLinks != 0) {
                 JOptionPane.showMessageDialog(null, "Detected " + badLinks + " bad links in the file. These were ignored.\n"+

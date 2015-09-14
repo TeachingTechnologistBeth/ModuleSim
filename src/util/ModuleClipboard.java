@@ -8,6 +8,7 @@ import simulator.PickableEntity;
 import tools.CreateOperation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -90,6 +91,10 @@ public class ModuleClipboard {
 
             m.pos.set(oldM.pos);
             m.orientation = oldM.orientation;
+
+            // Data copy
+            HashMap<String, String> moduleData = oldM.dataOut();
+            if (moduleData != null) m.dataIn(moduleData);
 
             // Link creation between copied modules
             for (int j = 0; j < m.ports.size(); j++) {
