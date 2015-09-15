@@ -34,10 +34,11 @@ public abstract class BaseModule extends PickableEntity {
 
     public int orientation = 0;
 
-    public List<Port> ports = new ArrayList<Port>();
-    public List<Input> inputs = new ArrayList<Input>();
-    public List<Output> outputs = new ArrayList<Output>();
-    public List<VisiblePart> parts = new ArrayList<VisiblePart>();
+    public List<Port> ports = new ArrayList<>();
+    public List<Input> inputs = new ArrayList<>();
+    public List<Output> outputs = new ArrayList<>();
+    public List<BidirPort> bidirs = new ArrayList<>();
+    public List<VisiblePart> parts = new ArrayList<>();
 
     public int ID;
 
@@ -53,18 +54,38 @@ public abstract class BaseModule extends PickableEntity {
         return ID;
     }
 
-    /**
-     * Allows action to be taken after connection
-     */
-    public void onConnect() {}
+    public BidirPort addBidirInput(String name, int pos, int type) {
+        BidirPort p = new BidirPort(1);
+        p.text = name;
+        p.pos = pos;
+        p.type = type;
+        p.owner = this;
 
-//    /**
-//     * Instantiates the module.
-//     */
-//    public abstract BaseModule createModule();
+        bidirs.add(p);
+        ports.add(p);
+
+        return p;
+    }
+
+    public BidirPort addBidirOutput(String name, int pos, int type) {
+        BidirPort p = new BidirPort(-1);
+        p.text = name;
+        p.pos = pos;
+        p.type = type;
+        p.owner = this;
+
+        bidirs.add(p);
+        ports.add(p);
+
+        return p;
+    }
 
     /**
      * Adds an output
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @return The new output
      */
     public Output addOutput(String name, int pos, int type) {
         Output o = new Output();
@@ -80,11 +101,23 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Adds an input
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @return The new input
      */
     public Input addInput(String name, int pos, int type) {
         return addInput(name, pos, type, new BinData(0));
     }
 
+    /**
+     * Adds an input with a set pull value
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @param pullVal 4-bit Binary pull value
+     * @return The new input
+     */
     public Input addInput(String name, int pos, int type, BinData pullVal) {
         Input i = new Input();
         i.text = name;
@@ -102,6 +135,7 @@ public abstract class BaseModule extends PickableEntity {
     /**
      * Returns ports affected by changes to the given input
      * Should be overwritten by subclasses to improve loop detector accuracy.
+     * @param in Input port to be changed
      */
     public List<Port> getAffected(Port in) {
         return ports;
@@ -110,6 +144,7 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Adds a part
+     * @param p Part to add
      */
     public void addPart(VisiblePart p) {
         parts.add(p);
@@ -188,7 +223,7 @@ public abstract class BaseModule extends PickableEntity {
                 g.setColor(Color.RED);
 
             if (!side)
-                g.fillArc(offset-5, base-5, 10, 10, angle, 180);
+                g.fillArc(offset-5, base - 5, 10, 10, angle, 180);
             else
                 g.fillArc(base - 5, offset - 5, 10, 10, angle, 180);
 
@@ -225,16 +260,16 @@ public abstract class BaseModule extends PickableEntity {
             int[] aPoints;
             int[] bPoints;
             int num;
-            if (i.bidir) {
-                aPoints = new int[] {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
-                bPoints = new int[] {base-aw, base, base, base-aw, base};
-                num = 5;
-            }
-            else {
+            //if (i.bidir) {
+            //    aPoints = new int[] {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
+            //    bPoints = new int[] {base-aw, base, base, base-aw, base};
+            //    num = 5;
+            //}
+            //else {
                 aPoints = new int[]{-aw + offset, aw + offset, offset};
                 bPoints = new int[]{base, base, base-aw};
                 num = 3;
-            }
+            //}
 
             // Draw internal shape
             if (!side)
@@ -261,11 +296,50 @@ public abstract class BaseModule extends PickableEntity {
                 y = temp;
             }
 
-            if (i.bidir)
-                g.fillArc(x, y, 10, 10, angle, 180);
-            else
+            //if (i.bidir)
+            //    g.fillArc(x, y, 10, 10, angle, 180);
+            //else
                 g.drawArc(x, y, 10, 10, angle, 180);
 
+            g.setColor(oldC);
+        }
+    }
+
+    /**
+     * Draws the bidirectional ports as arrows
+     */
+    protected void drawBidir(Graphics2D g) {
+        g.setStroke(new BasicStroke(2));
+
+        for (BidirPort bp : bidirs) {
+            int aw = -10;
+            int offset = bp.pos;
+
+            int[] aPoints = {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
+
+            // Base offset
+            int base, angle;
+            base = (int) h / 2;
+            angle = (bp.side == 1) ? 180 : 0;
+
+            base *= bp.side;
+            aw *= bp.side;
+            int[] bPoints = {base+aw, base, base, base+aw, base};
+
+            // Draw internal shape
+            g.fillPolygon(aPoints, bPoints, 5);
+            Color oldC = g.getColor();
+
+            if (bp.type == Port.GENERIC)
+                g.setColor(Color.GRAY);
+            else if (bp.type == Port.CTRL)
+                g.setColor(Color.BLUE);
+            else if (bp.type == Port.CLK)
+                g.setColor(new Color(100, 160, 100));
+            else if (bp.type == Port.DATA)
+                g.setColor(Color.RED);
+
+            g.fillArc(offset-5, base - 5, 10, 10, angle, 180);
             g.setColor(oldC);
         }
     }
@@ -298,7 +372,7 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Rotates the module
-     * @param cw Whether to rotate clockwise (false for ccw)
+     * @param dir Which direction to rotate in
      */
     public final void rotate(rotationDir dir) {
         switch (dir) {
@@ -425,19 +499,6 @@ public abstract class BaseModule extends PickableEntity {
         return false;
     }
 
-
-    /**
-     * Thread-safe reset
-     */
-    public void doReset() {
-        synchronized(this) {
-            reset();
-            for (VisiblePart p : parts) {
-                p.reset();
-            }
-        }
-    }
-
     @Override
     public boolean within(double x, double y, double x2, double y2) {
         double[] rect = {x, y, x2, y2};
@@ -491,6 +552,50 @@ public abstract class BaseModule extends PickableEntity {
      * (Needs override)
      */
     public abstract void propagate();
+
+    /**
+     * Propagates a bidirectional port's directionality.<br/>Note: this is recursive through the setMode() calls!
+     * @param root Port to base directionality on
+     */
+    public void propagateDirectionality(BidirPort root) {
+        for (BidirPort p : bidirs) {
+            if (p == root) continue;
+            Port.Mode rootMode = root.getMode();
+
+            if (p.side == root.side) {
+                p.setMode(rootMode);
+
+                if (p.link != null) {
+                    if (rootMode == Port.Mode.MODE_BIDIR) {
+                        p.link.targ.setMode(rootMode);
+                        p.link.src.setMode(rootMode);
+                    }
+                    else if (p.link.src == p) {
+                        p.link.targ.setMode(Port.OppositeOf(rootMode));
+                    }
+                    else if (p.link.targ == p) {
+                        p.link.src.setMode(Port.OppositeOf(rootMode));
+                    }
+                }
+            }
+            else if (p.side == -root.side) {
+                p.setMode(Port.OppositeOf(rootMode));
+
+                if (p.link != null) {
+                    if (rootMode == Port.Mode.MODE_BIDIR) {
+                        p.link.targ.setMode(rootMode);
+                        p.link.src.setMode(rootMode);
+                    }
+                    else if (p.link.src == p) {
+                        p.link.targ.setMode(rootMode);
+                    }
+                    else if (p.link.targ == p) {
+                        p.link.src.setMode(rootMode);
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * Resets to initial simulation state (needs override)

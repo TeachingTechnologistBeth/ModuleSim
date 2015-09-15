@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import modules.*;
+import modules.parts.BidirPort;
 import modules.parts.Input;
 import modules.parts.Output;
 import modules.parts.Port;
@@ -40,7 +41,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 // Get clicked point in object space
                 try {m.toView.inverseTransform(pt, 0, pt, 0, 1);}
                 catch (Exception e) {
-                    System.err.println("Non inversible transform");
+                    System.err.println("Non invertible transform");
                 }
 
                 Vec2 v = new Vec2(pt);
@@ -80,6 +81,24 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                         return in;
                     }
                 }
+
+                // Test Bidir
+                for (BidirPort bd : m.bidirs) {
+                    Vec2 p = new Vec2();
+
+                    if (bd.type == Port.CTRL || bd.type == Port.CLK) {
+                        p.x = bd.side * m.w / 2;
+                        p.y = -bd.pos;
+                    }
+                    else {
+                        p.x = bd.pos;
+                        p.y = bd.side * m.h / 2;
+                    }
+
+                    if (v.dist(p) < portR) {
+                        return bd;
+                    }
+                }
             }
         }
 
@@ -95,12 +114,12 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     public static PickableEntity entityAt(double x, double y) {
         synchronized (Main.sim) {
             double[] pt = {x, y};
-            
+
             try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 1);}
             catch (Exception e) {
                 System.err.println("Non inversible transform");
             }
-            
+
             Vec2 clickPt = new Vec2(pt);
 
             // Loop the entities
@@ -110,10 +129,10 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 }
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Find entities within the specified area
      * @param x X coord of rect in screen space
@@ -124,15 +143,15 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
      */
     public static List<PickableEntity> entitiesWithin(double x, double y, double x2, double y2) {
         List<PickableEntity> result = new ArrayList<PickableEntity>();
-        
+
         synchronized (Main.sim) {
             double[] pt = {x, y, x2, y2};
-            
+
             try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 2);}
             catch (Exception e) {
                 System.err.println("Non inversible transform");
             }
-            
+
             x = pt[0];
             y = pt[1];
             x2 = pt[2];
@@ -145,7 +164,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 }
             }
         }
-        
+
         return result;
     }
 
@@ -281,10 +300,15 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     public void mouseMoved(MouseEvent e) {
         testKeys(e);
         BaseTool tool = Main.ui.view.curTool;
-        
+
         Port p = portAt(e.getX(), e.getY());
         if (p != null) {
-            Main.ui.view.setToolTipText(p.text + " - " + p.getVal().toString() + (p.isOutput ? " OUT" : " IN"));
+            if (p.hasDirection()) {
+                Main.ui.view.setToolTipText(p.text + " - " + p.getVal().toString() + (p.canOutput() ? " OUT" : " IN"));
+            }
+            else {
+                Main.ui.view.setToolTipText(p.text + " - Disconnected");
+            }
         }
         else {
             Main.ui.view.setToolTipText(null);

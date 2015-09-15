@@ -1,6 +1,7 @@
 package tools;
 
 import modules.Link;
+import modules.parts.Port;
 import simulator.Main;
 import simulator.PickableEntity;
 import util.BinData;
@@ -34,6 +35,8 @@ public class DeleteOperation extends BaseOperation {
             Main.sim.addLink(link);
 
             // Propagate change
+            link.src.setMode(Port.Mode.MODE_OUTPUT);
+            link.targ.setMode(Port.Mode.MODE_INPUT);
             link.targ.setVal(link.src.getVal());
             Main.sim.propagate(link.targ.owner);
         }
@@ -57,6 +60,9 @@ public class DeleteOperation extends BaseOperation {
             // Propagate change
             link.targ.setVal(new BinData());
             Main.sim.propagate(link.targ.owner);
+
+            link.src.setMode(Port.Mode.MODE_BIDIR);
+            link.targ.setMode(Port.Mode.MODE_BIDIR);
         }
     }
 }

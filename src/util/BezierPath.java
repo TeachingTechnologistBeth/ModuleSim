@@ -72,13 +72,11 @@ public class BezierPath {
 	}
 	public void setStart(Port p) {
 		Vec2 c1;
-		int mul;
-		if (p.getClass().equals(Input.class)) 	mul =  1;
-		else									mul = -1;
+
 		if (p.type == Port.CTRL || p.type == Port.CLK)
-			c1 = new Vec2(mul * Main.sim.grid * 2, 0);
+			c1 = new Vec2(p.side * Main.sim.grid * 2, 0);
 		else
-			c1 = new Vec2(0, mul * Main.sim.grid * 2);
+			c1 = new Vec2(0, p.side * Main.sim.grid * 2);
 
 		c1.add(p.getDisplayPos());
 		c1 = p.owner.objToWorld(c1);
@@ -101,12 +99,11 @@ public class BezierPath {
 	}
 	public void setEnd(Port p) {
 		Vec2 c1;
-		int mul = (p.getClass().equals(Input.class)) ? 1 : -1;
 
 		if (p.type == Port.CTRL || p.type == Port.CLK)
-			c1 = new Vec2(mul*Main.sim.grid*2, 0);
+			c1 = new Vec2(p.side*Main.sim.grid*2, 0);
 		else
-			c1 = new Vec2(0, mul*Main.sim.grid*2);
+			c1 = new Vec2(0, p.side*Main.sim.grid*2);
 
 		c1.add(p.getDisplayPos());
 		c1 = p.owner.objToWorld(c1);

@@ -45,7 +45,14 @@ public class Link {
     	    return null;
     	}
 
-        if (source.isOutput == target.isOutput && !source.bidir && !target.bidir) {
+        if (source.owner == target.owner) {
+            JOptionPane.showMessageDialog(null, "Cannot link module to itself");
+            System.err.println("No connect: Same module");
+            return null;
+        }
+
+        // If two directional ports are either both outputs or both inputs, they cannot be linked
+        if (source.canOutput() == target.canOutput() && source.hasDirection() && target.hasDirection()) {
             JOptionPane.showMessageDialog(null, "Cannot link same port types together");
             System.err.println("No connect: Same port types");
             return null;
@@ -67,26 +74,41 @@ public class Link {
             target.link = newLink;
 
             // Pick direction of link
-            if ((source.isOutput && (!target.isOutput || target.bidir)) ||
-                (source.bidir && !target.isOutput)) {
-                source.isOutput = true;
-                target.isOutput = false;
+            if (source.canOutput() && target.canInput()) {
                 newLink.src = source;
                 newLink.targ = target;
                 newLink.curve = path;
+
+                if (!source.hasDirection()) {
+                    source.setMode(Port.Mode.MODE_OUTPUT);
+                }
+
+                if (!target.hasDirection()) {
+                    target.setMode(Port.Mode.MODE_INPUT);
+                }
             }
-            else if ((target.isOutput && (!source.isOutput || source.bidir)) ||
-                     (target.bidir && !source.isOutput)) {
-                target.isOutput = true;
-                source.isOutput = false;
+            else if (source.canInput() && target.canOutput()) {
                 newLink.src = target;
                 newLink.targ = source;
+                path.reverse();
                 newLink.curve = path;
-                newLink.curve.reverse();
+
+                if (!source.hasDirection()) {
+                    source.setMode(Port.Mode.MODE_INPUT);
+                }
+
+                if (!target.hasDirection()) {
+                    target.setMode(Port.Mode.MODE_OUTPUT);
+                }
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "Unknown error during link creation");
+                Main.ui.view.opStack.cancelCompoundOp();
+                return null;
             }
 
             // Check loops
-            List<BaseModule> modules = new ArrayList<BaseModule>();
+            List<BaseModule> modules = new ArrayList<>();
             if (newLink.checkLoops(newLink, modules)) {
                 JOptionPane.showMessageDialog(null, "Link would create a loop. Have you forgotten a register?");
                 System.err.println("No connect: Loop detected");
@@ -126,7 +148,7 @@ public class Link {
         // Follow every affected outbound link
         boolean result = false;
         for (Port p : targ.owner.getAffected(targ)) {
-            if (p.isOutput && p.link != null && !p.text.equals("Chain out")) {
+            if (p.canOutput() && p.link != null && !p.text.equals("Chain out")) {
                 if (p.link == check) {
                     modules.add(targ.owner);
                     return true; // Loop detected
@@ -153,11 +175,11 @@ public class Link {
             g.setColor(Color.GRAY);
         }
         else if (	(src.type == Port.DATA || src.type == Port.GENERIC) && targ.type == Port.DATA ||
-                src.type == Port.DATA && (targ.type == Port.DATA || targ.type == Port.GENERIC)) {
+                src.type == Port.DATA && targ.type == Port.GENERIC) {
             g.setColor(Color.RED);
         }
         else if (	(src.type == Port.CTRL  || src.type == Port.GENERIC) && targ.type == Port.CTRL ||
-                src.type == Port.CTRL && (targ.type == Port.CTRL || targ.type == Port.GENERIC)) {
+                src.type == Port.CTRL && targ.type == Port.GENERIC) {
             g.setColor(Color.BLUE);
         }
         else {
@@ -191,6 +213,10 @@ public class Link {
         // Propagate change
         targ.setVal(new BinData());
         Main.sim.propagate(targ.owner);
+
+        // Propagate (non-)directionality if applicable
+        src.setMode(Port.Mode.MODE_BIDIR);
+        targ.setMode(Port.Mode.MODE_BIDIR);
 
         // Remove from listings
         Main.sim.removeLink(this);
