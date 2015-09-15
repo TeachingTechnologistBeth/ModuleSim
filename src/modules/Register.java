@@ -3,10 +3,13 @@ package modules;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.HashMap;
 
 import util.BinData;
 import modules.parts.LEDRow;
 import modules.parts.Port;
+
+import javax.swing.*;
 
 /**
  * Register module
@@ -30,7 +33,7 @@ public class Register extends BaseModule {
 
         leds = new LEDRow(25, -20);
         addPart(leds);
-        
+
         propagate();
     }
 
@@ -95,6 +98,34 @@ public class Register extends BaseModule {
         synchronized (this) {
             System.out.println("Register value retrieved: " + myData.toString());
             return new BinData(myData);
+        }
+    }
+
+    @Override
+    public HashMap<String, String> dataOut() {
+        HashMap<String, String> dataMap = new HashMap<>();
+        String latched = myData.toString();
+        dataMap.put("latched_value", latched);
+        return dataMap;
+    }
+
+    @Override
+    public void dataIn(HashMap<String, String> data) {
+        if (data.containsKey("latched_value")) {
+            // Parse latched value
+            String str = data.get("latched_value");
+            try {
+                if (str.length() != 4) throw new Exception("bad string length");
+                // Who needs loops right?
+                boolean b0 = Integer.parseInt(str.substring(0, 1)) == 1;
+                boolean b1 = Integer.parseInt(str.substring(1, 2)) == 1;
+                boolean b2 = Integer.parseInt(str.substring(2, 3)) == 1;
+                boolean b3 = Integer.parseInt(str.substring(3)) == 1;
+                myData = new BinData(b3, b2, b1, b0); // note the order!
+            }
+            catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Corrupt/unrecognized SwitchInput data: " + e.getMessage());
+            }
         }
     }
 

@@ -232,7 +232,7 @@ public class Sim implements Runnable {
             l.linkInd = lastLinkInd;
             lastLinkInd++;
 
-            for (CtrlPt c : l.curve.ctrlPts) {
+            for (CtrlPt c : l.curve.getCtrlPts()) {
                 addEntity(c);
             }
         }

@@ -23,7 +23,7 @@ public class DeleteOperation extends BaseOperation {
         if (entity != null) {
             if (entity.getType() == PickableEntity.CTRLPT) {
                 CtrlPt c = (CtrlPt) entity;
-                c.parent.ctrlPts.add(c.index, c);
+                c.parent.addPt(c.index, c);
                 c.parent.calcCurves();
             }
             Main.sim.addEntity(entity);
@@ -44,7 +44,7 @@ public class DeleteOperation extends BaseOperation {
         if (entity != null) {
             if (entity.getType() == PickableEntity.CTRLPT) {
                 CtrlPt c = (CtrlPt) entity;
-                c.parent.ctrlPts.remove(c);
+                c.parent.removePt(c);
                 c.parent.calcCurves();
             }
             Main.sim.removeEntity(entity);
