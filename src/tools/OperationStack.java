@@ -116,6 +116,10 @@ public class OperationStack {
         if (compoundOp == null && compound_stackSize == 0) {
             throw new UnsupportedOperationException("Not in a compound operation");
         }
+        else if (compoundOp == null) {
+            // The operation has been cancelled (stack size > 0)
+            compound_stackSize--;
+        }
         else {
             compound_stackSize--;
             assert(compound_stackSize >= 0);
