@@ -1,14 +1,17 @@
 package gui;
 
+import res.ResourceLoader;
 import simulator.Main;
 
+import java.util.ArrayList;
 import java.awt.*;
+import java.net.URL;
 
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 public class GUI {
-	
+
 	public JFrame frame = null;
 	public Container pane = null;
 	//public JSplitPane vSplit = null;
@@ -16,12 +19,12 @@ public class GUI {
 	public View view = null;
 	public Menu menu = null;
 	public ToolBar toolbar = null;
-	
+
 	public ContextMenu popup = null;
-	
+
 	public ComponentPane compPane;
 	//public JPanel bottom;
-	
+
 	public void generateUI() {
 		preConfig();
 		createFrame();
@@ -54,7 +57,7 @@ public class GUI {
             frame.setTitle("ModuleSim - " + Main.sim.filePath);
         }
     }
-	
+
 	/**
 	 * UI Configuration
 	 */
@@ -72,36 +75,39 @@ public class GUI {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Creates the main frame and layout panels
 	 */
 	private void createFrame() {
 		frame = new JFrame();
         updateTitle();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
 		pane = frame.getContentPane();
 		pane.setLayout(new BorderLayout());
-		
-		//vSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-		//pane.add(vSplit, BorderLayout.CENTER);
-		
+
 		hSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		pane.add(hSplit, BorderLayout.CENTER);
-		//vSplit.add(hSplit, JSplitPane.TOP);
-		
-		/*bottom = new JPanel();
-		bottom.setPreferredSize(new Dimension(100, 150));
-		
-		JScrollPane sp = new JScrollPane(	bottom, 
-											JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-											JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		
-		vSplit.add(sp, JSplitPane.BOTTOM);
-		vSplit.setResizeWeight(1.0);*/
+
+		// Set the icon
+        java.util.List<Image> iconList = new ArrayList<>();
+        URL iconUrl = ResourceLoader.class.getResource("icon.png");
+        Toolkit kit = Toolkit.getDefaultToolkit();
+        iconList.add(kit.createImage(iconUrl));
+
+        iconUrl = ResourceLoader.class.getResource("icon64.png");
+        iconList.add(kit.createImage(iconUrl));
+
+        iconUrl = ResourceLoader.class.getResource("icon32.png");
+        iconList.add(kit.createImage(iconUrl));
+
+        iconUrl = ResourceLoader.class.getResource("icon16.png");
+        iconList.add(kit.createImage(iconUrl));
+
+        frame.setIconImages(iconList);
 	}
-	
+
 	/**
 	 * Fills in the menu
 	 */
@@ -109,7 +115,7 @@ public class GUI {
 		menu = new Menu();
 		frame.setJMenuBar(menu.getJMenuBar());
 	}
-	
+
 	/**
 	 * Creates the toolbar
 	 */
@@ -117,16 +123,16 @@ public class GUI {
 		toolbar = new ToolBar();
 		pane.add(toolbar.getJToolBar(), BorderLayout.NORTH);
 	}
-	
+
 	/**
 	 * Creates the component pane
 	 */
 	private void createCompPane() {
 		JPanel wrapper = new JPanel(new BorderLayout());
 		compPane = new ComponentPane();
-		
+
 		wrapper.add(compPane, BorderLayout.CENTER);
-		JScrollPane sp = new JScrollPane(	wrapper, 
+		JScrollPane sp = new JScrollPane(	wrapper,
 											JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 											JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sp.getVerticalScrollBar().setUnitIncrement(10);
@@ -134,24 +140,24 @@ public class GUI {
 
 		hSplit.add(sp, JSplitPane.LEFT);
 	}
-	
+
 	/**
 	 * Creates the main viewport
 	 */
 	private void createViewport() {
 		view = new View();
 		view.setPreferredSize(new Dimension(800, 600));
-		
+
 		hSplit.add(view, JSplitPane.RIGHT);
 	}
-	
+
 	/**
 	 * Creates the context menu
 	 */
 	private void createContextMenu() {
 		popup = new ContextMenu();
 	}
-	
+
 	/**
      * Generates the memory viewer/editor dialog
      */
