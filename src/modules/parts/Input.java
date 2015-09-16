@@ -27,10 +27,6 @@ public class Input extends Port {
         }
     }
 
-    public BinData getVal_noPull() {
-        return super.getVal();
-    }
-
     @Override
     public boolean canInput() {
         return true;

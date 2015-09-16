@@ -7,8 +7,6 @@ import util.BinData;
  */
 public class BidirPort extends Port {
 
-    protected Input input = new Input();
-    protected Output output = new Output();
     protected Mode mode = Mode.MODE_BIDIR;
 
     public BidirPort(int visible_side) {
@@ -29,17 +27,7 @@ public class BidirPort extends Port {
     @Override
     public void setMode(Mode newMode) {
         if (mode != newMode) {
-            if (newMode == Mode.MODE_INPUT) {
-                input.value.set(getVal());
-                input.link = link;
-                input.updated = wasUpdated();
-            }
-            else if (newMode == Mode.MODE_OUTPUT) {
-                output.value.set(getVal());
-                output.link = link;
-                output.updated = wasUpdated();
-            }
-            else if (newMode == Mode.MODE_BIDIR) {
+            if (newMode == Mode.MODE_BIDIR) {
                 // Need to make sure there are no fixed connections
                 if (fixedConnection(this)) return;
             }
@@ -76,12 +64,8 @@ public class BidirPort extends Port {
         boolean retVal = false;
         switch (mode) {
             case MODE_INPUT:
-                retVal = input.setVal(val);
-                updated = input.wasUpdated();
-                break;
             case MODE_OUTPUT:
-                retVal = output.setVal(val);
-                updated = output.wasUpdated();
+                retVal = super.setVal(val);
                 break;
         }
 
@@ -93,13 +77,8 @@ public class BidirPort extends Port {
         BinData retVal = new BinData();
         switch (mode) {
             case MODE_INPUT:
-                input.link = link;
-                retVal.set(input.getVal_noPull());
-                updated = input.wasUpdated();
-                break;
             case MODE_OUTPUT:
-                retVal.set(output.getVal());
-                updated = output.wasUpdated();
+                retVal.set(super.getVal());
                 break;
         }
 
