@@ -315,19 +315,30 @@ public abstract class BaseModule extends PickableEntity {
             int aw = -10;
             int offset = bp.pos;
 
-            int[] aPoints = {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
+
 
             // Base offset
             int base, angle;
             base = (int) h / 2;
             angle = (bp.side == 1) ? 180 : 0;
-
             base *= bp.side;
-            aw *= bp.side;
-            int[] bPoints = {base+aw, base, base, base+aw, base};
+
+            // Points for output-style wedge
+            int[] aPoints_wedge = {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
+            int[] bPoints_wedge = {base + bp.side*aw, base, base, base + bp.side*aw, base};
+
+            // Points for input-style arrow
+            int[] aPoints_arrow = new int[]{offset - aw, offset + aw, offset};
+            int[] bPoints_arrow = new int[]{base, base, base + bp.side*aw};
 
             // Draw internal shape
-            g.fillPolygon(aPoints, bPoints, 5);
+            if (bp.getMode() == Port.Mode.MODE_OUTPUT) {
+                g.fillPolygon(aPoints_wedge, bPoints_wedge, 5);
+            }
+            else if (bp.getMode() == Port.Mode.MODE_INPUT) {
+                g.fillPolygon(aPoints_arrow, bPoints_arrow, 3);
+            }
+
             Color oldC = g.getColor();
 
             if (bp.type == Port.GENERIC)
@@ -339,7 +350,13 @@ public abstract class BaseModule extends PickableEntity {
             else if (bp.type == Port.DATA)
                 g.setColor(Color.RED);
 
-            g.fillArc(offset-5, base - 5, 10, 10, angle, 180);
+            // Drawing style depends on port input/output mode
+            if (bp.getMode() == Port.Mode.MODE_BIDIR || bp.getMode() == Port.Mode.MODE_OUTPUT) {
+                g.fillArc(offset - 5, base - 5, 10, 10, angle, 180);
+            } else {
+                g.drawArc(offset - 5, base - 5, 10, 10, angle, 180);
+            }
+
             g.setColor(oldC);
         }
     }
@@ -527,7 +544,7 @@ public abstract class BaseModule extends PickableEntity {
         // Get clicked point in object space
         try {toWorld.inverseTransform(dpt, 0, dpt, 0, 1);}
         catch (Exception e) {
-            System.err.println("Non inversible transform");
+            System.err.println("Non invertible transform");
         }
 
         double nx = dpt[0];

@@ -332,7 +332,10 @@ public class Sim implements Runnable {
         m.propagate();
 
         for (Port p : m.ports) {
-            if (!p.canOutput()) continue;
+            if (!p.canOutput()) {
+                p.updated = false;
+                continue;
+            }
             if (p.wasUpdated() && p.link != null) {
                 // First make sure 'visited' array is big enough
                 int id = p.link.linkInd;
