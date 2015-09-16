@@ -3,8 +3,12 @@ package modules;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import modules.parts.Input;
+import modules.parts.Output;
 import util.BinData;
 import modules.parts.LEDRow;
 import modules.parts.Port;
@@ -18,21 +22,26 @@ import javax.swing.*;
  */
 public class Register extends BaseModule {
 
-    private LEDRow leds;
+    private LEDRow ledRow;
     private BinData myData = new BinData(0);
+
+    private final Input dataIn;
+    private final Output dataOut;
+    private final Input controlIn;
+    private final Output controlOut;
 
     Register() {
         w = 100;
         h = 50;
 
-        addInput("Data in", 0, Port.DATA);
-        addInput("Control in", 0, Port.CLK, new BinData(0, 1, 0, 0));
+        dataIn      = addInput("Data in", 0, Port.DATA);
+        controlIn   = addInput("Control in", 0, Port.CLK, new BinData(0, 1, 0, 0));
 
-        addOutput("Data out", 0, Port.DATA);
-        addOutput("Control out", 0, Port.CLK);
+        dataOut     = addOutput("Data out", 0, Port.DATA);
+        controlOut  = addOutput("Control out", 0, Port.CLK);
 
-        leds = new LEDRow(25, -20);
-        addPart(leds);
+        ledRow = new LEDRow(25, -20);
+        addPart(ledRow);
 
         propagate();
     }
@@ -64,39 +73,30 @@ public class Register extends BaseModule {
     @Override
     public void propagate() {
         // Get control input
-        BinData cIn = inputs.get(1).getVal();
+        BinData controlVal = controlIn.getVal();
 
-        boolean clk = cIn.getBit(0) == 1;
-        boolean rst = cIn.getBit(1) == 1;
-        boolean en  = cIn.getBit(2) == 1;
-
-        // Get data input
-        BinData data = inputs.get(0).getVal();
+        boolean clk = controlVal.getBooleanBit(0);
+        boolean rst = controlVal.getBooleanBit(1);
+        boolean en  = controlVal.getBooleanBit(2);
 
         // Store / reset the data
         if (rst) {
             myData.setInt(0);
         }
         else if (clk && en) {
-            myData = new BinData(data);
+            myData = dataIn.getVal();
         }
 
         // Show it
-        leds.setVal(myData);
+        ledRow.setVal(myData);
 
         // Set the outputs
-        outputs.get(0).setVal(myData);
-        outputs.get(1).setVal(cIn);
-    }
-
-    @Override
-    protected void reset() {
-        myData.setInt(0);
+        dataOut.setVal(myData);
+        controlOut.setVal(controlVal);
     }
 
     public BinData getStoredVal() {
         synchronized (this) {
-            System.out.println("Register value retrieved: " + myData.toString());
             return new BinData(myData);
         }
     }
@@ -127,6 +127,22 @@ public class Register extends BaseModule {
                 JOptionPane.showMessageDialog(null, "Corrupt/unrecognized SwitchInput data: " + e.getMessage());
             }
         }
+    }
+
+    @Override
+    public List<Port> getAffected(Port in) {
+        List<Port> outPorts = new ArrayList<>();
+
+        // Control is passed-through, but data is affected by either input
+        if (in == controlIn) {
+            outPorts.add(dataOut);
+            outPorts.add(controlOut);
+        }
+        else if (in == dataIn) {
+            outPorts.add(dataOut);
+        }
+
+        return outPorts;
     }
 
     @Override

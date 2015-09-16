@@ -23,7 +23,7 @@ public class Fanout extends BaseModule {
 
     private final LEDRow dLEDs;
     private final List<BezierCurve> curves;
-    
+
     Fanout() {
         w = 150;
         h = 50;
@@ -36,10 +36,10 @@ public class Fanout extends BaseModule {
 
         // Input
         addInput("Input", 0, Port.GENERIC);
-        
+
         dLEDs = new LEDRow(0, -20, LEDColour.YELLOW);
         addPart(dLEDs);
-        
+
         // Drawing
         BezierCurve[] cs = new BezierCurve[4];
         for (int i = 0; i < cs.length; i++) {
@@ -66,12 +66,12 @@ public class Fanout extends BaseModule {
         g.setColor(new Color(120, 120, 120));
         drawOutputs(g);
         drawInputs(g);
-        
+
         // Show drawing
         for (BezierCurve c : curves) {
             c.draw(g);
         }
-        
+
         // Show LEDs
         drawParts(g);
     }
@@ -79,15 +79,10 @@ public class Fanout extends BaseModule {
     @Override
     public void propagate() {
         dLEDs.setVal(inputs.get(0).getVal());
-        
+
         for (Output o : outputs) {
             o.setVal(inputs.get(0).getVal());
         }
-    }
-
-    @Override
-    protected void reset() {
-        // Noop
     }
 
     @Override

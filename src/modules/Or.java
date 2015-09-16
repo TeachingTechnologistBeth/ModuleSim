@@ -101,26 +101,23 @@ public class Or extends BaseModule {
     }
 
     @Override
-    protected void reset() {
-        // Noop
-    }
-
-    @Override
     public AvailableModules getModType() {
         return AvailableModules.OR;
     }
-    
+
     @Override
     public List<Port> getAffected(Port in) {
-        List<Port> ret = new ArrayList<Port>();
+        List<Port> ret = new ArrayList<>();
+
+        // Result is affected by everything
         ret.add(rOut);
-        
-        // Pass-throughs only affected by their own inputs
+
+        // Pass-through(s) only affected by their own inputs
         int ind = dIn.indexOf(in);
         if (ind != -1) {
             ret.add(passOut.get(dIn.indexOf(in)));
         }
-        
+
         return ret;
     }
 }

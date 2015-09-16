@@ -3,6 +3,8 @@ package modules;
 import java.awt.*;
 import java.util.HashMap;
 
+import modules.parts.LEDColour;
+import modules.parts.Port;
 import org.w3c.dom.Element;
 import util.BinData;
 import modules.parts.Output;
@@ -57,6 +59,23 @@ public class SwitchInput extends BaseModule {
 		drawOutputs(g);
 
 		// Draw switches
+		LEDColour switchCol = LEDColour.RED;
+		if (data.link != null) {
+			switch (data.link.targ.type) {
+			case Port.CTRL:
+				switchCol = LEDColour.BLUE;
+				break;
+			case Port.CLK:
+				switchCol = LEDColour.GREEN;
+				break;
+			}
+		}
+
+		s1.setColour(switchCol);
+		s2.setColour(switchCol);
+		s3.setColour(switchCol);
+		s4.setColour(switchCol);
+
 		drawParts(g);
 	}
 
@@ -108,11 +127,6 @@ public class SwitchInput extends BaseModule {
 		data.put("switch_set", setting);
 
 		return data;
-	}
-
-	@Override
-	protected void reset() {
-		// Nothing to do here
 	}
 
     @Override

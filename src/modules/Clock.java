@@ -75,7 +75,7 @@ public class Clock extends BaseModule {
         step++;
         if (step > 3) step = 0;
     }
-    
+
     @Override
     public void propagate() {
         // Phase 1
@@ -89,7 +89,7 @@ public class Clock extends BaseModule {
         p2.setBit(0, (step == 3) ? 1 : 0);
         p2.setBit(2, 1);
         phase2.setEnabled(step == 3);
-        
+
         // Reset
         p2.setBooleanBit(1, rstBtn.getEnabled());
         p1.setBooleanBit(1, rstBtn.getEnabled());
@@ -97,11 +97,6 @@ public class Clock extends BaseModule {
         // Set the outputs
         outputs.get(0).setVal(p1);
         outputs.get(1).setVal(p2);
-    }
-
-    @Override
-    public void reset() {
-        step = 0;
     }
 
     @Override

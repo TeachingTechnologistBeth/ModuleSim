@@ -141,9 +141,9 @@ public class Link {
      * @return Whether the check link was found
      */
     private boolean checkLoops(Link check, List<BaseModule> modules) {
-        // Registers & RAM *should* terminate loops
+        // Registers & NRAM *should* terminate loops
         Class<?> c = targ.owner.getClass();
-        if (c == Register.class || c == RAM.class) return false;
+        if (c == Register.class || c == NRAM.class) return false;
 
         // Follow every affected outbound link
         boolean result = false;

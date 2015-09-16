@@ -20,47 +20,47 @@ import util.BinData;
  *
  */
 public class Demux extends BaseModule {
-    private final LEDRow dLEDs;
-    private final List<LED> cLEDs;
-    
-    private final List<Output> dOut;
-    private final Output contOut;
-    private final Input dIn;
-    private final Input contIn;
+    private final LEDRow dataLEDs;
+    private final List<LED> controlLEDs;
+
+    private final List<Output> dataOutputs;
+    private final Output controlOut;
+    private final Input dataIn;
+    private final Input controlIn;
 
     Demux() {
         w = 150;
         h = 150;
 
-        dIn = addInput("Input", 0, Port.DATA);
-        contIn = addInput("Control in", 0, Port.CTRL);
+        dataIn = addInput("Input", 0, Port.DATA);
+        controlIn = addInput("Control in", 0, Port.CTRL);
 
         // Must wrap the array to make it immutable
-        dOut = Collections.unmodifiableList(Arrays.asList(new Output[]{
+        dataOutputs = Collections.unmodifiableList(Arrays.asList(
             addOutput("Output A", -50, Port.DATA),
             addOutput("Output B", -25, Port.DATA),
             addOutput("Output C",  25, Port.DATA),
             addOutput("Output D",  50, Port.DATA)
-        }));
-        contOut = addOutput("Control out", 0, Port.CTRL);
+        ));
+        controlOut = addOutput("Control out", 0, Port.CTRL);
 
         // Add display
-        cLEDs = Collections.unmodifiableList(Arrays.asList(new LED[] {
+        controlLEDs = Collections.unmodifiableList(Arrays.asList(
             new LED(-50, -50),
             new LED(-25, -50),
             new LED( 25, -50),
-            new LED( 50, -50),
-        }));
+            new LED( 50, -50)
+        ));
 
-        for (LED l : cLEDs) {
+        for (LED l : controlLEDs) {
             addPart(l);
         }
-        
-        cLEDs.get(0).setEnabled(true);
-        
-        dLEDs = new LEDRow(35, 70);
-        addPart(dLEDs);
-        
+
+        controlLEDs.get(0).setEnabled(true);
+
+        dataLEDs = new LEDRow(35, 70);
+        addPart(dataLEDs);
+
         addPart(new Label(-45, 15, "DMX", 40, new Color(200,200,200)));
         propagate();
     }
@@ -89,26 +89,31 @@ public class Demux extends BaseModule {
 
     @Override
     public void propagate() {
-        final int outSel = contIn.getVal().getUInt() & 3;
+        final int outSel = controlIn.getVal().getUInt() & 3;
 
-        for (int i = 0; i < dOut.size(); i++) {
+        for (int i = 0; i < dataOutputs.size(); i++) {
             if (i == outSel) {
-                dOut.get(i).setVal(dIn.getVal());
-                cLEDs.get(i).setEnabled(true);
+                dataOutputs.get(i).setVal(dataIn.getVal());
+                controlLEDs.get(i).setEnabled(true);
             } else {
-                dOut.get(i).setVal(new BinData());
-                cLEDs.get(i).setEnabled(false);
+                dataOutputs.get(i).setVal(new BinData());
+                controlLEDs.get(i).setEnabled(false);
             }
         }
 
-        contOut.setVal(contIn.getVal());
+        controlOut.setVal(controlIn.getVal());
 
-        dLEDs.setVal(dIn.getVal());
+        dataLEDs.setVal(dataIn.getVal());
     }
 
     @Override
-    protected void reset() {
-        // Noop
+    public List<Port> getAffected(Port in) {
+        List<Port> outList = super.getAffected(in);
+        if (in != controlIn) {
+            outList.remove(controlOut);
+        }
+
+        return outList;
     }
 
     @Override

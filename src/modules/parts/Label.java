@@ -9,7 +9,7 @@ public class Label extends VisiblePart {
     private String text;
     private Font font;
     private Color color;
-    
+
     /**
      * Create a label
      * @param x
@@ -22,10 +22,10 @@ public class Label extends VisiblePart {
         this.x = x;
         this.y = y;
         text = txt;
-        font = new Font("Sans Serif", Font.BOLD, fontSize);
+        font = new Font("Dialog", Font.BOLD, fontSize);
         color = col;
     }
-    
+
     /**
      * Create a label
      * @param x
@@ -36,7 +36,7 @@ public class Label extends VisiblePart {
     public Label(int x, int y, String txt, int fontSize) {
         this(x, y, txt, fontSize, Color.GRAY);
     }
-    
+
     @Override
     public void paint(Graphics2D g) {
         // Draw the text

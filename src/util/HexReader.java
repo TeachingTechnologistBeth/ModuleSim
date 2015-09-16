@@ -6,24 +6,24 @@ import java.io.FileReader;
 
 import javax.swing.JOptionPane;
 
+import modules.NRAM;
 import simulator.Main;
-import modules.RAM;
 
 public class HexReader {
 
     /**
      * Reads a hex format file
      */
-    public static void readFile(File hexFile, RAM ram) {
-        if (ram == null) {
-            JOptionPane.showMessageDialog(null, "No RAM module present");
+    public static void readFile(File hexFile, NRAM nram) {
+        if (nram == null) {
+            JOptionPane.showMessageDialog(null, "No NRAM module present");
             return;
         }
-        
+
         try {
-            ram.clear();
+            nram.clear();
             BufferedReader in = new BufferedReader(new FileReader(hexFile));
-            
+
             // Read in the full file
             String line;
             String file = "";
@@ -31,8 +31,8 @@ public class HexReader {
                 file += line + " ";
             }
             in.close();
-            
-            readString(file, ram);
+
+            readString(file, nram);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -40,7 +40,7 @@ public class HexReader {
         }
     }
 
-    public static void readString(String store, RAM ram) {
+    public static void readString(String store, NRAM nram) {
         try {
             String[] chopped = store.split("( |\t)+");
 
@@ -67,18 +67,18 @@ public class HexReader {
 
                 // Support repeated entries
                 for (int i = 0; i < rpt; i++) {
-                    ram.write(adr, new BinData(n2), new BinData(n1));
+                    nram.write(adr, new BinData(n2), new BinData(n1));
                     adr++;
                 }
             }
 
             // Propagate change
-            Main.sim.propagate(ram);
+            Main.sim.propagate(nram);
         }
         catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Invalid hex string: "+e.getMessage());
         }
     }
-    
+
 }

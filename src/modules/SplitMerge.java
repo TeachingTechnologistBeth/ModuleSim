@@ -3,13 +3,12 @@ package modules;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import modules.parts.BidirPort;
-import modules.parts.Input;
-import modules.parts.Output;
 import modules.parts.Port;
 import simulator.PickableEntity;
 import util.BezierCurve;
@@ -18,8 +17,8 @@ import util.Vec2;
 
 public class SplitMerge extends BaseModule {
 
-    private final BidirPort inA, inB;
-    private final BidirPort outA, outB, outC, outD;
+    private final BidirPort portA0, portA1;
+    private final BidirPort portB0, portB1, portB2, portB3;
 
     private final List<BezierCurve> curves;
 
@@ -28,13 +27,13 @@ public class SplitMerge extends BaseModule {
         h = 50;
 
         // Add bi-directional inputs/outputs
-        inA = addBidirInput("4-Bit Port A", -25, Port.GENERIC);
-        inB = addBidirInput("2-Bit Port B", 25, Port.GENERIC);
+        portA0 = addBidirInput("4-Bit Port A0", -25, Port.GENERIC);
+        portA1 = addBidirInput("2-Bit Port A1", 25, Port.GENERIC);
 
-        outA = addBidirOutput("Port a", -50, Port.GENERIC);
-        outB = addBidirOutput("Port b", -25, Port.GENERIC);
-        outC = addBidirOutput("Port c",  25, Port.GENERIC);
-        outD = addBidirOutput("Port d",  50, Port.GENERIC);
+        portB0 = addBidirOutput("Port B0", -50, Port.GENERIC);
+        portB1 = addBidirOutput("Port B1", -25, Port.GENERIC);
+        portB2 = addBidirOutput("Port B2",  25, Port.GENERIC);
+        portB3 = addBidirOutput("Port B3",  50, Port.GENERIC);
 
         // Curves - basically a visual wiring guide
         BezierCurve[] cs = new BezierCurve[9];
@@ -124,58 +123,85 @@ public class SplitMerge extends BaseModule {
     @Override
     public void propagate() {
         // Connections
-        BinData AVal, BVal, aVal, bVal, cVal, dVal;
-        AVal = inA.getVal();
-        BVal = inB.getVal();
-        aVal = outA.getVal();
-        bVal = outB.getVal();
-        cVal = outC.getVal();
-        dVal = outD.getVal();
+        BinData a0_val, a1_val, b0_val, b1_val, b2_val, b3_val;
+        a0_val = portA0.getVal();
+        a1_val = portA1.getVal();
+        b0_val = portB0.getVal();
+        b1_val = portB1.getVal();
+        b2_val = portB2.getVal();
+        b3_val = portB3.getVal();
 
         // Switch based on propagation direction
-        if (inA.wasUpdated() || inB.wasUpdated()) {
-            aVal.setBit(0, AVal.getBit(0)); // A0-a0
-            bVal.setBit(0, AVal.getBit(1)); // A1-b1
-            aVal.setBit(1, AVal.getBit(1)); // A1-a1
+        if (portA0.wasUpdated() || portA1.wasUpdated()) {
+            b0_val.setBit(0, a0_val.getBit(0)); // A0-a0
+            b1_val.setBit(0, a0_val.getBit(1)); // A1-b1
+            b0_val.setBit(1, a0_val.getBit(1)); // A1-a1
 
             // Resolution of 3-state logic for merges
-            dVal.setBit(0, AVal.getBit(3));     // A3-d0
-            dVal.resolveBit(0, BVal.getBit(1)); // B1-d0
+            b3_val.setBit(0, a0_val.getBit(3));     // A3-d0
+            b3_val.resolveBit(0, a1_val.getBit(1)); // B1-d0
 
-            cVal.setBit(0, AVal.getBit(2));     // A2-c0
-            cVal.resolveBit(0, BVal.getBit(0)); // B0-c0
+            b2_val.setBit(0, a0_val.getBit(2));     // A2-c0
+            b2_val.resolveBit(0, a1_val.getBit(0)); // B0-c0
 
-            cVal.setBit(1, AVal.getBit(3));     // A3-c1
-            cVal.resolveBit(1, BVal.getBit(1)); // B1-c1
+            b2_val.setBit(1, a0_val.getBit(3));     // A3-c1
+            b2_val.resolveBit(1, a1_val.getBit(1)); // B1-c1
         }
-        else if (   outA.wasUpdated() || outB.wasUpdated() ||
-                    outC.wasUpdated() || outD.wasUpdated()) {
-            AVal.setBit(0, aVal.getBit(0)); // a0-A0
-            AVal.setBit(2, cVal.getBit(0)); // c0-A2
-            AVal.setBit(3, cVal.getBit(1)); // c1-A3
-            BVal.setBit(0, cVal.getBit(0)); // c0-B0
+        else if (   portB0.wasUpdated() || portB1.wasUpdated() ||
+                    portB2.wasUpdated() || portB3.wasUpdated()) {
+            a0_val.setBit(0, b0_val.getBit(0)); // a0-A0
+            a0_val.setBit(2, b2_val.getBit(0)); // c0-A2
+            a0_val.setBit(3, b2_val.getBit(1)); // c1-A3
+            a1_val.setBit(0, b2_val.getBit(0)); // c0-B0
 
             // Resolution of 3-state logic for merges
-            BVal.setBit(1, cVal.getBit(1));     // c1-B1
-            BVal.resolveBit(1, dVal.getBit(0)); // d0-B1
+            a1_val.setBit(1, b2_val.getBit(1));     // c1-B1
+            a1_val.resolveBit(1, b3_val.getBit(0)); // d0-B1
 
-            AVal.setBit(1, aVal.getBit(1));     // a1-A1
-            AVal.resolveBit(1, bVal.getBit(0)); // b0-A1
+            a0_val.setBit(1, b0_val.getBit(1));     // a1-A1
+            a0_val.resolveBit(1, b1_val.getBit(0)); // b0-A1
         }
 
         // Set the values
-        inA.setVal(AVal);
-        inB.setVal(BVal);
+        portA0.setVal(a0_val);
+        portA1.setVal(a1_val);
 
-        outA.setVal(aVal);
-        outB.setVal(bVal);
-        outC.setVal(cVal);
-        outD.setVal(dVal);
+        portB0.setVal(b0_val);
+        portB1.setVal(b1_val);
+        portB2.setVal(b2_val);
+        portB3.setVal(b3_val);
     }
 
     @Override
-    protected void reset() {
-        // Noop
+    public List<Port> getAffected(Port in) {
+        List<Port> outPorts = new ArrayList<>();
+
+        // a0->b0, b1, b2, b3
+        // a1->b2, b3
+        // b0->a0
+        // b1->a0
+        // b2->a0, a1
+        // b3->a0, a1
+
+        if (in == portA0 || in == portA1) {
+            outPorts.add(portB2);
+            outPorts.add(portB3);
+
+            if (in == portA0) {
+                outPorts.add(portB0);
+                outPorts.add(portB1);
+            }
+        }
+
+        if (in == portB0 || in == portB1 || in == portB2 || in == portB3) {
+            outPorts.add(portA0);
+
+            if (in == portB2 || in == portB3) {
+                outPorts.add(portA1);
+            }
+        }
+
+        return outPorts;
     }
 
     @Override

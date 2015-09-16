@@ -67,6 +67,8 @@ public class Sim implements Runnable {
             entities.clear();
 
             Main.ui.view.opStack.clearAll();
+            filePath = "";
+            Main.ui.updateTitle();
         }
     }
 
@@ -171,49 +173,6 @@ public class Sim implements Runnable {
                             else {
                                 // Break the link at the other end
                                 l.src.link = null;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Thread-safe, sensible multi-entity addition.
-     * This assumes that there may be some existing link state within the entities to be added, which may include
-     * links to outside (already-present) entities (modules). Links are added implicitly by this operation.
-     */
-    public void addEntities(Collection<PickableEntity> ents) {
-        synchronized (this) {
-            for (PickableEntity e : ents) {
-                addEntity(e);
-
-                if (e.getType() == PickableEntity.MODULE) {
-                    BaseModule module = (BaseModule) e;
-
-                    for (Port p : module.ports) {
-                        if (p.link != null) {
-                            Link l = p.link;
-                            addLink(l);
-
-                            // Link to/from another removed entity
-                            //if (ents.contains(l.src.owner) && ents.contains(l.targ.owner)) {
-                                // do nothing..?
-                            //}
-                            // Link TO an outside entity
-                            /*else*/ if (ents.contains(l.src.owner)) {
-                                // Recreate the link at the other end and propagate the change
-                                l.targ.link = l;
-                                l.targ.setVal(l.src.getVal());
-                                propagate(l.targ.owner);
-                            }
-                            // Link FROM an outside entity
-                            else {
-                                // Recreate the link at the other end and propagate locally
-                                l.src.link = l;
-                                l.targ.setVal(l.src.getVal());
-                                propagate(l.targ.owner);
                             }
                         }
                     }

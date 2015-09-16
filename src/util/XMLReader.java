@@ -114,7 +114,7 @@ public class XMLReader {
                         loadedPorts.add(moduleOutputs.get(j));
                     }
 
-                    // Additional module data (for RAM and inputs)
+                    // Additional module data (for NRAM and inputs)
                     NodeList data = module.getElementsByTagName("data");
                     HashMap<String, String> dataMap = new HashMap<>();
                     for (int j = 0; j < data.getLength(); j++) {

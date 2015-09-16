@@ -21,7 +21,7 @@ import modules.parts.Port;
 public class Mux extends BaseModule {
     private final LEDRow dLEDs;
     private final List<LED> cLEDs;
-    
+
     private final Output dOut;
     private final Output contOut;
     private final List<Input> dIn;
@@ -56,7 +56,7 @@ public class Mux extends BaseModule {
 
         dLEDs = new LEDRow(35, -70);
         addPart(dLEDs);
-        
+
         addPart(new Label(-45, 15, "MUX", 40, new Color(200,200,200)));
         propagate();
     }
@@ -86,10 +86,10 @@ public class Mux extends BaseModule {
     @Override
     public void propagate() {
         final int sel = contIn.getVal().getUInt() & 3;
-        
+
         dOut.setVal(dIn.get(sel).getVal());
         dLEDs.setVal(dIn.get(sel).getVal());
-        
+
         for (int i = 0; i < 4; i++) {
             cLEDs.get(i).setEnabled(i == sel);
         }
@@ -98,8 +98,13 @@ public class Mux extends BaseModule {
     }
 
     @Override
-    protected void reset() {
-        // Noop
+    public List<Port> getAffected(Port in) {
+        List<Port> outList = super.getAffected(in);
+        if (in != contIn) {
+            outList.remove(contOut);
+        }
+
+        return outList;
     }
 
     @Override
