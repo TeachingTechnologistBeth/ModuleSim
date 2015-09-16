@@ -14,6 +14,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import modules.BaseModule;
 import modules.BaseModule.AvailableModules;
 import modules.Link;
+import modules.parts.BidirPort;
+import modules.parts.Input;
 import modules.parts.Port;
 
 import org.w3c.dom.*;
@@ -49,7 +51,7 @@ public class XMLReader {
 
             // Module load
             NodeList mods = doc.getElementsByTagName("module");
-            List<Port> loadedPorts = new ArrayList<Port>();
+            List<Port> loadedPorts = new ArrayList<>();
 
             for (int i = 0; i < mods.getLength(); i++) {
                 Node n = mods.item(i);
@@ -77,20 +79,39 @@ public class XMLReader {
                     m.pos.y = Double.parseDouble(dim.getAttribute("y"));
                     m.orientation = Integer.parseInt(dim.getAttribute("orient"));
 
+                    // HAX: backwards-compatibility is fun for the whole family!
+                    //   Previous versions of the program made no real distinction between normal ports and the
+                    //   split-merge's bidirectional ports - they were stored in the input/output lists based on
+                    //   which side they were supposed to appear on. Now we have to deal with that by picking out
+                    //   the bidirectional ports and appending them to the input and output lists.
+                    ArrayList<Port> moduleInputs = new ArrayList<>();
+                    moduleInputs.addAll(m.inputs);
+                    ArrayList<Port> moduleOutputs = new ArrayList<>();
+                    moduleOutputs.addAll(m.outputs);
+
+                    for (BidirPort p : m.bidirs) {
+                        if (p.side == 1) {
+                            moduleInputs.add(p);
+                        }
+                        else {
+                            moduleOutputs.add(p);
+                        }
+                    }
+
                     // Set input IDs
                     NodeList inputs = module.getElementsByTagName("input");
                     for (int j = 0; j < inputs.getLength(); j++) {
                         Element inID = (Element) inputs.item(j);
-                        m.inputs.get(j).ID = Integer.parseInt(inID.getAttribute("ID"));
-                        loadedPorts.add(m.inputs.get(j));
+                        moduleInputs.get(j).ID = Integer.parseInt(inID.getAttribute("ID"));
+                        loadedPorts.add(moduleInputs.get(j));
                     }
 
                     // Set output IDs
                     NodeList outputs = module.getElementsByTagName("output");
                     for (int j = 0; j < outputs.getLength(); j++) {
                         Element outID = (Element) outputs.item(j);
-                        m.outputs.get(j).ID = Integer.parseInt(outID.getAttribute("ID"));
-                        loadedPorts.add(m.outputs.get(j));
+                        moduleOutputs.get(j).ID = Integer.parseInt(outID.getAttribute("ID"));
+                        loadedPorts.add(moduleOutputs.get(j));
                     }
 
                     // Additional module data (for RAM and inputs)

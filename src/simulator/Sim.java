@@ -289,7 +289,9 @@ public class Sim implements Runnable {
     private void nanoWait(long interval) {
         int ms = (int) (interval / 100000);
         try {Thread.sleep(ms);}
-        catch (Exception e) {}
+        catch (Exception e) {
+            System.err.println("Warning: thread sleep exception!");
+        }
 
         interval = interval % 100000;
 

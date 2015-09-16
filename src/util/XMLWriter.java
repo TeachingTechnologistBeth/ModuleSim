@@ -3,6 +3,7 @@ package util;
 import gui.View;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import modules.BaseModule;
 import modules.Link;
+import modules.parts.BidirPort;
 import modules.parts.Input;
 import modules.parts.Output;
 import modules.parts.Port;
@@ -89,23 +91,38 @@ public class XMLWriter {
                     dim.setAttribute("orient", "" + m.orientation);
                     modElem.appendChild(dim);
 
-                    // Inputs
+                    // HAX: See XMLReader for an explanation of what's going on here
+                    ArrayList<Port> moduleInputs = new ArrayList<>();
+                    moduleInputs.addAll(m.inputs);
+                    ArrayList<Port> moduleOutputs = new ArrayList<>();
+                    moduleOutputs.addAll(m.outputs);
+
+                    for (BidirPort p : m.bidirs) {
+                        if (p.side == 1) {
+                            moduleInputs.add(p);
+                        }
+                        else {
+                            moduleOutputs.add(p);
+                        }
+                    }
+
+                    // Inputs (i.e. ports on the input side)
                     Element inputs = doc.createElement("inputs");
 
-                    for (Input i : m.inputs) {
+                    for (Port inputEdgePort : moduleInputs) {
                         Element e = doc.createElement("input");
-                        e.setAttribute("ID", "" + i.getID());
+                        e.setAttribute("ID", "" + inputEdgePort.getID());
                         inputs.appendChild(e);
                     }
 
                     modElem.appendChild(inputs);
 
-                    // Outputs
+                    // Outputs (i.e. ports on the output side)
                     Element outputs = doc.createElement("outputs");
 
-                    for (Output o : m.outputs) {
+                    for (Port outputEdgePort : moduleOutputs) {
                         Element e = doc.createElement("output");
-                        e.setAttribute("ID", "" + o.getID());
+                        e.setAttribute("ID", "" + outputEdgePort.getID());
                         outputs.appendChild(e);
                     }
 
