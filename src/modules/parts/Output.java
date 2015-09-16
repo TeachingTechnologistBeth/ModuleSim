@@ -10,7 +10,26 @@ package modules.parts;
 public class Output extends Port {
 
     public Output() {
-        isOutput = true;
+        side = -1;
     }
-    
+
+    @Override
+    public boolean canInput() {
+        return false;
+    }
+
+    @Override
+    public boolean canOutput() {
+        return true;
+    }
+
+    @Override
+    public boolean hasDirection() {
+        return true;
+    }
+
+    @Override
+    public Mode getMode() {
+        return Mode.MODE_OUTPUT;
+    }
 }

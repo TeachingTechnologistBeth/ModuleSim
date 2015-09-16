@@ -16,8 +16,8 @@ import simulator.Main;
 public class BezierPath {
 
 	public List<BezierCurve> curves = new ArrayList<BezierCurve>();
-	public List<CtrlPt> ctrlPts = new ArrayList<CtrlPt>();
-	
+	protected ArrayList<CtrlPt> ctrlPts = new ArrayList<CtrlPt>();
+
 	/**
 	 * Defines an initial curve
 	 * @param start The start-point
@@ -28,27 +28,27 @@ public class BezierPath {
 	public BezierPath(Vec2 start, Vec2 c1off, Vec2 end, Vec2 c2off) {
 		Vec2 c1 = new Vec2(start);
 		c1.add(c1off);
-		
+
 		Vec2 c2 = new Vec2(end);
 		c2.add(c2off);
-		
+
 		curves.add(new BezierCurve(start, end, c1, c2));
 	}
-	
+
 	/**
 	 * Creates an "empty" path
 	 */
 	public BezierPath() {
 		curves.add(new BezierCurve(new Vec2(), new Vec2(), new Vec2(), new Vec2()));
 	}
-	
+
 	/**
 	 * Creates a duplicate path
 	 * @param curve
 	 */
 	public BezierPath(BezierPath curve) {
 	    this();
-	    
+
         for (CtrlPt c : curve.ctrlPts) {
             addPt((CtrlPt) c.createNew());
         }
@@ -72,20 +72,18 @@ public class BezierPath {
 	}
 	public void setStart(Port p) {
 		Vec2 c1;
-		int mul;
-		if (p.getClass().equals(Input.class)) 	mul =  1;
-		else									mul = -1;
+
 		if (p.type == Port.CTRL || p.type == Port.CLK)
-			c1 = new Vec2(mul * Main.sim.grid * 2, 0);
+			c1 = new Vec2(p.side * Main.sim.grid * 2, 0);
 		else
-			c1 = new Vec2(0, mul * Main.sim.grid * 2);
-		
+			c1 = new Vec2(0, p.side * Main.sim.grid * 2);
+
 		c1.add(p.getDisplayPos());
 		c1 = p.owner.objToWorld(c1);
-		
+
 		setStart(p.getDisplayPosW(), c1);
 	}
-	
+
 	/**
 	 * Moves the endpoint
 	 */
@@ -96,61 +94,60 @@ public class BezierPath {
 		BezierCurve last = curves.get(curves.size() - 1);
 		last.p2 = new Vec2(end);
 		last.c2 = new Vec2(c);
-		
+
 		updateContours();
 	}
 	public void setEnd(Port p) {
 		Vec2 c1;
-		int mul = 0;
-		if (p.getClass().equals(Input.class)) mul =  1;
-		else 									mul = -1;
+
 		if (p.type == Port.CTRL || p.type == Port.CLK)
-			c1 = new Vec2(mul*Main.sim.grid*2, 0);
+			c1 = new Vec2(p.side*Main.sim.grid*2, 0);
 		else
-			c1 = new Vec2(0, mul*Main.sim.grid*2);
-		
+			c1 = new Vec2(0, p.side*Main.sim.grid*2);
+
 		c1.add(p.getDisplayPos());
 		c1 = p.owner.objToWorld(c1);
-		
+
 		setEnd(p.getDisplayPosW(), c1);
 	}
-	
+
 	/**
 	 * Updates the curve list
 	 */
 	public void calcCurves() {
 		Vec2 start = curves.get(0).p1;
 		Vec2 startC = curves.get(0).c1;
-		
+
 		Vec2 end = curves.get(curves.size() - 1).p2;
 		Vec2 endC = curves.get(curves.size() -1).c2;
-		
+
 		curves.clear();
-		
+
 		// First curve - start pt and first ctrl pt
 		curves.add(new BezierCurve());
 		setStart(start, startC);
-		
+
 		// Iterate the control points
 		for (int i = 0; i < ctrlPts.size(); i++) {
+			ctrlPts.get(i).index = i;
 			Vec2 pt = ctrlPts.get(i).pos;
-			
+
 			// Update existing curve
 			curves.get(i).p2 = pt;
-			
+
 			// Add next curve
 			BezierCurve c = new BezierCurve();
 			c.p1 = pt;
 			curves.add(c);
 		}
-		
+
 		// Set end
 		setEnd(end, endC);
-		
+
 		// Update the contours
 		updateContours();
 	}
-	
+
 	/**
 	 * Updates the (intermediate) curves to new control points
 	 */
@@ -161,7 +158,7 @@ public class BezierPath {
 				last2 = curves.get(i - 1);
 			}
 			BezierCurve last = curves.get(i);
-			
+
 			Vec2 compPt;
 			if (last2 != null) {
 				compPt = last2.p1;
@@ -169,18 +166,18 @@ public class BezierPath {
 			else {
 				compPt = last.p1;
 			}
-			
+
 			// Delta
 			Vec2 d = new Vec2(last.p2);
 			d.sub(compPt);
-			
+
 			if (last2 != null) {
 				// last.c1 offset = d
 				Vec2 c = new Vec2(d);
 				c.setLen(last.len() / 2);
 				c.add(last.p1);
 				last.c1 = c;
-				
+
 				// last2.c2 offset = -d
 				c = new Vec2(d);
 				c.setLen(last2.len() / 2);
@@ -188,12 +185,12 @@ public class BezierPath {
 				c.add(last2.p2);
 				last2.c2 = c;
 			}
-			
+
 			last.update();
 			if (last2 != null) last2.update();
 		}
 	}
-	
+
 	/**
 	 * Adds a control point
 	 */
@@ -203,7 +200,24 @@ public class BezierPath {
 		ctrlPts.add(pt);
 		calcCurves();
 	}
-	
+
+	/**
+	 * Adds a control point at the specified position
+	 * @param index Index to add point at. Must be < ctrlPts.size()
+	 * @param pt The control point to add
+	 */
+	public void addPt(int index, CtrlPt pt) {
+		pt.parent = this;
+		if (index <= ctrlPts.size()) {
+			pt.index = index;
+			ctrlPts.add(index, pt);
+			calcCurves();
+		}
+		else {
+			throw new IndexOutOfBoundsException("Attempted to add control point at out-of-bounds index");
+		}
+	}
+
 	/**
 	 * Removes the last control point
 	 * @return True if a point was removed
@@ -215,34 +229,43 @@ public class BezierPath {
 			calcCurves();
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * Remove the specified point from the path
-	 * @param ctrlPt
+	 * @param ctrlPt Point to remove
 	 */
     public void removePt(CtrlPt ctrlPt) {
         ctrlPts.remove(ctrlPt);
         Main.sim.removeEntity(ctrlPt);
         calcCurves();
     }
-	
+
+    /**
+     * Get a copy of the list of control points
+     * @return A clone (copy) of the internal control points list
+     */
+    @SuppressWarnings("unchecked")
+    public List<CtrlPt> getCtrlPts() {
+        return (List) ctrlPts.clone();
+    }
+
 	/**
 	 * Reverses the path
 	 */
 	public void reverse() {
-		List<CtrlPt> newPts = new ArrayList<CtrlPt>();
-		
+		ArrayList<CtrlPt> newPts = new ArrayList<CtrlPt>();
+
 		for (int i = ctrlPts.size() - 1; i >= 0; i--) {
 			newPts.add(ctrlPts.get(i));
 		}
-		
+
 		ctrlPts = newPts;
 		calcCurves();
 	}
-	
+
 	/**
 	 * Draw the full path
 	 * @param g Graphics context to draw with
@@ -252,12 +275,12 @@ public class BezierPath {
 		for (BezierCurve c : curves) {
 			c.draw(g);
 		}
-		
+
 		// Draw control points
 		for (CtrlPt c : ctrlPts) {
 		    c.draw(g);
 		    if (c.selected) c.drawBounds(g);
 		}
 	}
-	
+
 }

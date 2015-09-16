@@ -5,10 +5,10 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import modules.parts.*;
-import org.w3c.dom.Element;
 import simulator.*;
 import tools.DeleteOperation;
 import util.BinData;
@@ -33,37 +33,79 @@ public abstract class BaseModule extends PickableEntity {
 
     public int orientation = 0;
 
-    public List<Port> ports = new ArrayList<Port>();
-    public List<Input> inputs = new ArrayList<Input>();
-    public List<Output> outputs = new ArrayList<Output>();
-    public List<VisiblePart> parts = new ArrayList<VisiblePart>();
+    public List<Port> ports = new ArrayList<>();
+    public List<Input> inputs = new ArrayList<>();
+    public List<Output> outputs = new ArrayList<>();
+    public List<BidirPort> bidirs = new ArrayList<>();
+    public List<VisiblePart> parts = new ArrayList<>();
 
     public int ID;
-    
-    public abstract AvailableModules getModType();
-    
+
+    /**
+     * Flag used to provide visual error feedback
+      */
     public boolean error = false;
 
     /**
-     * Get the object's ID
+     * Get the object's ID, used for file operations
      * @return The ID
      */
     public int getID() {
         return ID;
     }
-    
-    /**
-     * Allows action to be taken after connection
-     */
-    public void onConnect() {}
 
-//    /**
-//     * Instantiates the module.
-//     */
-//    public abstract BaseModule createModule();
+    /**
+     * Get the module's type as an AvailableModules enumeration
+     * @return The module's type
+     */
+    public abstract AvailableModules getModType();
+
+    /**
+     * Adds a new bi-directional port on the input (bottom/right) side
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @return The new port
+     */
+    public BidirPort addBidirInput(String name, int pos, int type) {
+        BidirPort p = new BidirPort(1);
+        p.text = name;
+        p.pos = pos;
+        p.type = type;
+        p.owner = this;
+
+        bidirs.add(p);
+        ports.add(p);
+
+        return p;
+    }
+
+    /**
+     * Adds a new bi-directional port on the output (top/left) side
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @return The new port
+     */
+    public BidirPort addBidirOutput(String name, int pos, int type) {
+        BidirPort p = new BidirPort(-1);
+        p.text = name;
+        p.pos = pos;
+        p.type = type;
+        p.owner = this;
+
+        bidirs.add(p);
+        ports.add(p);
+
+        return p;
+    }
 
     /**
      * Adds an output
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @return The new output
      */
     public Output addOutput(String name, int pos, int type) {
         Output o = new Output();
@@ -79,11 +121,23 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Adds an input
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @return The new input
      */
     public Input addInput(String name, int pos, int type) {
         return addInput(name, pos, type, new BinData(0));
     }
 
+    /**
+     * Adds an input with a set pull value
+     * @param name User-readable name
+     * @param pos Offset from centre
+     * @param type Data, control, clock or generic
+     * @param pullVal 4-bit Binary pull value
+     * @return The new input
+     */
     public Input addInput(String name, int pos, int type, BinData pullVal) {
         Input i = new Input();
         i.text = name;
@@ -97,18 +151,29 @@ public abstract class BaseModule extends PickableEntity {
         ports.add(i);
         return i;
     }
-    
+
     /**
-     * Returns ports affected by changes to the given input
+     * Returns ports affected by changes to the given input.
      * Should be overwritten by subclasses to improve loop detector accuracy.
+     * @param in Input port to be changed
      */
     public List<Port> getAffected(Port in) {
-        return ports;
+        List<Port> outList = new ArrayList<>();
+        if (in.canInput()) {
+            for (Port p : ports) {
+                if (p != in && p.canOutput()) {
+                    outList.add(p);
+                }
+            }
+        }
+
+        return outList;
     }
-    
-    
+
+
     /**
      * Adds a part
+     * @param p Part to add
      */
     public void addPart(VisiblePart p) {
         parts.add(p);
@@ -117,12 +182,13 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Displays the module in local space
-     * @param g
+     * @param g Graphics context to render with
      */
     public abstract void paint(Graphics2D g);
 
     /**
      * Displays the module's bounding box
+     * @param g Graphics context to render with
      */
     @Override
     public void drawBounds(Graphics2D g) {
@@ -133,6 +199,7 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Draws the visible parts
+     * @param g Graphics context to render with
      */
     protected void drawParts(Graphics2D g) {
         for (VisiblePart p : parts) {
@@ -142,6 +209,7 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Draws the outputs as arrows
+     * @param g Graphics context to render with
      */
     protected void drawOutputs(Graphics2D g) {
         g.setStroke(new BasicStroke(2));
@@ -187,7 +255,7 @@ public abstract class BaseModule extends PickableEntity {
                 g.setColor(Color.RED);
 
             if (!side)
-                g.fillArc(offset-5, base-5, 10, 10, angle, 180);
+                g.fillArc(offset-5, base - 5, 10, 10, angle, 180);
             else
                 g.fillArc(base - 5, offset - 5, 10, 10, angle, 180);
 
@@ -197,6 +265,7 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Draws the inputs as arrows
+     * @param g Graphics context to render with
      */
     protected void drawInputs(Graphics2D g) {
         g.setStroke(new BasicStroke(2));
@@ -220,21 +289,21 @@ public abstract class BaseModule extends PickableEntity {
                 base = (int)w/2;
                 angle = 270;
             }
-            
+
             int[] aPoints;
             int[] bPoints;
             int num;
-            if (i.bidir) {
-                aPoints = new int[] {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
-                bPoints = new int[] {base-aw, base, base, base-aw, base};
-                num = 5;
-            }
-            else {
+            //if (i.bidir) {
+            //    aPoints = new int[] {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
+            //    bPoints = new int[] {base-aw, base, base, base-aw, base};
+            //    num = 5;
+            //}
+            //else {
                 aPoints = new int[]{-aw + offset, aw + offset, offset};
                 bPoints = new int[]{base, base, base-aw};
                 num = 3;
-            }
-            
+            //}
+
             // Draw internal shape
             if (!side)
                 g.fillPolygon(aPoints, bPoints, num);
@@ -259,10 +328,10 @@ public abstract class BaseModule extends PickableEntity {
                 x = y;
                 y = temp;
             }
-            
-            if (i.bidir)
-                g.fillArc(x, y, 10, 10, angle, 180);
-            else
+
+            //if (i.bidir)
+            //    g.fillArc(x, y, 10, 10, angle, 180);
+            //else
                 g.drawArc(x, y, 10, 10, angle, 180);
 
             g.setColor(oldC);
@@ -270,7 +339,64 @@ public abstract class BaseModule extends PickableEntity {
     }
 
     /**
+     * Draws the bidirectional ports as arrows
+     * @param g Graphics context to render with
+     */
+    protected void drawBidir(Graphics2D g) {
+        g.setStroke(new BasicStroke(2));
+
+        for (BidirPort bp : bidirs) {
+            int aw = -10;
+            int offset = bp.pos;
+
+            // Base offset
+            int base, angle;
+            base = (int) h / 2;
+            angle = (bp.side == 1) ? 180 : 0;
+            base *= bp.side;
+
+            // Points for output-style wedge
+            int[] aPoints_wedge = {-aw + offset, -aw + offset, aw + offset, aw + offset, offset};
+            int[] bPoints_wedge = {base + bp.side*aw, base, base, base + bp.side*aw, base};
+
+            // Points for input-style arrow
+            int[] aPoints_arrow = new int[]{offset - aw, offset + aw, offset};
+            int[] bPoints_arrow = new int[]{base, base, base + bp.side*aw};
+
+            // Draw internal shape
+            if (bp.getMode() == Port.Mode.MODE_OUTPUT) {
+                g.fillPolygon(aPoints_wedge, bPoints_wedge, 5);
+            }
+            else if (bp.getMode() == Port.Mode.MODE_INPUT) {
+                g.fillPolygon(aPoints_arrow, bPoints_arrow, 3);
+            }
+
+            Color oldC = g.getColor();
+
+            if (bp.type == Port.GENERIC)
+                g.setColor(Color.GRAY);
+            else if (bp.type == Port.CTRL)
+                g.setColor(Color.BLUE);
+            else if (bp.type == Port.CLK)
+                g.setColor(new Color(100, 160, 100));
+            else if (bp.type == Port.DATA)
+                g.setColor(Color.RED);
+
+            // Drawing style depends on port input/output mode
+            if (bp.getMode() == Port.Mode.MODE_BIDIR || bp.getMode() == Port.Mode.MODE_OUTPUT) {
+                g.fillArc(offset - 5, base - 5, 10, 10, angle, 180);
+            } else {
+                g.drawArc(offset - 5, base - 5, 10, 10, angle, 180);
+            }
+
+            g.setColor(oldC);
+        }
+    }
+
+    /**
      * Draws the module as a trapezoid
+     * @param g Graphics context to render with
+     * @param corner Corner size in pixels
      */
     protected void drawTrapezoid(Graphics2D g, int corner) {
         drawTrapezoid(g, corner, 0, 0, (int) w, (int) h);
@@ -287,6 +413,8 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Draws the module as a box
+     * @param g Graphics context to render with
+     * @param corner Corner size in pixels
      */
     protected void drawBox(Graphics2D g, int corner) {
         int iw = (int)w, ih = (int)h;
@@ -297,7 +425,7 @@ public abstract class BaseModule extends PickableEntity {
 
     /**
      * Rotates the module
-     * @param cw Whether to rotate clockwise (false for ccw)
+     * @param dir Which direction to rotate in
      */
     public final void rotate(rotationDir dir) {
         switch (dir) {
@@ -424,19 +552,6 @@ public abstract class BaseModule extends PickableEntity {
         return false;
     }
 
-
-    /**
-     * Thread-safe reset
-     */
-    public void doReset() {
-        synchronized(this) {
-            reset();
-            for (VisiblePart p : parts) {
-                p.reset();
-            }
-        }
-    }
-
     @Override
     public boolean within(double x, double y, double x2, double y2) {
         double[] rect = {x, y, x2, y2};
@@ -465,7 +580,7 @@ public abstract class BaseModule extends PickableEntity {
         // Get clicked point in object space
         try {toWorld.inverseTransform(dpt, 0, dpt, 0, 1);}
         catch (Exception e) {
-            System.err.println("Non inversible transform");
+            System.err.println("Non invertible transform");
         }
 
         double nx = dpt[0];
@@ -479,7 +594,7 @@ public abstract class BaseModule extends PickableEntity {
             return false;
         }
     }
-    
+
     @Override
     public int getType() {
         return PickableEntity.MODULE;
@@ -492,10 +607,49 @@ public abstract class BaseModule extends PickableEntity {
     public abstract void propagate();
 
     /**
-     * Resets to initial simulation state (needs override)
+     * Propagates a bidirectional port's directionality.<br/>Note: this is recursive through the setMode() calls!
+     * @param root Port to base directionality on
      */
-    protected abstract void reset();
-    
+    public void propagateDirectionality(BidirPort root) {
+        for (BidirPort p : bidirs) {
+            if (p == root) continue;
+            Port.Mode rootMode = root.getMode();
+
+            if (p.side == root.side) {
+                p.setMode(rootMode);
+
+                if (p.link != null) {
+                    if (rootMode == Port.Mode.MODE_BIDIR) {
+                        p.link.targ.setMode(rootMode);
+                        p.link.src.setMode(rootMode);
+                    }
+                    else if (p.link.src == p) {
+                        p.link.targ.setMode(Port.OppositeOf(rootMode));
+                    }
+                    else if (p.link.targ == p) {
+                        p.link.src.setMode(Port.OppositeOf(rootMode));
+                    }
+                }
+            }
+            else if (p.side == -root.side) {
+                p.setMode(Port.OppositeOf(rootMode));
+
+                if (p.link != null) {
+                    if (rootMode == Port.Mode.MODE_BIDIR) {
+                        p.link.targ.setMode(rootMode);
+                        p.link.src.setMode(rootMode);
+                    }
+                    else if (p.link.src == p) {
+                        p.link.targ.setMode(rootMode);
+                    }
+                    else if (p.link.targ == p) {
+                        p.link.src.setMode(rootMode);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Run tests on the module
      * @return True if tests ran successfully
@@ -503,18 +657,18 @@ public abstract class BaseModule extends PickableEntity {
     public boolean test() {return true;}
 
     /**
-     * Initialize with a loaded XML Data Element (module-specific implementation)
-     * Called by XMLReader. Default behaviour is no-op.
-     * @param dataElem
+     * Initialize state with a loaded hash map structure (module-specific implementation)
+     * Called by XMLReader and copy routines. Default behaviour is no-op.
+     * @param data Structure containing state to load (module-defined elements)
      */
-    public void dataIn(Element dataElem) {}
+    public void dataIn(HashMap<String, String> data) {}
 
     /**
-     * Fill an XML data element with module-specific data for retrieval with dataIn.
-     * Called by XMLWriter. Default behaviour is to return false, indicating the element was not modified.
-     * @param dataElem
+     * Fill a string-string hash map with module-specific data for retrieval with dataIn.
+     * Called by XMLWriter and the copy routines. Default behaviour is to return null, indicating that no relevant
+     * @return A filled hash map structure, or null if no state is stored
      */
-    public boolean dataOut(Element dataElem) { return false; }
+    public HashMap<String, String> dataOut() { return null; }
 
     public enum AvailableModules {
         // Enum members should not be renamed!
@@ -525,42 +679,44 @@ public abstract class BaseModule extends PickableEntity {
         LOGIC(new Logic(), "Logic Unit"),
         MUX(new Mux(), "Multiplexor"),
         OR(new Or(), "OR"),
-        RAM(new RAM(true), "RAM"),
+        RAM(new NRAM(true), "NRAM"),
         REGISTER(new Register(), "Register"),
         LEFT_SHIFT(new Shift(true), "Left-shift"),
         RIGHT_SHIFT(new Shift(false), "Right-shift"),
         SPLIT_MERGE(new SplitMerge(), "Splitter / Merger"),
         SWITCH(new SwitchInput(), "Switch Input");
-        
+
         /**
          * The module represented by this enum value, to use to instantiate and display in GUI.
          */
         private final BaseModule module;
         private final String name;
-        
-        private AvailableModules(BaseModule mod, String name) {
+
+        AvailableModules(BaseModule mod, String name) {
             this.module = mod;
             this.name = name;
+
+
         }
-        
+
         public BaseModule getSrcModule() {
             return module;
         }
-        
+
         @Override
         public String toString() {
             return name;
         }
-        
+
         public static AvailableModules fromModule(BaseModule mod) throws IllegalArgumentException {
             for (AvailableModules am : values()) {
                 if (am.module.getClass().equals(mod.getClass())) {
                     return am;
                 }
             }
-            
+
             throw new IllegalArgumentException("Module of type " + mod.getClass() + " is not available!");
         }
     }
-    
+
 }

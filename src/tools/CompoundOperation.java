@@ -13,6 +13,10 @@ public class CompoundOperation extends BaseOperation {
         ops.add(op);
     }
 
+    public int getLength() {
+        return ops.size();
+    }
+
     @Override
     public void undo() {
         // Reverse iterate

@@ -4,12 +4,13 @@ package tools;
  * Created by Ali on 17/08/2015.
  */
 public class OperationStack {
-    private BaseOperation[] stack = new BaseOperation[MAX_HISTORY];
+    private BaseOperation[] stack = new BaseOperation[MAX_HISTORY + 1];
     private int futureHead = 0, head = 0, tail = 0, size = 0;
 
     private CompoundOperation compoundOp;
+    private int compound_stackSize = 0;
 
-    public static int MAX_HISTORY = 500;
+    public final static int MAX_HISTORY = 500;
 
     /**
      * Reverses a previously completed operation.
@@ -17,10 +18,11 @@ public class OperationStack {
     public void undo() {
         if (compoundOp != null) throw new UnsupportedOperationException("Can't undo during a compound operation");
 
-        // If head == tail we're empty
+        // If head == tail we're out of undo-s
         if (head != tail) {
             // We undo @head-1
-            head = (head-1) % MAX_HISTORY;
+            head = (head-1) % (MAX_HISTORY + 1);
+            if (head < 0) head += (MAX_HISTORY + 1); // stupid java
             stack[head].undo();
             // don't decrease size as we're still storing the future redo queue
         }
@@ -38,7 +40,7 @@ public class OperationStack {
         if (head != futureHead) {
             // We redo @head (where head '<' futureHead)
             stack[head].redo();
-            head = (head+1) % MAX_HISTORY;
+            head = (head+1) % (MAX_HISTORY + 1);
         }
         else {
             System.out.println("Nothing to redo");
@@ -59,14 +61,15 @@ public class OperationStack {
             // Can't use head < futureHead due to wrap-around
             while (head != futureHead) {
                 stack[futureHead] = null;
-                futureHead = (futureHead - 1) % MAX_HISTORY;
+                futureHead = (futureHead - 1) % (MAX_HISTORY + 1);
+                if (futureHead < 0) futureHead += (MAX_HISTORY + 1);
                 size--;
             }
 
             // Make room if there is none
-            if (size == MAX_HISTORY) {
+            if (size == (MAX_HISTORY + 1) - 1) {
                 stack[tail] = null;
-                tail = (tail + 1) % MAX_HISTORY;
+                tail = (tail + 1) % (MAX_HISTORY + 1);
                 size--;
             }
 
@@ -74,7 +77,7 @@ public class OperationStack {
             // - futureHead always points to the next free slot (after all future redos)
             // - head points to the next *insertion point* and/or the next redo
             stack[head] = op;
-            head = (head + 1) % MAX_HISTORY;
+            head = (head + 1) % (MAX_HISTORY + 1);
             futureHead = head;
             size++;
         }
@@ -86,7 +89,7 @@ public class OperationStack {
     public void clearAll() {
         compoundOp = null;
 
-        for (int i = 0; i < MAX_HISTORY; i++) {
+        for (int i = 0; i < (MAX_HISTORY + 1); i++) {
             stack[i] = null;
         }
 
@@ -98,9 +101,12 @@ public class OperationStack {
      * call. Throws UnsupportedOperationException if called while a compound operation is already in progress.
      */
     public void beginCompoundOp() {
-        if (compoundOp != null) throw new UnsupportedOperationException("Already in a compound operation");
+        if (compoundOp != null) {
+            compound_stackSize++;
+        }
         else {
             compoundOp = new CompoundOperation();
+            compound_stackSize = 1;
         }
     }
 
@@ -109,12 +115,28 @@ public class OperationStack {
      * otherwise an UnsupportedOperationException will be thrown.
      */
     public void endCompoundOp() {
-        if (compoundOp == null) throw new UnsupportedOperationException("Not in a compound operation");
+        if (compoundOp == null && compound_stackSize == 0) {
+            throw new UnsupportedOperationException("Not in a compound operation");
+        }
+        else if (compoundOp == null) {
+            // The operation has been cancelled (stack size > 0)
+            compound_stackSize--;
+        }
         else {
-            // Do the pointer-shuffle ?( ?_?)?
-            CompoundOperation temp = compoundOp;
-            compoundOp = null;
-            pushOp(temp);
+            compound_stackSize--;
+            assert(compound_stackSize >= 0);
+            if (compound_stackSize == 0) {
+                if (compoundOp.getLength() > 0) {
+                    // Do the pointer-shuffle ?( ?_?)?
+                    CompoundOperation temp = compoundOp;
+                    compoundOp = null;
+                    pushOp(temp);
+                }
+                else {
+                    // Don't do anything with empty compound operations
+                    compoundOp = null;
+                }
+            }
         }
     }
 
@@ -123,10 +145,11 @@ public class OperationStack {
      * beginCompoundOp() call.
      */
     public void cancelCompoundOp() {
-        if (compoundOp == null) throw new UnsupportedOperationException("Not in a compoud operation");
+        if (compoundOp == null) throw new UnsupportedOperationException("Not in a compound operation");
         else {
             compoundOp.undo();
             compoundOp = null;
+            compound_stackSize--;
         }
     }
 }

@@ -18,29 +18,29 @@ import simulator.Main;
 import simulator.Sim;
 
 public class ToolBar implements ActionListener, ChangeListener {
-	
+
 	public JToolBar toolbar = null;
 	public JButton btnPause, btnRun, btnStep;
 	public JSlider slideSpeed;
-	
+
 	/**
 	 * Retrieve usable toolbar object
 	 */
 	public JToolBar getJToolBar() {
 		return toolbar;
 	}
-	
+
 	/**
 	 * Creates the toolbar
 	 */
 	public ToolBar() {
 		toolbar = new JToolBar();
 		toolbar.setFloatable(false);
-		
+
 		// Buttons
 		toolbar.addSeparator(new Dimension(30, 0));
 		addButtons();
-		
+
 		// Slider
 		toolbar.addSeparator(new Dimension(30, 0));
 		JLabel lbl = new JLabel("Speed: ");
@@ -49,27 +49,27 @@ public class ToolBar implements ActionListener, ChangeListener {
 		toolbar.add(slideSpeed);
 		slideSpeed.addChangeListener(this);
 	}
-	
+
 	/**
 	 * Generate the toolbar buttons
 	 */
 	private void addButtons() {
 		btnPause = createButton("pause", "PAUSE_SIM", "Pause the simulator");
 		toolbar.add(btnPause);
-		
+
 		btnRun = createButton("run", "RUN_SIM", "Start the simulator");
 		toolbar.add(btnRun);
-		
+
 		btnStep = createButton("step", "STEP_SIM", "Step the simulation");
 		toolbar.add(btnStep);
 	}
-	
+
 	/**
 	 * Creates a toolbar button
 	 * @param img Image name (PNG)
 	 * @param actionCmd Command name
 	 * @param toolTip Tool-tip text to display
-	 * @return
+	 * @return The new toolbar button
 	 */
 	private JButton createButton(	String img,
 									String actionCmd,
@@ -77,13 +77,13 @@ public class ToolBar implements ActionListener, ChangeListener {
 		// Get the image
 		String path = img + ".png";
 		URL imgURL = ResourceLoader.class.getResource(path);
-		
+
 		JButton btn = new JButton();
 		btn.setActionCommand(actionCmd);
 		btn.setToolTipText(toolTip);
 		btn.addActionListener(this);
 		btn.setFocusable(false);
-		
+
 		// Try the icon
 		if (imgURL != null) {
 			btn.setIcon(new ImageIcon(imgURL, null));
@@ -93,7 +93,7 @@ public class ToolBar implements ActionListener, ChangeListener {
 			btn.setText("IMAGE MISSING");
 			System.err.println("Image not found: \"" + path + "\"");
 		}
-		
+
 		return btn;
 	}
 

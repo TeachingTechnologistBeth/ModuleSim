@@ -1,6 +1,7 @@
 package tools;
 
 import modules.Link;
+import modules.parts.Port;
 import simulator.Main;
 import simulator.PickableEntity;
 import util.BinData;
@@ -23,7 +24,7 @@ public class DeleteOperation extends BaseOperation {
         if (entity != null) {
             if (entity.getType() == PickableEntity.CTRLPT) {
                 CtrlPt c = (CtrlPt) entity;
-                c.parent.ctrlPts.add(c.index, c);
+                c.parent.addPt(c.index, c);
                 c.parent.calcCurves();
             }
             Main.sim.addEntity(entity);
@@ -34,6 +35,8 @@ public class DeleteOperation extends BaseOperation {
             Main.sim.addLink(link);
 
             // Propagate change
+            link.src.setMode(Port.Mode.MODE_OUTPUT);
+            link.targ.setMode(Port.Mode.MODE_INPUT);
             link.targ.setVal(link.src.getVal());
             Main.sim.propagate(link.targ.owner);
         }
@@ -44,7 +47,7 @@ public class DeleteOperation extends BaseOperation {
         if (entity != null) {
             if (entity.getType() == PickableEntity.CTRLPT) {
                 CtrlPt c = (CtrlPt) entity;
-                c.parent.ctrlPts.remove(c);
+                c.parent.removePt(c);
                 c.parent.calcCurves();
             }
             Main.sim.removeEntity(entity);
@@ -57,6 +60,9 @@ public class DeleteOperation extends BaseOperation {
             // Propagate change
             link.targ.setVal(new BinData());
             Main.sim.propagate(link.targ.owner);
+
+            link.src.setMode(Port.Mode.MODE_BIDIR);
+            link.targ.setMode(Port.Mode.MODE_BIDIR);
         }
     }
 }

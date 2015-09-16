@@ -10,11 +10,10 @@ import javax.swing.*;
 
 import modules.BaseModule;
 import modules.BaseModule.AvailableModules;
-import modules.RAM;
+import modules.NRAM;
 import modules.parts.Port;
 import simulator.Main;
 import simulator.PickableEntity;
-import tools.DeleteOperation;
 import tools.RotateOperation;
 
 public class ContextMenu  {
@@ -24,9 +23,9 @@ public class ContextMenu  {
 	public JPopupMenu portMenu;
 	private List<PickableEntity> entities = new ArrayList<PickableEntity>();
 	private Port port;
-	
+
 	private JMenuItem rmLink, rotCW, rotCCW, rot180, copy, paste, delete, ramEdit;
-	
+
 	/**
 	 * Instantiates the menu system, generating the menu items
 	 */
@@ -76,15 +75,15 @@ public class ContextMenu  {
 		// Rotate CW
 		rotCW = new JMenuItem("Rotate right");
 		rotCW.addActionListener(rotate);
-		
+
 		// Rotate CCW
 		rotCCW = new JMenuItem("Rotate left");
 		rotCCW.addActionListener(rotate);
-		
+
 		// Rotate 180
 		rot180 = new JMenuItem("Rotate 180");
 		rot180.addActionListener(rotate);
-		
+
 		// Copy/paste
         copy = new JMenuItem("Copy");
         copy.addActionListener(new ActionListener() {
@@ -92,14 +91,14 @@ public class ContextMenu  {
                 Main.ui.view.copy(entities);
             }
         });
-        
+
         paste = new JMenuItem("Paste");
         paste.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 Main.ui.view.paste();
             }
         });
-		
+
 		// Delete
 		delete = new JMenuItem("Delete");
 		delete.addActionListener(new ActionListener() {
@@ -107,20 +106,20 @@ public class ContextMenu  {
                 Main.ui.view.deleteSelection();
 			}
 		});
-		
+
 		////////// Memory-specfic
-		
+
 		// Edit memory
 		ramEdit = new JMenuItem("View/Edit Data");
 		ramEdit.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent arg0) {
-		        RAM ram = (RAM) entities.get(0);
+		        NRAM nram = (NRAM) entities.get(0);
 		        MemEdit editor = Main.ui.newMemEdit();
-		        editor.show(ram);
+		        editor.show(nram);
 		    }
 		});
 	}
-	
+
 
 	/**
 	 * Displays a context-sensitive edit menu
@@ -131,14 +130,14 @@ public class ContextMenu  {
     public void showEntityMenu(List<PickableEntity> modules, int x, int y) {
 	    // Menu to display - fill it in based on context
 	    JPopupMenu menu = new JPopupMenu();
-	    
+
 	    // Check for a port at the clicked location - for link removal (hacky, yeah)
 	    port = ViewUtil.portAt(x, y);
-	    
+
 	    // Grab the entities - put them into the class variable
         entities = new ArrayList<PickableEntity>();
         entities.addAll(modules);
-	    
+
 	    if (port != null) {
 	        menu.add(rmLink);
 	    }
@@ -150,20 +149,20 @@ public class ContextMenu  {
 	        menu.add(copy);
 	        menu.add(paste);
 	        menu.add(delete);
-	        
+
 	        if (entities.size() == 1) {
     	        PickableEntity e = entities.get(0);
-    	        
-    	        // If it's a RAM module
+
+    	        // If it's a NRAM module
     	        if (e.getType() == PickableEntity.MODULE && ((BaseModule)e).getModType().equals(AvailableModules.RAM)) {
     	            menu.addSeparator();
     	            menu.add(ramEdit);
     	        }
 	        }
 	    }
-	    
+
 	    // A menu gets shown any which way
 	    menu.show(Main.ui.view, x, y);
 	}
-	
+
 }

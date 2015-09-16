@@ -29,47 +29,47 @@ import simulator.Main;
 import util.BinData;
 import util.HexReader;
 import util.HexWriter;
-import modules.RAM;
+import modules.NRAM;
 
 public class MemEdit {
-    
-    private RAM targ = null;
-    
+
+    private NRAM targ = null;
+
     public final JDialog frame = new JDialog(Main.ui.frame, "Memory Viewer");
     private final JMenuBar menu = new JMenuBar();
     private final JFileChooser filePick = new JFileChooser();
     private final FileNameExtensionFilter hexFilter = new FileNameExtensionFilter("Hex files", "hex");
     private final JScrollBar scroll = new JScrollBar(JScrollBar.VERTICAL);
     private final JTextField jumpadr = new JTextField();
-    
+
     private final MemView memView;
 
     public int updAdr = -1;
-    
+
     /**
      * Creates the memory editor. 'show()' must be called before it becomes visible.
      */
     public MemEdit() {
         addFileMenu();
         frame.setJMenuBar(menu);
-        
+
         JPanel adrStrip = new JPanel();
         adrStrip.setLayout(new BoxLayout(adrStrip, BoxLayout.LINE_AXIS));
         adrStrip.add(new JLabel("  Jump to: "));
         adrStrip.add(jumpadr);
-        
+
         JButton goBtn = new JButton("Go");
         JButton lastBtn = new JButton("Last Changed");
         adrStrip.add(goBtn);
         adrStrip.add(lastBtn);
-        
+
         frame.add(adrStrip, BorderLayout.NORTH);
-        
+
         frame.add(scroll, BorderLayout.LINE_END);
         memView = new MemView(this);
-        
+
         scroll.addAdjustmentListener(new ScrollAdjustmentListener());
-        
+
         memView.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 scroll.setMaximum(memView.getRowCount());
@@ -81,27 +81,27 @@ public class MemEdit {
                 scroll.setValue(scroll.getValue() + shift);
             }
         });
-        
+
         ActionListener jumpListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int adr;
-                
+
                 try {
                     adr = Integer.parseInt(jumpadr.getText(), 16);
                 }
                 catch (NumberFormatException nfe) {
                     return; // Fail silently.
                 }
-                
+
                 jumpTo(adr);
                 //memView.setUpdated(adr);
                 memView.repaint();
             }
         };
-        
+
         jumpadr.addActionListener(jumpListener);
         goBtn.addActionListener(jumpListener);
-        
+
         lastBtn.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 if (updAdr != -1) jumpTo(updAdr);
@@ -110,27 +110,27 @@ public class MemEdit {
 
         frame.add(memView);
     }
-    
+
     /**
-     * Displays the editor for the given RAM module
+     * Displays the editor for the given NRAM module
      */
-    public void show(RAM ram) {
-        ram.attachEditor(this);
+    public void show(NRAM nram) {
+        nram.attachEditor(this);
         frame.setSize(300, 700);
         frame.setLocation(800, 100);
         frame.setVisible(true);
-        targ = ram;
-        
+        targ = nram;
+
         update();
     }
-    
+
     /**
      * Hides the window
      */
     public void close() {
         frame.setVisible(false);
     }
-    
+
     /**
      * Updates the view of the memory contents
      */
@@ -138,9 +138,9 @@ public class MemEdit {
         memView.setUpdated(updAdr);
         memView.repaint();
     }
-    
+
     /**
-     * Gets a byte of memory from the attached RAM module as an int
+     * Gets a byte of memory from the attached NRAM module as an int
      * @param adr The address to fetch from
      * @return The stored byte
      */
@@ -148,7 +148,7 @@ public class MemEdit {
         BinData[] bits = targ.read(adr);
         return (bits[1].getUInt() << 4) | (bits[0].getUInt());
     }
-    
+
     /**
      * Places the specified address in view
      * @param adr Address to jump to
@@ -156,7 +156,7 @@ public class MemEdit {
     public void jumpTo(int adr) {
         scroll.setValue(adr / memView.getCellsPerRow());
     }
-    
+
     /**
      * Fills the file menu
      */
@@ -181,10 +181,10 @@ public class MemEdit {
             }
         });
         file.add(menuItem);
-        
+
         menuItem = new JMenuItem("Save Data");
         menuItem.setMnemonic(KeyEvent.VK_O);
-        menuItem.setToolTipText("Saves the current RAM contents to a hex data file");
+        menuItem.setToolTipText("Saves the current NRAM contents to a hex data file");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 filePick.setFileFilter(hexFilter);
@@ -192,7 +192,7 @@ public class MemEdit {
 
                 if (r == JFileChooser.APPROVE_OPTION) {
                     File file = filePick.getSelectedFile();
-                    
+
                     // Is the file being created with the correct extension?
                     if (!file.getName().endsWith(".hex")) {
                         File extFile = new File(file.getPath() + ".hex");
@@ -201,16 +201,16 @@ public class MemEdit {
                             file = extFile;
                         }
                     }
-                    
+
                     HexWriter.writeFile(file, targ);
                 }
             }
         });
         file.add(menuItem);
-        
+
         menu.add(file);
     }
-    
+
     class ScrollAdjustmentListener implements AdjustmentListener {
         public void adjustmentValueChanged(AdjustmentEvent e) {
             memView.setOffset(e.getValue());

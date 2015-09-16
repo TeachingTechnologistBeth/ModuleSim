@@ -6,12 +6,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import modules.parts.*;
 import util.BinData;
-import modules.parts.Input;
-import modules.parts.LED;
-import modules.parts.LEDRow;
-import modules.parts.Output;
-import modules.parts.Label;
 
 /**
  * Logic Unit
@@ -23,7 +19,7 @@ public class Logic extends BaseModule {
 
     private final LEDRow leds;
     private final List<LED> cLEDs;
-    
+
     private final Output rOut;
     private final Output cOut;
     private final Input dInA;
@@ -45,24 +41,24 @@ public class Logic extends BaseModule {
 
         leds = new LEDRow(35, -70);
         addPart(leds);
-        
+
         // Label
         addPart(new Label(-45, -15, "LU", 40, new Color(200, 200, 200)));
-        
+
         // Function LEDs
         String[] labels = {"NOT", "AND", "OR", "XOR"};
         LED[] cLED = new LED[4];
-        
+
         for (int i = 0; i < cLED.length; i++) {
             int xPos = (int) (50 * ((i%2) - 0.8));
             int yPos = 12 * ((i/2) + 2);
-            
+
             cLED[i] = new LED(xPos, yPos);
             addPart(cLED[i]);
-            
+
             addPart(new Label(xPos + 10, yPos+4, labels[i], 12));
         }
-        
+
         cLEDs = Collections.unmodifiableList(Arrays.asList(cLED));
         propagate();
     }
@@ -97,7 +93,7 @@ public class Logic extends BaseModule {
 
         int func = cIn.getVal().getUInt() & 3;
         int result = 0;
-        
+
         for (int i = 0; i < cLEDs.size(); i++) {
             cLEDs.get(i).setEnabled(i == func);
         }
@@ -128,8 +124,13 @@ public class Logic extends BaseModule {
     }
 
     @Override
-    protected void reset() {
-        // Nothing
+    public List<Port> getAffected(Port in) {
+        List<Port> outList = super.getAffected(in);
+        if (in != cIn) {
+            outList.remove(cOut);
+        }
+
+        return outList;
     }
 
     @Override

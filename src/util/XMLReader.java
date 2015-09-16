@@ -4,6 +4,7 @@ import gui.View;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -13,12 +14,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import modules.BaseModule;
 import modules.BaseModule.AvailableModules;
 import modules.Link;
+import modules.parts.BidirPort;
+import modules.parts.Input;
 import modules.parts.Port;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 
 import simulator.Main;
 
@@ -51,7 +51,7 @@ public class XMLReader {
 
             // Module load
             NodeList mods = doc.getElementsByTagName("module");
-            List<Port> loadedPorts = new ArrayList<Port>();
+            List<Port> loadedPorts = new ArrayList<>();
 
             for (int i = 0; i < mods.getLength(); i++) {
                 Node n = mods.item(i);
@@ -79,28 +79,53 @@ public class XMLReader {
                     m.pos.y = Double.parseDouble(dim.getAttribute("y"));
                     m.orientation = Integer.parseInt(dim.getAttribute("orient"));
 
+                    // HAX: backwards-compatibility is fun for the whole family!
+                    //   Previous versions of the program made no real distinction between normal ports and the
+                    //   split-merge's bidirectional ports - they were stored in the input/output lists based on
+                    //   which side they were supposed to appear on. Now we have to deal with that by picking out
+                    //   the bidirectional ports and appending them to the input and output lists.
+                    ArrayList<Port> moduleInputs = new ArrayList<>();
+                    moduleInputs.addAll(m.inputs);
+                    ArrayList<Port> moduleOutputs = new ArrayList<>();
+                    moduleOutputs.addAll(m.outputs);
+
+                    for (BidirPort p : m.bidirs) {
+                        if (p.side == 1) {
+                            moduleInputs.add(p);
+                        }
+                        else {
+                            moduleOutputs.add(p);
+                        }
+                    }
+
                     // Set input IDs
                     NodeList inputs = module.getElementsByTagName("input");
                     for (int j = 0; j < inputs.getLength(); j++) {
                         Element inID = (Element) inputs.item(j);
-                        m.inputs.get(j).ID = Integer.parseInt(inID.getAttribute("ID"));
-                        loadedPorts.add(m.inputs.get(j));
+                        moduleInputs.get(j).ID = Integer.parseInt(inID.getAttribute("ID"));
+                        loadedPorts.add(moduleInputs.get(j));
                     }
 
                     // Set output IDs
                     NodeList outputs = module.getElementsByTagName("output");
                     for (int j = 0; j < outputs.getLength(); j++) {
                         Element outID = (Element) outputs.item(j);
-                        m.outputs.get(j).ID = Integer.parseInt(outID.getAttribute("ID"));
-                        loadedPorts.add(m.outputs.get(j));
+                        moduleOutputs.get(j).ID = Integer.parseInt(outID.getAttribute("ID"));
+                        loadedPorts.add(moduleOutputs.get(j));
                     }
 
-                    // Additional module data (for RAM and inputs)
+                    // Additional module data (for NRAM and inputs)
                     NodeList data = module.getElementsByTagName("data");
+                    HashMap<String, String> dataMap = new HashMap<>();
                     for (int j = 0; j < data.getLength(); j++) {
-                        Element d = (Element) data.item(j);
-                        m.dataIn(d);
+                        NamedNodeMap nodeMap = data.item(j).getAttributes();
+                        for (int k = 0; k < nodeMap.getLength(); k++) {
+                            Node item = nodeMap.item(k);
+                            dataMap.put(item.getNodeName(), item.getNodeValue());
+                        }
                     }
+                    m.dataIn(dataMap);
+                    m.propagate();
 
                     // Add to the simulation
                     Main.sim.addEntity(m);
@@ -120,7 +145,7 @@ public class XMLReader {
 
                     int srcID = Integer.parseInt(link.getAttribute("src"));
                     int targID = Integer.parseInt(link.getAttribute("targ"));
-                    
+
                     if (srcID == targID) {
                         System.err.println("Warning: Link's source and target are the same ("+srcID+"). Skipping link");
                         continue;
@@ -161,7 +186,7 @@ public class XMLReader {
                     }
                 }
             }
-            
+
             // Notify user of partially corrupted file
             if (badLinks != 0) {
                 JOptionPane.showMessageDialog(null, "Detected " + badLinks + " bad links in the file. These were ignored.\n"+

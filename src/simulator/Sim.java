@@ -14,12 +14,12 @@ import util.BinData;
 import util.CtrlPt;
 
 public class Sim implements Runnable {
-    
+
     private Thread thread;
-    
+
     private boolean[] visited = new boolean[1024];
     private int lastLinkInd = 0;
-    
+
     public static long delay = 2500000;
     public volatile boolean running = false;
 
@@ -45,7 +45,7 @@ public class Sim implements Runnable {
             thread.start();
         }
     }
-    
+
     /**
      * Stop the sim
      */
@@ -54,7 +54,7 @@ public class Sim implements Runnable {
         running = false;
         itrPerSec = 0;
     }
-    
+
     // Grid size
     public int grid = 25;
 
@@ -65,6 +65,10 @@ public class Sim implements Runnable {
             links.clear();
             propModules.clear();
             entities.clear();
+
+            Main.ui.view.opStack.clearAll();
+            filePath = "";
+            Main.ui.updateTitle();
         }
     }
 
@@ -75,7 +79,7 @@ public class Sim implements Runnable {
     public List<BaseModule> getModules() {
         return modules;
     }
-    
+
     /**
      * Entity access (MUST be contained in
      * synchronized (Main.sim) block)
@@ -98,7 +102,7 @@ public class Sim implements Runnable {
     public void addEntity(PickableEntity ent) {
         synchronized (this) {
             clearErrors();
-            
+
             if (ent.getType() == PickableEntity.MODULE) {
                 BaseModule m = (BaseModule) ent;
                 modules.add(m);
@@ -109,7 +113,7 @@ public class Sim implements Runnable {
             entities.add(ent);
         }
     }
-    
+
     /**
      * Thread safe entity removal. Removes module links.
      */
@@ -178,49 +182,6 @@ public class Sim implements Runnable {
     }
 
     /**
-     * Thread-safe, sensible multi-entity addition.
-     * This assumes that there may be some existing link state within the entities to be added, which may include
-     * links to outside (already-present) entities (modules). Links are added implicitly by this operation.
-     */
-    public void addEntities(Collection<PickableEntity> ents) {
-        synchronized (this) {
-            for (PickableEntity e : ents) {
-                addEntity(e);
-
-                if (e.getType() == PickableEntity.MODULE) {
-                    BaseModule module = (BaseModule) e;
-
-                    for (Port p : module.ports) {
-                        if (p.link != null) {
-                            Link l = p.link;
-                            addLink(l);
-
-                            // Link to/from another removed entity
-                            //if (ents.contains(l.src.owner) && ents.contains(l.targ.owner)) {
-                                // do nothing..?
-                            //}
-                            // Link TO an outside entity
-                            /*else*/ if (ents.contains(l.src.owner)) {
-                                // Recreate the link at the other end and propagate the change
-                                l.targ.link = l;
-                                l.targ.setVal(l.src.getVal());
-                                propagate(l.targ.owner);
-                            }
-                            // Link FROM an outside entity
-                            else {
-                                // Recreate the link at the other end and propagate locally
-                                l.src.link = l;
-                                l.targ.setVal(l.src.getVal());
-                                propagate(l.targ.owner);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Thread safe link (& control points) addition
      */
     public void addLink(Link l) {
@@ -230,7 +191,7 @@ public class Sim implements Runnable {
             l.linkInd = lastLinkInd;
             lastLinkInd++;
 
-            for (CtrlPt c : l.curve.ctrlPts) {
+            for (CtrlPt c : l.curve.getCtrlPts()) {
                 addEntity(c);
             }
         }
@@ -253,7 +214,7 @@ public class Sim implements Runnable {
             m.error = false;
         }
     }
-    
+
     public void run() {
         int iterations = 0;
         long start = System.currentTimeMillis();
@@ -267,7 +228,7 @@ public class Sim implements Runnable {
             iterations++;
             long now = System.currentTimeMillis();
             long delta = now - start;
-            
+
             if (delta > 1000) {
                 itrPerSec = iterations;
                 iterations = 0;
@@ -280,20 +241,22 @@ public class Sim implements Runnable {
             }
         }
     }
-    
+
     /**
      * Nanosecond(ish)-accurate wait
      */
     private void nanoWait(long interval) {
         int ms = (int) (interval / 100000);
         try {Thread.sleep(ms);}
-        catch (Exception e) {}
-        
+        catch (Exception e) {
+            System.err.println("Warning: thread sleep exception!");
+        }
+
         interval = interval % 100000;
-        
+
         long start = System.nanoTime();
         long end;
-        
+
         do {
             end = System.nanoTime();
         } while (start + interval >= end);
@@ -305,7 +268,7 @@ public class Sim implements Runnable {
     public void step() {
         //System.out.print("\nIteration " + iterations + " : ");
         iterations++;
-        
+
         // New ID array
         visited = new boolean[Main.sim.getEntities().size()];
 
@@ -313,7 +276,7 @@ public class Sim implements Runnable {
             // Begin propagation at the clock and switches
             BaseModule m = propModules.get(i);
             propagate(m);
-            
+
             // Tick the clock(s)
             if (m.getModType().equals(AvailableModules.CLOCK)) {
                 ( (Clock) m ).tick();
@@ -330,14 +293,17 @@ public class Sim implements Runnable {
         m.propagate();
 
         for (Port p : m.ports) {
-            if (!p.isOutput) continue;
+            if (!p.canOutput()) {
+                p.updated = false;
+                continue;
+            }
             if (p.wasUpdated() && p.link != null) {
                 // First make sure 'visited' array is big enough
                 int id = p.link.linkInd;
                 if (id >= visited.length) {
                     visited = Arrays.copyOf(visited, id * 2 + 1);
                 }
-                
+
                 // Check if we've visited this link before
                 if (visited[id]) {
                     p.owner.error = true;
@@ -345,14 +311,14 @@ public class Sim implements Runnable {
                     JOptionPane.showMessageDialog(null, "Runtime loop detected! Halting simulation. Did you forget a register?");
                     return;
                 }
-                
+
                 // Recursively propagate
                 if (p.link.targ == null) {
                     System.out.println("Warning: Null propagation target");
                     return;
                 }
                 p.link.targ.setVal(p.getVal());
-                
+
                 // Add link to visited - remove after propagation
                 visited[id] = true;
                 propagate(p.link.targ.owner);

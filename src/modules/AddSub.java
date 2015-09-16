@@ -21,15 +21,15 @@ import modules.parts.Output;
  *
  */
 public class AddSub extends BaseModule {
-    
+
     public static final AvailableModules source = AvailableModules.ADDSUB;
 
     private final LEDRow leds;
     private final LED carryLED;
     private final LED boolLED;
-    
+
     private final List<LED> cLEDs;
-    
+
     private final Output rOut;
     private final Output bOut;
     private final Output cOut;
@@ -54,7 +54,7 @@ public class AddSub extends BaseModule {
 
         // Label
         addPart(new Label(-45, -15, "AU", 40, new Color(200, 200, 200)));
-        
+
         // Add display
         carryLED = new LED(-52, 6);
         addPart(carryLED);
@@ -63,21 +63,21 @@ public class AddSub extends BaseModule {
         addPart(leds);
         boolLED = new LED(-45, -70, LEDColour.RED);
         addPart(boolLED);
-        
+
         // Function LEDs
         String[] labels = {"ADD | Z?", "PSS | Z?", "SUB | Z?", "SUB | N?"};
         LED[] cLED = new LED[4];
-        
+
         for (int i = 0; i < cLED.length; i++) {
             int xPos = (int) (65 * ((i%2) - 0.8));
             int yPos = 12 * ((i/2) + 3);
-            
+
             cLED[i] = new LED(xPos, yPos);
             addPart(cLED[i]);
-            
+
             addPart(new Label(xPos + 7, yPos+4, labels[i], 10));
         }
-        
+
         cLEDs = Collections.unmodifiableList(Arrays.asList(cLED));
         propagate();
     }
@@ -115,7 +115,7 @@ public class AddSub extends BaseModule {
         for (int i = 0; i < cLEDs.size(); i++) {
             cLEDs.get(i).setEnabled(i == func);
         }
-        
+
         // Carry bit
         int carry = cInV.getBit(2);
 
@@ -166,11 +166,6 @@ public class AddSub extends BaseModule {
         rOut.setVal(r);
         bOut.setVal(boolOut);
         cOut.setVal(cOutVal);
-    }
-
-    @Override
-    protected void reset() {
-        // Noop
     }
 
     @Override

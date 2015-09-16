@@ -11,32 +11,27 @@ import simulator.Main;
  *
  */
 public class Switch extends TogglePart {
-	
+
     private LEDColour colour;
-    
+
 	int w = 15;
 	int h = 25;
-	
-	public Switch(int x, int y) {
+
+    public Switch(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+	public Switch(int x, int y, LEDColour col) {
 		this.x = x;
 		this.y = y;
+		colour = col;
 	}
-	
-	public void init() {
-	    int type = 0;
-	    if (owner.outputs.get(0).link != null)
-	        type = owner.outputs.get(0).link.targ.type;
-	    
-	    switch (type) {
-                case Port.CTRL:
-                    colour = LEDColour.BLUE;
-                    break;
-                default:
-                    colour = LEDColour.RED;
-                    break;
-	    }
-	}
-	
+
+    public void setColour(LEDColour col) {
+        colour = col;
+    }
+
 	@Override
 	public boolean lbDown(int xPt, int yPt) {
 		if (xPt > x-w/2 && xPt < x+w/2 && yPt > y-h/2 && yPt < y+h/2) {
@@ -45,18 +40,17 @@ public class Switch extends TogglePart {
 			Main.sim.propagate(owner);
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
 	public void paint(Graphics2D g) {
-	    init();
 		boolean on = getEnabled();
-		
+
 		g.setColor(Color.DARK_GRAY);
 		g.fillRect(x-w/2, y-h/2, w, h);
-		
+
 		if (on) {
 		    g.setColor(colour.light);
 			g.fillRect(x-w/2, y-11, w, 15);

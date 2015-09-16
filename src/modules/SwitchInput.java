@@ -1,7 +1,10 @@
 package modules;
 
 import java.awt.*;
+import java.util.HashMap;
 
+import modules.parts.LEDColour;
+import modules.parts.Port;
 import org.w3c.dom.Element;
 import util.BinData;
 import modules.parts.Output;
@@ -18,25 +21,25 @@ public class SwitchInput extends BaseModule {
 
 	private Switch s1, s2, s3, s4;
 	private Output data;
-	
+
 	SwitchInput() {
 		w = 100;
 		h = 50;
-		
+
 		// Add the one output
 		data = addOutput("Data", 0, Output.GENERIC);
-		
+
 		// Add the switches
 		s1 = new Switch(-30, 5);
 		s2 = new Switch(-10, 5);
 		s3 = new Switch( 10, 5);
 		s4 = new Switch( 30, 5);
-		
+
 		addPart(s1);
 		addPart(s2);
 		addPart(s3);
 		addPart(s4);
-		
+
 		propagate();
 	}
 
@@ -44,18 +47,35 @@ public class SwitchInput extends BaseModule {
     public BaseModule createNew() {
         return new SwitchInput();
     }
-	
+
 	@Override
 	public void paint(Graphics2D g) {
 		// Fill in polygon
 		g.setColor(new Color(100,100,100));
 		drawTrapezoid(g, 10);
-		
+
 		// Show output
 		g.setColor(new Color(120,120,120));
 		drawOutputs(g);
-		
+
 		// Draw switches
+		LEDColour switchCol = LEDColour.RED;
+		if (data.link != null) {
+			switch (data.link.targ.type) {
+			case Port.CTRL:
+				switchCol = LEDColour.BLUE;
+				break;
+			case Port.CLK:
+				switchCol = LEDColour.GREEN;
+				break;
+			}
+		}
+
+		s1.setColour(switchCol);
+		s2.setColour(switchCol);
+		s3.setColour(switchCol);
+		s4.setColour(switchCol);
+
 		drawParts(g);
 	}
 
@@ -63,21 +83,21 @@ public class SwitchInput extends BaseModule {
     public void propagate() {
 		// Generate output value
 		BinData out = new BinData(0);
-		
+
 		if (s1.getEnabled()) out.setBit(3, 1);
 		if (s2.getEnabled()) out.setBit(2, 1);
 		if (s3.getEnabled()) out.setBit(1, 1);
 		if (s4.getEnabled()) out.setBit(0, 1);
-		
+
 		// Output
 		data.setVal(out);
 	}
 
 	@Override
-	public void dataIn(Element dataElem) {
-		if (dataElem.hasAttribute("switch_set")) {
+	public void dataIn(HashMap<String, String> data) {
+		if (data.containsKey("switch_set")) {
 			// Parse switch setting
-			String str = dataElem.getAttribute("switch_set");
+			String str = data.get("switch_set");
 			try {
 				if (str.length() != 4) throw new Exception("bad string length");
 				// Who needs loops right?
@@ -97,25 +117,21 @@ public class SwitchInput extends BaseModule {
 	}
 
 	@Override
-	public boolean dataOut(Element dataElem) {
+	public HashMap<String, String> dataOut() {
+		HashMap<String, String> data = new HashMap<>();
 		String setting;
 		setting  = s1.getEnabled() ? "1" : "0";
 		setting += s2.getEnabled() ? "1" : "0";
 		setting += s3.getEnabled() ? "1" : "0";
 		setting += s4.getEnabled() ? "1" : "0";
-		dataElem.setAttribute("switch_set", setting);
+		data.put("switch_set", setting);
 
-		return true;
-	}
-
-	@Override
-	protected void reset() {
-		// Nothing to do here
+		return data;
 	}
 
     @Override
     public AvailableModules getModType() {
         return AvailableModules.SWITCH;
     }
-	
+
 }
