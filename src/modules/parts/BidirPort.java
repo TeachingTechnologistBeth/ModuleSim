@@ -1,5 +1,6 @@
 package modules.parts;
 
+import modules.BaseModule;
 import util.BinData;
 
 import java.util.ArrayDeque;
@@ -32,7 +33,7 @@ public class BidirPort extends Port {
         if (mode != newMode) {
             if (newMode == Mode.MODE_BIDIR) {
                 // Need to make sure there are no fixed connections
-                if (!fixedConnection(this, new ArrayDeque<>(), new ArrayList<>())) {
+                if (!hasLinks(owner)) {
                     mode = newMode;
                     owner.propagateDirectionality(this);
                 }
@@ -45,35 +46,12 @@ public class BidirPort extends Port {
         }
     }
 
-    private boolean fixedConnection(
-            BidirPort root,
-            ArrayDeque<BidirPort> checkList,
-            ArrayList<BidirPort> checked) {
-        boolean foundFixed = false;
-        checked.add(root);
-
-        for (BidirPort bp : root.owner.bidirs) {
-            if (bp.link != null && !checkList.contains(bp) && !checked.contains(bp)) {
-                checked.add(bp);
-
-                if (bp.link.targ.getClass() != BidirPort.class || bp.link.src.getClass() != BidirPort.class) {
-                    foundFixed = true;
-                }
-                else if (bp.link.src == bp) {
-                    checkList.add((BidirPort) bp.link.targ);
-                }
-                else if (bp.link.targ == bp) {
-                    checkList.add(((BidirPort) bp.link.src));
-                }
-            }
+    private boolean hasLinks(BaseModule m) {
+        for (Port p : m.ports) {
+            if (p.link != null) return true;
         }
 
-        while (checkList.peekFirst() != null) {
-            BidirPort bp = checkList.removeFirst();
-            foundFixed |= fixedConnection(bp, checkList, checked);
-        }
-
-        return foundFixed;
+        return false;
     }
 
     @Override

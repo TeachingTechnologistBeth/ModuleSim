@@ -297,7 +297,7 @@ public class Sim implements Runnable {
                 p.updated = false;
                 continue;
             }
-            if (p.wasUpdated() && p.link != null && p.link.hasDirection()) {
+            if (p.wasUpdated() && p.link != null) {
                 // First make sure 'visited' array is big enough
                 int id = p.link.linkInd;
                 if (id >= visited.length) {

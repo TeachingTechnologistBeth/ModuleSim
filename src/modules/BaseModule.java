@@ -455,11 +455,8 @@ public abstract class BaseModule extends PickableEntity {
         toView.concatenate(toWorld);
 
         // Update links
-        for (Output o : outputs) {
-            if (o.link != null) o.link.updatePath();
-        }
-        for (Input i : inputs) {
-            if (i.link != null) i.link.updatePath();
+        for (Port p : ports) {
+            if (p.link != null) p.link.updatePath();
         }
     }
 
@@ -628,25 +625,15 @@ public abstract class BaseModule extends PickableEntity {
             // Set this port's mode to match or oppose the root's mode based on which side it's on
             p.setMode(newPMode);
 
-            // Propagate through any links (this is where we alter link directions!)
+            // Propagate through any links
             if (p.link != null) {
-                if (rootMode == Port.Mode.MODE_BIDIR) {
-                    p.link.targ.setMode(rootMode);
-                    p.link.src.setMode(rootMode);
-
-                    p.link.flagIndeterminate();
+                // Set the opposite port on the link to the opposite mode from us
+                //  *the opposite of bidirectional is bidirectional!
+                if (p.link.src == p) {
+                    p.link.targ.setMode(oppositeMode);
                 }
                 else {
-                    // Set the opposite port on the link to the opposite mode from us
-                    if (p.link.src == p) {
-                        p.link.targ.setMode(oppositeMode);
-                    }
-                    else {
-                        p.link.src.setMode(oppositeMode);
-                    }
-
-                    // Correct the link's direction based on the newly set mode(s)
-                    p.link.updateDirection();
+                    p.link.src.setMode(oppositeMode);
                 }
             }
         }

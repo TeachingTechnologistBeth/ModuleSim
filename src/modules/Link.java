@@ -24,55 +24,6 @@ public class Link {
     public BezierPath curve;
     public int linkInd;
 
-    private boolean indeterminateFlag = false;
-
-    /**
-     * Flags a link as having no defined direction
-     */
-    public void flagIndeterminate() {
-        assert(!src.hasDirection());
-        assert(!targ.hasDirection());
-
-        indeterminateFlag = true;
-    }
-
-    /**
-     * Determines whether a link has a defined direction. Propagations can only pass through directional links.
-     * @return Whether the link has a direction
-     */
-    public boolean hasDirection() { return !indeterminateFlag; }
-
-    /**
-     * Determines a link's direction
-     */
-    public void updateDirection() {
-        // We only update links which lack directionality
-        if (indeterminateFlag) {
-            // If we're already pointing the right way, happy days. Carry on.
-            if (src.hasDirection() && src.canOutput()) {
-                indeterminateFlag = false;
-                return;
-            }
-            else if (targ.hasDirection() && targ.canInput()) {
-                indeterminateFlag = false;
-                return;
-            }
-            // Otherwise we need to flip the link's direction
-            else {
-                // Swap the ends
-                Port tmp = src;
-                src = targ;
-                targ = tmp;
-
-                // Reverse the path
-                curve.reverse();
-
-                // We have a direction!
-                indeterminateFlag = false;
-            }
-        }
-    }
-
     /**
      * Creates a new link between two ports, which may be reversed depending on type of source and target.
      * @param source The first clicked port
@@ -122,13 +73,16 @@ public class Link {
             target.link = newLink;
 
             // Pick direction of link
+
+            // If we're between two bi-dirs, the user's word is law
             if (!source.hasDirection() && !target.hasDirection()) {
-                // Create indeterminate link (inter-split/merge)
+                // (attempt to) create link in direction chosen
                 newLink.src = source;
                 newLink.targ = target;
                 newLink.curve = path;
 
-                newLink.flagIndeterminate();
+                source.setMode(Port.Mode.MODE_OUTPUT);
+                target.setMode(Port.Mode.MODE_INPUT);
             }
             else if (source.canOutput() && target.canInput()) {
                 newLink.src = source;
