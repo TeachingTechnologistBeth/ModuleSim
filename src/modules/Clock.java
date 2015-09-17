@@ -3,6 +3,7 @@ package modules;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.util.HashMap;
 
 import util.BinData;
 import modules.parts.LED;
@@ -97,6 +98,26 @@ public class Clock extends BaseModule {
         // Set the outputs
         outputs.get(0).setVal(p1);
         outputs.get(1).setVal(p2);
+    }
+
+    @Override
+    public void dataIn(HashMap<String, String> data) {
+        if (data.containsKey("clock_phase")) {
+            String phaseStr = data.get("clock_phase");
+            try {
+                step = Integer.parseInt(phaseStr);
+            } catch (NumberFormatException e) {
+                System.err.println("Warning: unable to parse clock_phase:");
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public HashMap<String, String> dataOut() {
+        HashMap<String, String> dataMap = new HashMap<>();
+        dataMap.put("clock_phase", String.valueOf(step));
+        return dataMap;
     }
 
     @Override

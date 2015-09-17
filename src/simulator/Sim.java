@@ -273,14 +273,15 @@ public class Sim implements Runnable {
         visited = new boolean[Main.sim.getEntities().size()];
 
         for (int i = 0; i < propModules.size(); i++) {
-            // Begin propagation at the clock and switches
             BaseModule m = propModules.get(i);
-            propagate(m);
 
             // Tick the clock(s)
             if (m.getModType().equals(AvailableModules.CLOCK)) {
                 ( (Clock) m ).tick();
             }
+
+            // Begin propagation at the clocks AND switches
+            propagate(m);
         }
     }
 
