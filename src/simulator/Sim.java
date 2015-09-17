@@ -89,6 +89,10 @@ public class Sim implements Runnable {
 
     // New simulation
     public void newSim() {
+        // Reset the camera position
+        Main.ui.view.camX = 0;
+        Main.ui.view.camY = 0;
+
         synchronized (this) {
             modules.clear();
             links.clear();

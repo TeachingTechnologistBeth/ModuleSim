@@ -40,7 +40,6 @@ public abstract class BaseModule extends PickableEntity {
     public List<VisiblePart> parts = new ArrayList<>();
 
     public int ID;
-    public boolean visited = false;
 
     /**
      * Flag used to provide visual error feedback

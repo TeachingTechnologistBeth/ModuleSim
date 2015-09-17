@@ -2,7 +2,10 @@ package gui;
 
 import res.ResourceLoader;
 import simulator.Main;
+import sun.awt.WindowClosingListener;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.awt.*;
 import java.net.URL;
@@ -24,6 +27,31 @@ public class GUI {
 
 	public ComponentPane compPane;
 	//public JPanel bottom;
+
+	/**
+	 * Allows the user to save or cancel if work may be lost
+	 * @return Whether to complete the file operation
+	 */
+	public boolean checkSave() {
+		if (Main.ui.view.opStack.isModified()) {
+			int res = JOptionPane.showConfirmDialog(null, "Would you like to save first?", "Unsaved changes",
+					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+
+			switch (res) {
+				case JOptionPane.YES_OPTION:
+					return Main.ui.menu.save();
+				case JOptionPane.NO_OPTION:
+					return true;
+
+				default:
+					// Take no action
+					System.out.println("File operation aborted");
+					return false;
+			}
+		}
+
+		return true;
+	}
 
 	public void generateUI() {
 		preConfig();
@@ -82,7 +110,21 @@ public class GUI {
 	private void createFrame() {
 		frame = new JFrame();
         updateTitle();
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                if (checkSave()) {
+                    e.getWindow().dispose();
+                }
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                System.exit(0);
+            }
+        });
 
 		pane = frame.getContentPane();
 		pane.setLayout(new BorderLayout());

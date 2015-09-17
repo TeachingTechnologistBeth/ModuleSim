@@ -79,7 +79,10 @@ public class SelectTool extends BaseTool {
             }
         }
         else {
-            //if (!BaseTool.SHIFT) Main.ui.view.clearSelect();
+            if (BaseTool.CTRL) {
+                // Switch to move tool
+                return new MoveTool(x, y);
+            }
 
             // Move the camera if we're dragging near the edge
             double moveSpeed = 5;

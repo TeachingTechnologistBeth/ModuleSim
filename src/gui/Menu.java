@@ -48,7 +48,7 @@ public class Menu {
         addSimMenu();
     }
 
-    private void saveAs() {
+    public boolean saveAs() {
         Preferences prefs = Preferences.userNodeForPackage(this.getClass());
         FileDialog fd = new FileDialog((java.awt.Frame) null, "Save File", FileDialog.SAVE);
         fd.setFilenameFilter(simFileFilter);
@@ -73,6 +73,22 @@ public class Menu {
             }
 
             XMLWriter.writeFile(new File(path));
+            Main.ui.view.opStack.resetModified();
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean save() {
+        String curPath = Main.sim.filePath;
+
+        if (curPath.isEmpty()) {
+            return saveAs();
+        } else {
+            XMLWriter.writeFile(new File(curPath));
+            Main.ui.view.opStack.resetModified();
+            return true;
         }
     }
 
@@ -90,6 +106,8 @@ public class Menu {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (!Main.ui.checkSave()) return;
+
                 Preferences prefs = Preferences.userNodeForPackage(this.getClass());
                 FileDialog fd = new FileDialog((java.awt.Frame) null, "Open File", FileDialog.LOAD);
 
@@ -129,13 +147,7 @@ public class Menu {
         menuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String curPath = Main.sim.filePath;
-
-                if (curPath.isEmpty()) {
-                    saveAs();
-                } else {
-                    XMLWriter.writeFile(new File(curPath));
-                }
+                save();
             }
         });
         fileMenu.add(menuItem);
@@ -159,9 +171,9 @@ public class Menu {
         menuItem.setToolTipText("Start editing a new simulation (discard the current one)");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (!Main.ui.checkSave()) return;
+
                 Main.sim.newSim();
-                Main.ui.view.camX = 0;
-                Main.ui.view.camY = 0;
             }
         });
         fileMenu.add(menuItem);
@@ -171,6 +183,8 @@ public class Menu {
         menuItem.setToolTipText("Exit the application");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                if (!Main.ui.checkSave()) return;
+
                 System.exit(0);
             }
         });

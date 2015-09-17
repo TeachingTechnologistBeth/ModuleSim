@@ -13,6 +13,31 @@ public class OperationStack {
     public final static int MAX_HISTORY = 500;
     private boolean suppressOperations = false;
 
+    private boolean modified = false;
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void resetModified() {
+        modified = false;
+    }
+
+    /**
+     * Retrieves the length of the history (the number of potential undo ops remaining)
+     * @return Number of operations in stack before head (excluding future redo queue)
+     */
+    public int getLength() {
+        int count = 0;
+        int pointer = tail;
+        while (pointer != head) {
+            count++;
+            pointer++;
+        }
+
+        return count;
+    }
+
     /**
      * Reverses a previously completed operation.
      */
@@ -101,6 +126,9 @@ public class OperationStack {
             head = (head + 1) % (MAX_HISTORY + 1);
             futureHead = head;
             size++;
+
+            // Mark as modified
+            modified = true;
         }
     }
 
@@ -116,6 +144,7 @@ public class OperationStack {
         }
 
         head = futureHead = tail = size = 0;
+        modified = false;
     }
 
     /**
