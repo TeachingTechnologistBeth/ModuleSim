@@ -611,40 +611,42 @@ public abstract class BaseModule extends PickableEntity {
      * @param root Port to base directionality on
      */
     public void propagateDirectionality(BidirPort root) {
-        for (BidirPort p : bidirs) {
+        for (Port p : bidirs) {
             if (p == root) continue;
             Port.Mode rootMode = root.getMode();
 
+            Port.Mode newPMode, oppositeMode;
             if (p.side == root.side) {
-                p.setMode(rootMode);
-
-                if (p.link != null) {
-                    if (rootMode == Port.Mode.MODE_BIDIR) {
-                        p.link.targ.setMode(rootMode);
-                        p.link.src.setMode(rootMode);
-                    }
-                    else if (p.link.src == p) {
-                        p.link.targ.setMode(Port.OppositeOf(rootMode));
-                    }
-                    else if (p.link.targ == p) {
-                        p.link.src.setMode(Port.OppositeOf(rootMode));
-                    }
-                }
+                newPMode = rootMode;
+                oppositeMode = Port.OppositeOf(rootMode);
             }
-            else if (p.side == -root.side) {
-                p.setMode(Port.OppositeOf(rootMode));
+            else {
+                newPMode = Port.OppositeOf(rootMode);
+                oppositeMode = rootMode;
+            }
 
-                if (p.link != null) {
-                    if (rootMode == Port.Mode.MODE_BIDIR) {
-                        p.link.targ.setMode(rootMode);
-                        p.link.src.setMode(rootMode);
+            // Set this port's mode to match or oppose the root's mode based on which side it's on
+            p.setMode(newPMode);
+
+            // Propagate through any links (this is where we alter link directions!)
+            if (p.link != null) {
+                if (rootMode == Port.Mode.MODE_BIDIR) {
+                    p.link.targ.setMode(rootMode);
+                    p.link.src.setMode(rootMode);
+
+                    p.link.flagIndeterminate();
+                }
+                else {
+                    // Set the opposite port on the link to the opposite mode from us
+                    if (p.link.src == p) {
+                        p.link.targ.setMode(oppositeMode);
                     }
-                    else if (p.link.src == p) {
-                        p.link.targ.setMode(rootMode);
+                    else {
+                        p.link.src.setMode(oppositeMode);
                     }
-                    else if (p.link.targ == p) {
-                        p.link.src.setMode(rootMode);
-                    }
+
+                    // Correct the link's direction based on the newly set mode(s)
+                    p.link.updateDirection();
                 }
             }
         }
@@ -679,7 +681,7 @@ public abstract class BaseModule extends PickableEntity {
         LOGIC(new Logic(), "Logic Unit"),
         MUX(new Mux(), "Multiplexor"),
         OR(new Or(), "OR"),
-        RAM(new NRAM(true), "NRAM"),
+        RAM(new NRAM(true), "NRAM"), // note: the old "RAM" name is part of the file format and so can't be changed
         REGISTER(new Register(), "Register"),
         LEFT_SHIFT(new Shift(true), "Left-shift"),
         RIGHT_SHIFT(new Shift(false), "Right-shift"),
@@ -695,8 +697,6 @@ public abstract class BaseModule extends PickableEntity {
         AvailableModules(BaseModule mod, String name) {
             this.module = mod;
             this.name = name;
-
-
         }
 
         public BaseModule getSrcModule() {

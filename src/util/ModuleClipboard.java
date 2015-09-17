@@ -16,8 +16,16 @@ import java.util.List;
  */
 public class ModuleClipboard {
 
-    public List<BaseModule> copiedModules = new ArrayList<BaseModule>();
-    public List<Link> copiedLinks = new ArrayList<Link>();
+    public List<BaseModule> copiedModules = new ArrayList<>();
+    public List<Link> copiedLinks = new ArrayList<>();
+
+    /**
+     * Whether the clipboard has any items on it
+     * @return True if the clipboard is isEmpty
+     */
+    public boolean isEmpty() {
+        return copiedLinks.isEmpty() && copiedModules.isEmpty();
+    }
 
     /**
      * Copies the given entities to the clipboard in their current state. Only links and control points BETWEEN copied

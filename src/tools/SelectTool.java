@@ -33,7 +33,7 @@ public class SelectTool extends BaseTool {
             }
         }
         else {
-            // Clear the selection if we click on an empty spot
+            // Clear the selection if we click on an isEmpty spot
             Main.ui.view.clearSelect();
         }
 
@@ -86,7 +86,7 @@ public class SelectTool extends BaseTool {
             List<PickableEntity> selected = ViewUtil.entitiesWithin(rx, ry, rx2, ry2);
             Main.ui.view.select(selected);
         }
-        
+
         return this;
     }
 
@@ -96,10 +96,10 @@ public class SelectTool extends BaseTool {
             if (dragging) {
                 Vec2 delta = new Vec2(dragPos);
                 delta.sub(dragStart);
-        
+
                 int x = (int) Math.min(dragStart.x, dragStart.x + delta.x);
                 int y = (int) Math.min(dragStart.y, dragStart.y + delta.y);
-        
+
                 g.setColor(Color.BLUE);
                 g.setStroke(new BasicStroke(1));
                 g.drawRect(x, y, (int)Math.abs(delta.x), (int)Math.abs(delta.y));

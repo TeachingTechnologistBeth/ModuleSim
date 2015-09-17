@@ -30,15 +30,8 @@ public class DeleteOperation extends BaseOperation {
             Main.sim.addEntity(entity);
         }
         if (link != null) {
-            link.src.link = link;
-            link.targ.link = link;
+            link = Link.createLink(link.src, link.targ, link.curve);
             Main.sim.addLink(link);
-
-            // Propagate change
-            link.src.setMode(Port.Mode.MODE_OUTPUT);
-            link.targ.setMode(Port.Mode.MODE_INPUT);
-            link.targ.setVal(link.src.getVal());
-            Main.sim.propagate(link.targ.owner);
         }
     }
 
@@ -53,16 +46,7 @@ public class DeleteOperation extends BaseOperation {
             Main.sim.removeEntity(entity);
         }
         if (link != null) {
-            link.src.link = null;
-            link.targ.link = null;
-            Main.sim.removeLink(link);
-
-            // Propagate change
-            link.targ.setVal(new BinData());
-            Main.sim.propagate(link.targ.owner);
-
-            link.src.setMode(Port.Mode.MODE_BIDIR);
-            link.targ.setMode(Port.Mode.MODE_BIDIR);
+            link.delete();
         }
     }
 }

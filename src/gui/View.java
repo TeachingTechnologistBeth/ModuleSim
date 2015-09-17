@@ -37,7 +37,7 @@ public class View extends JPanel {
     public ModuleClipboard clipboard = new ModuleClipboard();
 
     public List<PickableEntity> selection = new ArrayList<PickableEntity>();
-    
+
     public boolean quality = true;
 
     public View() {
@@ -108,11 +108,11 @@ public class View extends JPanel {
                 m.updateXForm();
                 g.transform(m.toView);
                 m.paint(g);
-                
+
                 if (m.error) {
                     drawError(g);
                 }
-                
+
                 g.setTransform(old);
             }
 
@@ -157,7 +157,7 @@ public class View extends JPanel {
         g.fillRect(-3, -16, 6, 20);
         g.fillOval(-3, 8, 6, 6);
     }
-    
+
     /**
      * Draws a grid
      */
@@ -223,14 +223,17 @@ public class View extends JPanel {
         clearSelect();
         opStack.endCompoundOp();
     }
-    
+
     public void copy(List<PickableEntity> entities) {
         clipboard.copy(entities);
     }
-    
+
     public void paste() {
         if (curTool != null) curTool.cancel();
-        curTool = new PlaceTool(clipboard);
+
+        if (!clipboard.isEmpty()) {
+            curTool = new PlaceTool(clipboard);
+        }
     }
 
     public void undo() {

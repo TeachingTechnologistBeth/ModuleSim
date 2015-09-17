@@ -183,7 +183,7 @@ public class SplitMerge extends BaseModule {
         // b2->a0, a1
         // b3->a0, a1
 
-        if (in == portA0 || in == portA1) {
+        /*if (in == portA0 || in == portA1) {
             outPorts.add(portB2);
             outPorts.add(portB3);
 
@@ -199,6 +199,23 @@ public class SplitMerge extends BaseModule {
             if (in == portB2 || in == portB3) {
                 outPorts.add(portA1);
             }
+        }
+
+        return outPorts;*/
+
+        // The above code creates problems with possible loops through multiple split/mergers (the direction
+        // propagation never resolves).
+
+        // Much simpler to just pick out ports on the opposite side.
+        if (in == portA0 || in == portA1) {
+            outPorts.add(portB0);
+            outPorts.add(portB1);
+            outPorts.add(portB2);
+            outPorts.add(portB3);
+        }
+        else {
+            outPorts.add(portA0);
+            outPorts.add(portA1);
         }
 
         return outPorts;

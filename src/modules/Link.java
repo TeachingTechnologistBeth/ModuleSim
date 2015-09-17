@@ -24,9 +24,57 @@ public class Link {
     public BezierPath curve;
     public int linkInd;
 
+    private boolean indeterminateFlag = false;
+
     /**
-     * Creates a new link between two ports
-     * Link may be reversed, depending on type of source and target
+     * Flags a link as having no defined direction
+     */
+    public void flagIndeterminate() {
+        assert(!src.hasDirection());
+        assert(!targ.hasDirection());
+
+        indeterminateFlag = true;
+    }
+
+    /**
+     * Determines whether a link has a defined direction. Propagations can only pass through directional links.
+     * @return Whether the link has a direction
+     */
+    public boolean hasDirection() { return !indeterminateFlag; }
+
+    /**
+     * Determines a link's direction
+     */
+    public void updateDirection() {
+        // We only update links which lack directionality
+        if (indeterminateFlag) {
+            // If we're already pointing the right way, happy days. Carry on.
+            if (src.hasDirection() && src.canOutput()) {
+                indeterminateFlag = false;
+                return;
+            }
+            else if (targ.hasDirection() && targ.canInput()) {
+                indeterminateFlag = false;
+                return;
+            }
+            // Otherwise we need to flip the link's direction
+            else {
+                // Swap the ends
+                Port tmp = src;
+                src = targ;
+                targ = tmp;
+
+                // Reverse the path
+                curve.reverse();
+
+                // We have a direction!
+                indeterminateFlag = false;
+            }
+        }
+    }
+
+    /**
+     * Creates a new link between two ports, which may be reversed depending on type of source and target.
      * @param source The first clicked port
      * @param target The second clicked port
      * @param path A bezier path to display for the link
@@ -74,7 +122,15 @@ public class Link {
             target.link = newLink;
 
             // Pick direction of link
-            if (source.canOutput() && target.canInput()) {
+            if (!source.hasDirection() && !target.hasDirection()) {
+                // Create indeterminate link (inter-split/merge)
+                newLink.src = source;
+                newLink.targ = target;
+                newLink.curve = path;
+
+                newLink.flagIndeterminate();
+            }
+            else if (source.canOutput() && target.canInput()) {
                 newLink.src = source;
                 newLink.targ = target;
                 newLink.curve = path;
@@ -137,24 +193,24 @@ public class Link {
     /**
      * Recursively check for loops in the design
      * @param check Link to check for
-     * @param modules
+     * @param modules List of modules checked - used for error display
      * @return Whether the check link was found
      */
     private boolean checkLoops(Link check, List<BaseModule> modules) {
         // Registers & NRAM *should* terminate loops
-        Class<?> c = targ.owner.getClass();
-        if (c == Register.class || c == NRAM.class) return false;
+        BaseModule.AvailableModules type = targ.owner.getModType();
+        if (type == BaseModule.AvailableModules.RAM || type == BaseModule.AvailableModules.REGISTER) return false;
 
         // Follow every affected outbound link
         boolean result = false;
         for (Port p : targ.owner.getAffected(targ)) {
-            if (p.canOutput() && p.link != null && !p.text.equals("Chain out")) {
+            if (p.canOutput() && p.link != null) {
                 if (p.link == check) {
                     modules.add(targ.owner);
                     return true; // Loop detected
                 }
                 else {
-                    result = result || p.link.checkLoops(check, modules);
+                    result |= p.link.checkLoops(check, modules);
                     if (result) modules.add(targ.owner);
                 }
             }

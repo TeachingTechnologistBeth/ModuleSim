@@ -11,19 +11,30 @@ public class OperationStack {
     private int compound_stackSize = 0;
 
     public final static int MAX_HISTORY = 500;
+    private boolean suppressOperations = false;
 
     /**
      * Reverses a previously completed operation.
      */
     public void undo() {
-        if (compoundOp != null) throw new UnsupportedOperationException("Can't undo during a compound operation");
+        if (compoundOp != null) {
+            // Whoops...
+            System.err.println("Warning: cancelling compound op (user attempted to undo)");
+            cancelCompoundOp();
+            return;
+        }
 
         // If head == tail we're out of undo-s
         if (head != tail) {
             // We undo @head-1
             head = (head-1) % (MAX_HISTORY + 1);
             if (head < 0) head += (MAX_HISTORY + 1); // stupid java
+
+            // Do the undo, suppressing additional operations
+            suppressOperations = true;
             stack[head].undo();
+            suppressOperations = false;
+
             // don't decrease size as we're still storing the future redo queue
         }
         else {
@@ -35,11 +46,19 @@ public class OperationStack {
      * Repeats a previously reversed operation.
      */
     public void redo() {
-        if (compoundOp != null) throw new UnsupportedOperationException("Can't redo during a compound operation");
+        if (compoundOp != null) {
+            // Whoops...
+            System.err.println("Warning: cancelling compound op (user attempted to redo)");
+            cancelCompoundOp();
+            return;
+        }
 
         if (head != futureHead) {
             // We redo @head (where head '<' futureHead)
+            suppressOperations = true;
             stack[head].redo();
+            suppressOperations = false;
+
             head = (head+1) % (MAX_HISTORY + 1);
         }
         else {
@@ -53,6 +72,8 @@ public class OperationStack {
      * @param op Operation to add
      */
     public void pushOp(BaseOperation op) {
+        if (suppressOperations) return;
+
         if (compoundOp != null) {
             compoundOp.pushOp(op);
         }
@@ -88,6 +109,7 @@ public class OperationStack {
      */
     public void clearAll() {
         compoundOp = null;
+        suppressOperations = false;
 
         for (int i = 0; i < (MAX_HISTORY + 1); i++) {
             stack[i] = null;

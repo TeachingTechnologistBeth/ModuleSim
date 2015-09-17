@@ -2,6 +2,9 @@ package modules.parts;
 
 import util.BinData;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+
 /**
  * Created by awick on 15/09/2015.
  */
@@ -29,31 +32,45 @@ public class BidirPort extends Port {
         if (mode != newMode) {
             if (newMode == Mode.MODE_BIDIR) {
                 // Need to make sure there are no fixed connections
-                if (fixedConnection(this)) return;
+                if (!fixedConnection(this, new ArrayDeque<>(), new ArrayList<>())) {
+                    mode = newMode;
+                    owner.propagateDirectionality(this);
+                }
+            }
+            else {
+                mode = newMode;
+                if (link != null) owner.propagateDirectionality(this);
             }
 
-            mode = newMode;
-            owner.propagateDirectionality(this);
         }
     }
 
-    private boolean fixedConnection(BidirPort root) {
+    private boolean fixedConnection(
+            BidirPort root,
+            ArrayDeque<BidirPort> checkList,
+            ArrayList<BidirPort> checked) {
         boolean foundFixed = false;
+        checked.add(root);
 
         for (BidirPort bp : root.owner.bidirs) {
-            if (bp == root) continue;
+            if (bp.link != null && !checkList.contains(bp) && !checked.contains(bp)) {
+                checked.add(bp);
 
-            if (bp.link != null) {
                 if (bp.link.targ.getClass() != BidirPort.class || bp.link.src.getClass() != BidirPort.class) {
                     foundFixed = true;
                 }
                 else if (bp.link.src == bp) {
-                    foundFixed |= fixedConnection((BidirPort) bp.link.targ);
+                    checkList.add((BidirPort) bp.link.targ);
                 }
                 else if (bp.link.targ == bp) {
-                    foundFixed |= fixedConnection((BidirPort) bp.link.src);
+                    checkList.add(((BidirPort) bp.link.src));
                 }
             }
+        }
+
+        while (checkList.peekFirst() != null) {
+            BidirPort bp = checkList.removeFirst();
+            foundFixed |= fixedConnection(bp, checkList, checked);
         }
 
         return foundFixed;

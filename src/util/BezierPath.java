@@ -36,7 +36,7 @@ public class BezierPath {
 	}
 
 	/**
-	 * Creates an "empty" path
+	 * Creates an "isEmpty" path
 	 */
 	public BezierPath() {
 		curves.add(new BezierCurve(new Vec2(), new Vec2(), new Vec2(), new Vec2()));

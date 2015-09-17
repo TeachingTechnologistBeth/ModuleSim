@@ -46,7 +46,7 @@ public class HexReader {
 
             int adr = 0;
             for (String s : chopped) {
-                // Skip empty strings
+                // Skip isEmpty strings
                 if (s.equals("")) continue;
 
                 // Multiple entries
