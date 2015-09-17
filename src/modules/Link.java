@@ -22,7 +22,20 @@ public class Link {
     public Port src;
     public Port targ;
     public BezierPath curve;
-    public int linkInd;
+
+    private int linkInd = -1;
+
+    /**
+     * Gets a unique ID for the link
+     * @return
+     */
+    public int getLinkID() {
+        if (linkInd < 0) {
+            linkInd = Main.sim.assignLinkID();
+        }
+
+        return linkInd;
+    }
 
     /**
      * Creates a new link between two ports, which may be reversed depending on type of source and target.

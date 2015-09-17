@@ -3,6 +3,7 @@ package tools;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.List;
 
 import gui.ViewUtil;
@@ -16,11 +17,19 @@ public class SelectTool extends BaseTool {
     private Vec2 dragPos = new Vec2();
     private boolean dragging = false;
 
+    private List<PickableEntity> mySelection = null;
+
     @Override
     public BaseTool lbUp(int x, int y) {
         PickableEntity e = ViewUtil.entityAt(x, y);
 
         if (dragging) {
+            // If we're not doing additive, clear any existing selection
+            if (!BaseTool.SHIFT && mySelection != null) {
+                Main.ui.view.clearSelect();
+                Main.ui.view.select(mySelection);
+            }
+
             return null;
         }
         else if (e != null) {
@@ -45,7 +54,7 @@ public class SelectTool extends BaseTool {
     public BaseTool lbDown(int x, int y) {
         synchronized (this) {
             // Don't actually set dragging=true till we get a mouseDrag() event
-            dragStart.set(x, y);
+            dragStart.set(ViewUtil.screenToWorld(new Vec2(x, y)));
         }
 
         return this;
@@ -65,15 +74,35 @@ public class SelectTool extends BaseTool {
                     dragging = true;
 
                     // N.B. dragStart is already set thanks to lbDown() handler
-                    dragPos.set(x, y);
+                    dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y)));
                 }
             }
         }
         else {
-            if (!BaseTool.SHIFT) Main.ui.view.clearSelect();
+            //if (!BaseTool.SHIFT) Main.ui.view.clearSelect();
+
+            // Move the camera if we're dragging near the edge
+            double moveSpeed = 5;
+            double edgeWidth = 15;
+
+            if (x < edgeWidth) {
+                Main.ui.view.camX += moveSpeed;
+                Main.ui.view.calcXForm();
+            }
+            else if (x > Main.ui.view.getWidth() - edgeWidth) {
+                Main.ui.view.camX -= moveSpeed;
+            }
+
+            if (y < edgeWidth) {
+                Main.ui.view.camY += moveSpeed;
+                Main.ui.view.calcXForm();
+            }
+            else if (y > Main.ui.view.getHeight() - edgeWidth) {
+                Main.ui.view.camY -= moveSpeed;
+            }
 
             //System.out.println("More dragging " + x + ", " + y);
-            dragPos.set(x, y);
+            dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y)));
 
             Vec2 delta = new Vec2(dragPos);
             delta.sub(dragStart);
@@ -83,8 +112,8 @@ public class SelectTool extends BaseTool {
             double ry = Math.min(dragStart.y, dragStart.y + delta.y);
             double ry2 = Math.max(dragStart.y, dragStart.y + delta.y);
 
-            List<PickableEntity> selected = ViewUtil.entitiesWithin(rx, ry, rx2, ry2);
-            Main.ui.view.select(selected);
+            mySelection = ViewUtil.worldSpace_entitiesWithin(rx, ry, rx2, ry2);
+            Main.ui.view.select(mySelection);
         }
 
         return this;
@@ -94,11 +123,13 @@ public class SelectTool extends BaseTool {
     public void paintScreen(Graphics2D g) {
         synchronized (this) {
             if (dragging) {
-                Vec2 delta = new Vec2(dragPos);
-                delta.sub(dragStart);
+                Vec2 screen_dragStart = ViewUtil.worldToScreen(dragStart);
+                Vec2 screen_dragPos = ViewUtil.worldToScreen(dragPos);
+                Vec2 delta = new Vec2(screen_dragPos);
+                delta.sub(screen_dragStart);
 
-                int x = (int) Math.min(dragStart.x, dragStart.x + delta.x);
-                int y = (int) Math.min(dragStart.y, dragStart.y + delta.y);
+                int x = (int) Math.min(screen_dragStart.x, screen_dragStart.x + delta.x);
+                int y = (int) Math.min(screen_dragStart.y, screen_dragStart.y + delta.y);
 
                 g.setColor(Color.BLUE);
                 g.setStroke(new BasicStroke(1));

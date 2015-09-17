@@ -56,11 +56,11 @@ public class ModuleClipboard {
      * @return The newly created entities
      */
     public List<PickableEntity> paste() {
-        List<BaseModule> modules = new ArrayList<BaseModule>();
-        List<Link> links = new ArrayList<Link>();
+        List<BaseModule> modules = new ArrayList<>();
+        List<Link> links = new ArrayList<>();
 
         doCopy(copiedModules, modules, links);
-        List<PickableEntity> output = new ArrayList<PickableEntity>(modules);
+        List<PickableEntity> output = new ArrayList<>(modules);
 
         // Add to the simulation
         for (BaseModule m : modules) {

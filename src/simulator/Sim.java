@@ -10,14 +10,16 @@ import javax.swing.JOptionPane;
 import modules.*;
 import static modules.BaseModule.AvailableModules;
 import modules.parts.Port;
+import sun.awt.Mutex;
 import util.BinData;
 import util.CtrlPt;
 
 public class Sim implements Runnable {
 
     private Thread thread;
+    public final Mutex lock = new Mutex();
 
-    private boolean[] visited = new boolean[1024];
+    //private boolean[] visited = new boolean[1024];
     private int lastLinkInd = 0;
 
     public static long delay = 2500000;
@@ -26,13 +28,40 @@ public class Sim implements Runnable {
     public String filePath = "";
 
     // Module list
-    private final List<BaseModule> modules = new ArrayList<BaseModule>();
-    private final List<BaseModule> propModules = new ArrayList<BaseModule>();
-    private final List<Link> links = new ArrayList<Link>();
-    private final List<PickableEntity> entities = new ArrayList<PickableEntity>();
+    private final List<BaseModule> modules = new ArrayList<>();
+    private final List<BaseModule> propModules = new ArrayList<>();
+    private final List<Link> links = new ArrayList<>();
+    private final List<PickableEntity> entities = new ArrayList<>();
 
     public double itrPerSec = 0;
     public int iterations = 0;
+
+    // Deferred propagation mechanism
+    private List<BaseModule> deferredPropagators = new ArrayList<>();
+    private int deferring = 0;
+
+    /**
+     * Begin deferring propagation operations (preventing errors during large-scale operations)
+     */
+    public void beginDeferPropagations() {
+        deferring++;
+    }
+
+    /**
+     * Finish deferring propagation operations (carries out the deferred propagations)
+     */
+    public void endDeferPropagations() {
+        deferring--;
+        assert(deferring >= 0);
+
+        if (deferring == 0) {
+            for (BaseModule m : deferredPropagators) {
+                propagate(m);
+            }
+
+            deferredPropagators.clear();
+        }
+    }
 
     /**
      * Start the sim
@@ -137,64 +166,24 @@ public class Sim implements Runnable {
     }
 
     /**
-     * Thread-safe, sensible multi-entity removal.
-     * Link state within the removed group is preserved, and the affected entities are removed from the
-     * simulation. This allows correct restoration at a later point, e.g. during a redo op.
-     *
-     * Note: Implicitly calls removeLink() on all associated links.
-     */
-    public void removeEntities(Collection<PickableEntity> ents) {
-        synchronized (this) {
-            entities.removeAll(ents);
-
-            for (PickableEntity e : ents) {
-                if (e.getType() == PickableEntity.MODULE) {
-                    BaseModule module = (BaseModule) e;
-                    modules.remove(e);
-                    propModules.remove(e);
-
-                    for (Port p : module.ports) {
-                        if (p.link != null) {
-                            Link l = p.link;
-                            removeLink(l);
-
-                            // Link to/from another removed entity
-                            if (ents.contains(l.src.owner) && ents.contains(l.targ.owner)) {
-                                // do nothing..?
-                            }
-                            // Link TO an outside entity
-                            else if (ents.contains(l.src.owner)) {
-                                // Break the link at the other end and propagate the change
-                                l.targ.link = null;
-                                l.targ.setVal(new BinData());
-                                propagate(l.targ.owner);
-                            }
-                            // Link FROM an outside entity
-                            else {
-                                // Break the link at the other end
-                                l.src.link = null;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    /**
      * Thread safe link (& control points) addition
      */
     public void addLink(Link l) {
         synchronized (this) {
             clearErrors();
             links.add(l);
-            l.linkInd = lastLinkInd;
-            lastLinkInd++;
 
             for (CtrlPt c : l.curve.getCtrlPts()) {
                 addEntity(c);
             }
         }
+    }
+
+    /**
+     * Yields a unique ID for a link
+     */
+    public int assignLinkID() {
+        return lastLinkInd++;
     }
 
     /**
@@ -266,22 +255,74 @@ public class Sim implements Runnable {
      * Recursive simulation
      */
     public void step() {
-        //System.out.print("\nIteration " + iterations + " : ");
-        iterations++;
+        synchronized (lock) {
+            // Don't run while we're deferring operations
+            if (deferring != 0) return;
 
-        // New ID array
-        visited = new boolean[Main.sim.getEntities().size()];
+            //System.out.print("\nIteration " + iterations + " : ");
+            iterations++;
 
-        for (int i = 0; i < propModules.size(); i++) {
-            BaseModule m = propModules.get(i);
+            for (int i = 0; i < propModules.size(); i++) {
+                BaseModule m = propModules.get(i);
 
-            // Tick the clock(s)
-            if (m.getModType().equals(AvailableModules.CLOCK)) {
-                ( (Clock) m ).tick();
+                // Tick the clock(s)
+                if (m.getModType().equals(AvailableModules.CLOCK)) {
+                    ((Clock) m).tick();
+                }
+
+                // Begin propagation at the clocks AND switches
+                propagate(m);
             }
+        }
+    }
 
-            // Begin propagation at the clocks AND switches
-            propagate(m);
+    /**
+     * Thread-local propagation
+     * @param m Module to propagate on
+     * @param visited ID-indexed array indicating whether we've already propagated over each module
+     */
+    private void doPropagate(BaseModule m, boolean[] visited) {
+        if (deferring != 0) {
+            deferredPropagators.add(m);
+        }
+        else {
+            if (m == null) return;
+            m.propagate();
+
+            for (Port p : m.ports) {
+                if (!p.canOutput()) {
+                    p.updated = false;
+                    continue;
+                }
+                if (p.wasUpdated() && p.link != null) {
+                    // First make sure 'visited' array is big enough
+                    int id = p.link.getLinkID();
+                    if (id >= visited.length) {
+                        visited = Arrays.copyOf(visited, id * 2 + 1);
+                    }
+
+                    // Check if we've visited this link before
+                    if (visited[id]) {
+                        p.owner.error = true;
+                        running = false;
+                        JOptionPane.showMessageDialog(null, "Runtime loop detected! Halting simulation. Did you forget a register?");
+                        return;
+                    }
+
+                    // Recursively propagate
+                    if (p.link.targ == null) {
+                        System.out.println("Warning: Null propagation target");
+                        return;
+                    }
+                    p.link.targ.setVal(p.getVal());
+
+                    // Add link to visited - remove after propagation
+                    visited[id] = true;
+                    doPropagate(p.link.targ.owner, visited);
+                    visited[id] = false;
+                }
+                p.updated = false;
+            }
         }
     }
 
@@ -290,42 +331,8 @@ public class Sim implements Runnable {
      * @param m Module to propagate
      */
     public void propagate(BaseModule m) {
-        if (m == null) return;
-        m.propagate();
-
-        for (Port p : m.ports) {
-            if (!p.canOutput()) {
-                p.updated = false;
-                continue;
-            }
-            if (p.wasUpdated() && p.link != null) {
-                // First make sure 'visited' array is big enough
-                int id = p.link.linkInd;
-                if (id >= visited.length) {
-                    visited = Arrays.copyOf(visited, id * 2 + 1);
-                }
-
-                // Check if we've visited this link before
-                if (visited[id]) {
-                    p.owner.error = true;
-                    running = false;
-                    JOptionPane.showMessageDialog(null, "Runtime loop detected! Halting simulation. Did you forget a register?");
-                    return;
-                }
-
-                // Recursively propagate
-                if (p.link.targ == null) {
-                    System.out.println("Warning: Null propagation target");
-                    return;
-                }
-                p.link.targ.setVal(p.getVal());
-
-                // Add link to visited - remove after propagation
-                visited[id] = true;
-                propagate(p.link.targ.owner);
-                visited[id] = false;
-            }
-            p.updated = false;
+        synchronized (lock) {
+            doPropagate(m, new boolean[1024]);
         }
     }
 }

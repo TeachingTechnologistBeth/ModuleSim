@@ -135,13 +135,33 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     /**
      * Find entities within the specified area
+
+     * @return
+     */
+    public static List<PickableEntity> worldSpace_entitiesWithin(double x1, double y1, double x2, double y2) {
+        List<PickableEntity> result = new ArrayList<PickableEntity>();
+
+        synchronized (Main.sim) {
+            // Loop the entities
+            for (PickableEntity e : Main.sim.getEntities()) {
+                if (e.within(x1, y1, x2, y2)) {
+                    result.add(e);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Find entities within the specified area
      * @param x X coord of rect in screen space
      * @param y Y coord of rect in screen space
      * @param w width of rect
      * @param h height of rect
      * @return
      */
-    public static List<PickableEntity> entitiesWithin(double x, double y, double x2, double y2) {
+    public static List<PickableEntity> screenSpace_entitiesWithin(double x, double y, double x2, double y2) {
         List<PickableEntity> result = new ArrayList<PickableEntity>();
 
         synchronized (Main.sim) {

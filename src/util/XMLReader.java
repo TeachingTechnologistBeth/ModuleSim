@@ -46,7 +46,7 @@ public class XMLReader {
             v.camX = Double.parseDouble(view.getAttribute("camX"));
             v.camY = Double.parseDouble(view.getAttribute("camY"));
             v.zoomI = Integer.parseInt(view.getAttribute("zoom"));
-            v.zoom = 0.2 * v.zoomI;
+            v.zoom = View.ZOOM_MULTIPLIER * v.zoomI;
             v.calcXForm();
 
             // Module load

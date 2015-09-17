@@ -26,7 +26,10 @@ import util.Vec2;
 public class View extends JPanel {
 
     public int zoomI = 3;
-    public double zoom = 0.6;
+    public double zoom = zoomI * ZOOM_MULTIPLIER;
+
+    public static final double ZOOM_MULTIPLIER = 0.2;
+    public static final int ZOOM_LIMIT = 12;
 
     public double camX = 0, camY = 0;
     public AffineTransform wToV = new AffineTransform();
@@ -36,7 +39,7 @@ public class View extends JPanel {
     public OperationStack opStack = new OperationStack();
     public ModuleClipboard clipboard = new ModuleClipboard();
 
-    public List<PickableEntity> selection = new ArrayList<PickableEntity>();
+    public List<PickableEntity> selection = new ArrayList<>();
 
     public boolean quality = true;
 
@@ -149,10 +152,10 @@ public class View extends JPanel {
      * Draws an error flag
      */
     public void drawError(Graphics2D g) {
-        g.setColor(Color.RED);
-        g.fillOval(-30, -30, 60, 60);
-        g.setColor(Color.WHITE);
-        g.fillOval(-25, -25, 50, 50);
+        g.setColor(new Color(255, 0, 0, 120));
+        g.drawOval(-30, -30, 60, 60);
+        g.setColor(new Color(255, 255, 255, 60));
+        g.fillOval(-27, -27, 54, 54);
         g.setColor(Color.RED);
         g.fillRect(-3, -16, 6, 20);
         g.fillOval(-3, 8, 6, 6);
@@ -162,7 +165,7 @@ public class View extends JPanel {
      * Draws a grid
      */
     public void drawGrid(Graphics2D g) {
-        double grid = (int)(Main.sim.grid * zoom);
+        double grid = zoom * Main.sim.grid;
 
         int xNum = (int)(getWidth() / grid);
         int yNum = (int)(getHeight() / grid);
@@ -181,6 +184,10 @@ public class View extends JPanel {
         selection.remove(targ);
         selection.add(targ);
         targ.selected = true;
+
+        if (targ.getType() == PickableEntity.MODULE) {
+            ((BaseModule)targ).error = false;
+        }
     }
     public void select(List<PickableEntity> entities) {
         for (PickableEntity e : entities) {
@@ -255,11 +262,11 @@ public class View extends JPanel {
         Vec2 zmPt = ViewUtil.screenToWorld(new Vec2(x, y));
 
         zoomI++;
-        if (zoomI > 12) {
-            zoomI = 12;
+        if (zoomI > ZOOM_LIMIT) {
+            zoomI --;
         }
         else {
-            zoom = zoomI * 0.2;
+            zoom = zoomI * ZOOM_MULTIPLIER;
             calcXForm();
             Vec2 newScreenPt = ViewUtil.worldToScreen(zmPt);
             camX -= newScreenPt.x - x;
@@ -275,7 +282,7 @@ public class View extends JPanel {
             zoomI = 1;
         }
         else {
-            zoom = zoomI * 0.2;
+            zoom = zoomI * ZOOM_MULTIPLIER;
             calcXForm();
             Vec2 newScreenPt = ViewUtil.worldToScreen(zmPt);
             camX -= newScreenPt.x - x;
