@@ -45,33 +45,42 @@ public class Link {
      * @return New link, or null if link was invalid
      */
     public static Link createLink(Port source, Port target, BezierPath path) {
+        // Check error conditions first
 
     	if (source == null || target == null) {
+            // there's no message dialog here as it's not the user's fault - this generally happens when opening
+            // corrupted files
     	    System.err.println("No connect: Port(s) do not exist");
     	    return null;
     	}
 
-    	if (source == target) {
-    	    JOptionPane.showMessageDialog(null, "Cannot link port to itself");
-    	    System.err.println("No connect: Ports are the same");
+        // No self-links
+    	else if (source == target) {
+    	    JOptionPane.showMessageDialog(Main.ui.frame,
+                    "Cannot link port to itself",
+                    "Invalid Link",
+                    JOptionPane.WARNING_MESSAGE);
     	    return null;
     	}
-
-        if (source.owner == target.owner) {
-            JOptionPane.showMessageDialog(null, "Cannot link module to itself");
-            System.err.println("No connect: Same module");
+        else if (source.owner == target.owner) {
+            JOptionPane.showMessageDialog(Main.ui.frame,
+                    "Cannot link module to itself",
+                    "Invalid Link",
+                    JOptionPane.WARNING_MESSAGE);
             return null;
         }
 
         // If two directional ports are either both outputs or both inputs, they cannot be linked
-        if (source.canOutput() == target.canOutput() && source.hasDirection() && target.hasDirection()) {
-            JOptionPane.showMessageDialog(null, "Cannot link same port types together");
-            System.err.println("No connect: Same port types");
+        else if (source.canOutput() == target.canOutput() && source.hasDirection() && target.hasDirection()) {
+            JOptionPane.showMessageDialog(Main.ui.frame,
+                    "Cannot link same port types together",
+                    "Invalid Link",
+                    JOptionPane.WARNING_MESSAGE);
             return null;
         }
         else {
             // Start a compound operation (likely nested) so we can abort cleanly
-            Main.ui.view.opStack.beginCompoundOp();
+            Main.opStack.beginCompoundOp();
 
             // Cleanup old links
             if (source.link != null) {
@@ -125,15 +134,21 @@ public class Link {
                 }
             }
             else {
-                JOptionPane.showMessageDialog(null, "Unknown error during link creation");
-                Main.ui.view.opStack.cancelCompoundOp();
+                JOptionPane.showMessageDialog(Main.ui.frame,
+                        (new Throwable()).getStackTrace(),
+                        "Unknown error during link creation",
+                        JOptionPane.ERROR_MESSAGE);
+                Main.opStack.cancelCompoundOp();
                 return null;
             }
 
             // Check loops
             List<BaseModule> modules = new ArrayList<>();
             if (newLink.checkLoops(newLink, modules)) {
-                JOptionPane.showMessageDialog(null, "Link would create a loop. Have you forgotten a register?");
+                JOptionPane.showMessageDialog(Main.ui.frame,
+                        "Link would create a loop. Have you forgotten a register?",
+                        "Invalid link",
+                        JOptionPane.WARNING_MESSAGE);
                 System.err.println("No connect: Loop detected");
                 source.link = null;
                 target.link = null;
@@ -142,12 +157,12 @@ public class Link {
                     m.error = true;
                 }
 
-                Main.ui.view.opStack.cancelCompoundOp();
+                Main.opStack.cancelCompoundOp();
                 return null;
             }
 
             // Changes are done
-            Main.ui.view.opStack.endCompoundOp();
+            Main.opStack.endCompoundOp();
 
             // Propagate
             newLink.targ.setVal(newLink.src.getVal());
@@ -245,7 +260,7 @@ public class Link {
         Main.sim.removeLink(this);
 
         // Store operation
-        Main.ui.view.opStack.pushOp(new DeleteOperation(this));
+        Main.opStack.pushOp(new DeleteOperation(this));
     }
 
 }

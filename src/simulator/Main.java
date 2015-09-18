@@ -2,6 +2,9 @@ package simulator;
 
 import gui.GUI;
 import gui.Ticker;
+import tools.OperationStack;
+import util.ModuleClipboard;
+import util.Selection;
 
 import javax.swing.*;
 
@@ -14,6 +17,10 @@ public class Main {
 
 	public static GUI ui = null;
 	public static Sim sim = null;
+
+	public static OperationStack opStack = null;
+	public static ModuleClipboard clipboard = null;
+	public static Selection selection = null;
 
 	/**
 	 * Program starting point
@@ -36,6 +43,11 @@ public class Main {
 				sim.start();
 			}
 		});
+
+		// Set up operation stack & clipboard
+		opStack = new OperationStack();
+		clipboard = new ModuleClipboard();
+		selection = new Selection(true);
 
 		// Set up simulator
 		sim = new Sim();

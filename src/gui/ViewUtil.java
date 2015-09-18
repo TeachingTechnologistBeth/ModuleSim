@@ -219,12 +219,10 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             PickableEntity targ = entityAt(e.getX(), e.getY());
 
             if (targ != null) {
-                Main.ui.view.select(targ);
-                Main.ui.popup.showEntityMenu(Main.ui.view.selection, e.getX(), e.getY());
+                Main.selection.add(targ);
             }
-            else {
-                Main.ui.popup.showEntityMenu(Main.ui.view.selection, e.getX(), e.getY());
-            }
+
+            Main.selection.showContextMenu(e.getX(), e.getY());
         }
     }
 
@@ -290,8 +288,9 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             }
             else {
                 PickableEntity targ = entityAt(e.getX(), e.getY());
+
                 if (targ == null) {
-                    Main.ui.view.clearSelect();
+                    Main.selection.clear();
                 }
                 else if (targ.getType() == PickableEntity.MODULE) {
                     BaseModule m = (BaseModule) targ;
@@ -363,7 +362,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         }
         // Delete selection
         else if (e.getKeyChar() == KeyEvent.VK_DELETE) {
-            v.deleteSelection();
+            Main.selection.deleteAll();
         }
         // Pass to tool
         else if (v.curTool != null) {

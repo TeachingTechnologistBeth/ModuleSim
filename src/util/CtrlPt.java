@@ -89,7 +89,7 @@ public class CtrlPt extends PickableEntity {
     public void delete() {
         DeleteOperation deleteOp = new DeleteOperation(this, parent.ctrlPts.indexOf(this));
         parent.removePt(this);
-        Main.ui.view.opStack.pushOp(deleteOp);
+        Main.opStack.pushOp(deleteOp);
     }
 
     @Override

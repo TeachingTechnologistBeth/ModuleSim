@@ -15,6 +15,7 @@ import modules.parts.Port;
 import simulator.Main;
 import simulator.PickableEntity;
 import tools.RotateOperation;
+import util.Selection;
 
 public class ContextMenu  {
 
@@ -59,16 +60,16 @@ public class ContextMenu  {
                     throw new InvalidParameterException(cmd + " is not a valid rotation command.");
                 }
 
-                Main.ui.view.opStack.beginCompoundOp();
+                Main.opStack.beginCompoundOp();
                 for (PickableEntity e : entities) {
                     if (e.getClass().getGenericSuperclass() == BaseModule.class) {
                         BaseModule m = (BaseModule) e;
                         m.rotate(dir);
 
-                        Main.ui.view.opStack.pushOp(new RotateOperation(m, dir));
+                        Main.opStack.pushOp(new RotateOperation(m, dir));
                     }
                 }
-                Main.ui.view.opStack.endCompoundOp();
+                Main.opStack.endCompoundOp();
             }
         };
 
@@ -84,18 +85,18 @@ public class ContextMenu  {
 		rot180 = new JMenuItem("Rotate 180");
 		rot180.addActionListener(rotate);
 
-		// Copy/paste
+		// Copy/pasteInto
         copy = new JMenuItem("Copy");
         copy.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                Main.ui.view.copy(entities);
+                Main.clipboard.copy(entities);
             }
         });
 
         paste = new JMenuItem("Paste");
         paste.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                Main.ui.view.paste();
+                Main.ui.view.pasteInto();
             }
         });
 
@@ -103,7 +104,7 @@ public class ContextMenu  {
 		delete = new JMenuItem("Delete");
 		delete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-                Main.ui.view.deleteSelection();
+                Main.selection.deleteAll();
 			}
 		});
 
@@ -119,7 +120,6 @@ public class ContextMenu  {
 		    }
 		});
 	}
-
 
 	/**
 	 * Displays a context-sensitive edit menu

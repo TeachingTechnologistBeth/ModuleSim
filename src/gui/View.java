@@ -4,7 +4,6 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.ArrayList;
 
 import javax.swing.*;
 
@@ -13,9 +12,7 @@ import modules.Link;
 import simulator.Main;
 import simulator.PickableEntity;
 import tools.BaseTool;
-import tools.OperationStack;
 import tools.PlaceTool;
-import util.ModuleClipboard;
 import util.Vec2;
 
 /**
@@ -36,12 +33,8 @@ public class View extends JPanel {
 
     private static final long serialVersionUID = 1L;
     public BaseTool curTool = null;
-    public OperationStack opStack = new OperationStack();
-    public ModuleClipboard clipboard = new ModuleClipboard();
 
-    public List<PickableEntity> selection = new ArrayList<>();
-
-    public boolean quality = true;
+    public boolean useAA = true;
 
     public View() {
         setFocusable(true);
@@ -66,7 +59,7 @@ public class View extends JPanel {
         Graphics2D g = (Graphics2D) oldG;
 
         // Antialiasing
-        if (quality) {
+        if (useAA) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
         else {
@@ -179,73 +172,16 @@ public class View extends JPanel {
         }
     }
 
-    // Selection management
-    public void select(PickableEntity targ) {
-        selection.remove(targ);
-        selection.add(targ);
-        targ.selected = true;
-
-        if (targ.getType() == PickableEntity.MODULE) {
-            ((BaseModule)targ).error = false;
-        }
-    }
-    public void select(List<PickableEntity> entities) {
-        for (PickableEntity e : entities) {
-            selection.remove(e);
-            selection.add(e);
-            e.selected = true;
-        }
-    }
-
-    public void toggleSelect(PickableEntity e) {
-        if (selection.contains(e)) {
-            selection.remove(e);
-            e.selected = false;
-        }
-        else {
-            selection.add(e);
-            e.selected = true;
-        }
-    }
-
-    public void deselect(BaseModule m) {
-        selection.remove(m);
-        m.selected = false;
-    }
-
-    public void clearSelect() {
-        for (PickableEntity e : selection) {
-            e.selected = false;
-        }
-
-        selection.clear();
-    }
-
-    public void deleteSelection() {
-        opStack.beginCompoundOp();
-        ArrayList<PickableEntity> forDeletion = new ArrayList<PickableEntity>(selection);
-        for (PickableEntity e : forDeletion) {
-            e.delete();
-        }
-        clearSelect();
-        opStack.endCompoundOp();
-    }
-
-    public void copy(List<PickableEntity> entities) {
-        clipboard.copy(entities);
-    }
-
-    public void paste() {
+    public void pasteInto() {
         if (curTool != null) curTool.cancel();
 
-        if (!clipboard.isEmpty()) {
-            curTool = new PlaceTool(clipboard);
+        if (!Main.clipboard.isEmpty()) {
+            curTool = new PlaceTool(Main.clipboard);
         }
     }
 
     public void undo() {
-        System.out.println("Requested undo!");
-        if (curTool == null) opStack.undo();
+        if (curTool == null) Main.opStack.undo();
         else {
             curTool.cancel();
             curTool = null;
@@ -253,8 +189,7 @@ public class View extends JPanel {
     }
 
     public void redo() {
-        System.out.println("Requested redo!");
-        if (curTool == null) opStack.redo();
+        if (curTool == null) Main.opStack.redo();
         else System.out.println("Cannot redo during tool use");
     }
 

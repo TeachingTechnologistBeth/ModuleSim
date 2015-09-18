@@ -33,8 +33,8 @@ public class GUI {
 	 * @return Whether to complete the file operation
 	 */
 	public boolean checkSave() {
-		if (Main.ui.view.opStack.isModified()) {
-			int res = JOptionPane.showConfirmDialog(null, "Would you like to save first?", "Unsaved changes",
+		if (Main.opStack.isModified()) {
+			int res = JOptionPane.showConfirmDialog(frame, "Would you like to save first?", "Unsaved changes",
 					JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 
 			switch (res) {
