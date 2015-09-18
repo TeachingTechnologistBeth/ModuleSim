@@ -99,7 +99,7 @@ public class Sim implements Runnable {
             propModules.clear();
             entities.clear();
 
-            Main.ui.view.opStack.clearAll();
+           Main.opStack.clearAll();
             filePath = "";
             Main.ui.updateTitle();
         }

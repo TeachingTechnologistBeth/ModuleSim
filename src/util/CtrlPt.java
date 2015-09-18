@@ -12,7 +12,7 @@ public class CtrlPt extends PickableEntity {
 
     public BezierPath parent = null;
     public int index = 0;
-    
+
     /**
      * Create a control point at the specified position
      * @param x
@@ -21,7 +21,7 @@ public class CtrlPt extends PickableEntity {
     public CtrlPt(double x, double y) {
         pos.set(x, y);
     }
-    
+
     /**
      * Create a control point at the specified position
      * @param p
@@ -38,7 +38,7 @@ public class CtrlPt extends PickableEntity {
         pos.set(pt.pos);
         index = pt.index;
     }
-    
+
     /**
      * Updates the parent curve upon movement
      * @param newPos
@@ -57,7 +57,7 @@ public class CtrlPt extends PickableEntity {
     public int getType() {
         return PickableEntity.CTRLPT;
     }
-    
+
     /**
      * Draws the point
      * @param g
@@ -90,12 +90,12 @@ public class CtrlPt extends PickableEntity {
     @Override
     public void delete() {
         parent.removePt(this);
-        Main.ui.view.opStack.pushOp(new DeleteOperation(this));
+        Main.opStack.pushOp(new DeleteOperation(this));
     }
 
     @Override
     public PickableEntity createNew() {
         return new CtrlPt(this);
     }
-    
+
 }

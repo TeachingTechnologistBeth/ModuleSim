@@ -18,14 +18,14 @@ public class MoveTool extends BaseTool {
 	 */
 	public MoveTool(int x, int y) {
 		startPt = ViewUtil.screenToWorld(new Vec2(x,y));
-		entities = new ArrayList<PickableEntity>(Main.ui.view.selection);
+		entities = Main.selection.getEntities();
 
 		for (PickableEntity e : entities) {
 			e.enabled = false;
 			e.tempPos.set(e.pos);
 		}
 	}
-	
+
 	@Override
 	public BaseTool mouseDrag(int x, int y) {
 		Vec2 p = ViewUtil.screenToWorld(new Vec2(x, y));
@@ -34,26 +34,26 @@ public class MoveTool extends BaseTool {
         for (PickableEntity e : entities) {
 			e.moveRelative(p);
 		}
-		
+
 		return this; // still moving
 	}
-	
+
 	@Override
 	public BaseTool lbUp(int x, int y) {
 		Vec2 p = ViewUtil.screenToWorld(new Vec2(x, y));
 		p.sub(startPt);
 
 		// We're done - store the operation
-		Main.ui.view.opStack.beginCompoundOp();
+		Main.opStack.beginCompoundOp();
 		for (PickableEntity e : entities) {
 			e.enabled = true;
             e.moveRelative(p);
 			e.tempPos.set(0, 0);
 
-			Main.ui.view.opStack.pushOp(new MoveOperation(e, p));
+			Main.opStack.pushOp(new MoveOperation(e, p));
 		}
-		Main.ui.view.opStack.endCompoundOp();
-		
+		Main.opStack.endCompoundOp();
+
 		return null; // operation completed
 	}
 
@@ -65,5 +65,5 @@ public class MoveTool extends BaseTool {
             e.moveRelative(new Vec2(0, 0));
         }
     }
-	
+
 }

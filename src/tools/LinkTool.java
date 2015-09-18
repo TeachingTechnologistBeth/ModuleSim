@@ -116,13 +116,13 @@ public class LinkTool extends BaseTool {
 		Port targ = ViewUtil.portAt(x, y);
 
 		if (targ != null) {
-			Main.ui.view.opStack.beginCompoundOp();
+			Main.opStack.beginCompoundOp();
 			Link l = Link.createLink(source, targ, curve);
 			if (l != null) {
 				Main.sim.addLink(l);
-				Main.ui.view.opStack.pushOp(new CreateOperation(l));
+				Main.opStack.pushOp(new CreateOperation(l));
 			}
-			Main.ui.view.opStack.endCompoundOp();
+			Main.opStack.endCompoundOp();
 			working = false;
 			return true;
 		}

@@ -488,9 +488,8 @@ public abstract class BaseModule extends PickableEntity {
     @Override
     public void delete() {
         Main.sim.removeEntity(this);
-        Main.ui.view.deselect(this);
-
-        Main.ui.view.opStack.pushOp(new DeleteOperation(this));
+        Main.selection.remove(this);
+        Main.opStack.pushOp(new DeleteOperation(this));
     }
 
     /**

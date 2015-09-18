@@ -21,8 +21,10 @@ public class Clock extends BaseModule {
     public static final AvailableModules source = AvailableModules.CLOCK;
 
     private LED phase1, phase2;
-    private PushBtn rstBtn;
+    private PushBtn resetBtn;
     private int step = 0;
+
+    private boolean resetting = false;
 
     Clock() {
         w = 50;
@@ -33,10 +35,10 @@ public class Clock extends BaseModule {
 
         phase1 = new LED(-10, -25, LEDColour.GREEN);
         phase2 = new LED(-10,  25, LEDColour.GREEN);
-        rstBtn = new PushBtn(10, 25);
+        resetBtn = new PushBtn(10, 25);
         addPart(phase1);
         addPart(phase2);
-        addPart(rstBtn);
+        addPart(resetBtn);
     }
 
     @Override
@@ -79,21 +81,29 @@ public class Clock extends BaseModule {
 
     @Override
     public void propagate() {
+        // Reset mechanism
+        boolean sendReset = false;
+        if (resetBtn.getEnabled()) {
+            sendReset = true;
+            step = 0;
+        }
+        else {
+            sendReset = false;
+        }
+
         // Phase 1
         BinData p1 = new BinData();
         p1.setBit(0, (step == 1) ? 1 : 0);
-        p1.setBit(2, 1);
         phase1.setEnabled(step == 1);
 
         // Phase 2
         BinData p2 = new BinData();
         p2.setBit(0, (step == 3) ? 1 : 0);
-        p2.setBit(2, 1);
         phase2.setEnabled(step == 3);
 
-        // Reset
-        p2.setBooleanBit(1, rstBtn.getEnabled());
-        p1.setBooleanBit(1, rstBtn.getEnabled());
+        // Reset signal
+        p2.setBooleanBit(1, sendReset);
+        p1.setBooleanBit(1, sendReset);
 
         // Set the outputs
         outputs.get(0).setVal(p1);

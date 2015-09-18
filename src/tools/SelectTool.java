@@ -9,6 +9,7 @@ import java.util.List;
 import gui.ViewUtil;
 import simulator.Main;
 import simulator.PickableEntity;
+import util.Selection;
 import util.Vec2;
 
 public class SelectTool extends BaseTool {
@@ -17,33 +18,40 @@ public class SelectTool extends BaseTool {
     private Vec2 dragPos = new Vec2();
     private boolean dragging = false;
 
-    private List<PickableEntity> mySelection = null;
+    private Selection oldSelection = null;
+    private Selection mySelection = null;
+
+    public SelectTool() {
+        mySelection = new Selection(Main.selection);
+        oldSelection = new Selection(Main.selection);
+    }
 
     @Override
     public BaseTool lbUp(int x, int y) {
         PickableEntity e = ViewUtil.entityAt(x, y);
 
-        if (dragging) {
-            // If we're not doing additive, clear any existing selection
-            if (!BaseTool.SHIFT && mySelection != null) {
-                Main.ui.view.clearSelect();
-                Main.ui.view.select(mySelection);
+        if (dragging && !mySelection.isEmpty()) {
+            // Set the final selection
+            Main.selection.set(mySelection);
+
+            // If we're doing additive selection, add in the old selection as well
+            if (BaseTool.SHIFT) {
+                Main.selection.addAll(oldSelection);
             }
 
             return null;
         }
         else if (e != null) {
             if (BaseTool.SHIFT)
-                Main.ui.view.toggleSelect(e);
+                Main.selection.toggle(e);
             else {
                 // Single-object selection on click
-                Main.ui.view.clearSelect();
-                Main.ui.view.select(e);
+                Main.selection.set(e);
             }
         }
         else {
-            // Clear the selection if we click on an isEmpty spot
-            Main.ui.view.clearSelect();
+            // Clear the selection if we click on an empty spot AND we're not holding shift
+            if (!BaseTool.SHIFT) Main.selection.clear();
         }
 
         return null;
@@ -66,7 +74,7 @@ public class SelectTool extends BaseTool {
         PickableEntity e = ViewUtil.entityAt(x, y);
 
         if (!dragging) {
-            if (e != null && Main.ui.view.selection.contains(e)) {
+            if (e != null && e.selected) {
                 return new MoveTool(x, y);
             }
             else {
@@ -115,8 +123,9 @@ public class SelectTool extends BaseTool {
             double ry = Math.min(dragStart.y, dragStart.y + delta.y);
             double ry2 = Math.max(dragStart.y, dragStart.y + delta.y);
 
-            mySelection = ViewUtil.worldSpace_entitiesWithin(rx, ry, rx2, ry2);
-            Main.ui.view.select(mySelection);
+            mySelection.set(ViewUtil.worldSpace_entitiesWithin(rx, ry, rx2, ry2));
+            Main.selection.set(mySelection);
+            if (BaseTool.SHIFT) Main.selection.addAll(oldSelection);
         }
 
         return this;

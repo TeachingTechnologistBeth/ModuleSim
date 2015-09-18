@@ -10,7 +10,6 @@ import java.util.prefs.Preferences;
 
 import javax.swing.*;
 
-import modules.BaseModule;
 import simulator.Main;
 import util.XMLReader;
 import util.XMLWriter;
@@ -73,7 +72,7 @@ public class Menu {
             }
 
             XMLWriter.writeFile(new File(path));
-            Main.ui.view.opStack.resetModified();
+            Main.opStack.resetModified();
             return true;
         }
 
@@ -87,7 +86,7 @@ public class Menu {
             return saveAs();
         } else {
             XMLWriter.writeFile(new File(curPath));
-            Main.ui.view.opStack.resetModified();
+            Main.opStack.resetModified();
             return true;
         }
     }
@@ -201,7 +200,7 @@ public class Menu {
         JMenuItem item = new JMenuItem("Copy");
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                Main.ui.view.copy(Main.ui.view.selection);
+                Main.clipboard.copy(Main.selection);
             }
         });
         edit.add(item);
@@ -213,7 +212,7 @@ public class Menu {
         item = new JMenuItem("Paste");
         item.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
-                Main.ui.view.paste();
+                Main.ui.view.pasteInto();
             }
         });
         edit.add(item);
@@ -286,10 +285,10 @@ public class Menu {
         view.setMnemonic(KeyEvent.VK_V);
 
         JMenuItem menuItem = new JMenuItem("Toggle AA");
-        menuItem.setToolTipText("Toggles high-quality rendering on/off");
+        menuItem.setToolTipText("Toggles high-useAA rendering on/off");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Main.ui.view.quality = !Main.ui.view.quality;
+                Main.ui.view.useAA = !Main.ui.view.useAA;
             }
         });
         view.add(menuItem);

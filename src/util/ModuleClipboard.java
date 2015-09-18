@@ -51,6 +51,29 @@ public class ModuleClipboard {
     }
 
     /**
+     * Copies the given entities to the clipboard in their current state. Only links and control points BETWEEN copied
+     * modules are stored. Caller should ensure no modifications are made to the original entities while this method
+     * is executing.
+     * @param selection Selection containing the entities to copy
+     */
+    public void copy(Selection selection) {
+        // Wipe internal storage
+        copiedModules.clear();
+        copiedLinks.clear();
+
+        // Pick out the modules from the generic entities list
+        List<BaseModule> copiedRefs = new ArrayList<BaseModule>();
+        for (PickableEntity e : selection.internalSelection) {
+            if (e.getType() == PickableEntity.MODULE) {
+                copiedRefs.add((BaseModule) e);
+            }
+        }
+
+        // Copy across to clipboard storage
+        doCopy(copiedRefs, copiedModules, copiedLinks);
+    }
+
+    /**
      * Copies the stored modules into the simulation, generating the corresponding creation operations, and returns
      * all created entities as a list.
      * @return The newly created entities
@@ -65,11 +88,11 @@ public class ModuleClipboard {
         // Add to the simulation
         for (BaseModule m : modules) {
             Main.sim.addEntity(m);
-            Main.ui.view.opStack.pushOp(new CreateOperation(m));
+            Main.opStack.pushOp(new CreateOperation(m));
         }
         for (Link l : links) {
             Main.sim.addLink(l);
-            Main.ui.view.opStack.pushOp(new CreateOperation(l));
+            Main.opStack.pushOp(new CreateOperation(l));
 
             // Need to return control points as well
             output.addAll(l.curve.ctrlPts);
