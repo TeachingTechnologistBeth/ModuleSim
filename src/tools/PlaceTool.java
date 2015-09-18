@@ -33,7 +33,7 @@ public class PlaceTool extends BaseTool {
         p = ViewUtil.screenToWorld(p);
         e.move(p);
     }
-    
+
     /**
      * Acts as a 'paste' tool for the given clipboard
      * @param clipboard Clipboard containing modules to 'paste'
@@ -50,13 +50,13 @@ public class PlaceTool extends BaseTool {
     @Override
     public BaseTool mouseMove(int x, int y) {
         Vec2 cur = ViewUtil.screenToWorld(new Vec2(x, y));
-        
+
         if (start == null) {
             start = new Vec2(cur);
-            
+
             Vec2 delta = new Vec2(start);
             delta.sub(entities.get(0).tempPos);
-            
+
             entities.get(0).tempPos.set(start);
             for (int i = 1; i < entities.size(); i++) {
                 entities.get(i).tempPos.add(delta);
@@ -104,13 +104,12 @@ public class PlaceTool extends BaseTool {
 
     @Override
     public void cancel() {
+        entities.clear();
         Main.ui.compPane.selected = null;
         Main.ui.compPane.repaint();
 
         // Cancelling automagically undoes our changes
         Main.ui.view.opStack.cancelCompoundOp();
-
-        entities.clear();
     }
 
 }
