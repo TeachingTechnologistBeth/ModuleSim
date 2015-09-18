@@ -12,6 +12,12 @@ import util.CtrlPt;
  * Granular (single object) deletion.
  */
 public class DeleteOperation extends BaseOperation {
+    public DeleteOperation(CtrlPt ctrlPt, int index) {
+        if (index >= 0) {
+            entity = ctrlPt;
+            ctrlPtIndex = index;
+        }
+    }
     public DeleteOperation(PickableEntity e) {
         entity = e;
     }
@@ -19,12 +25,16 @@ public class DeleteOperation extends BaseOperation {
         link = l;
     }
 
+    private int ctrlPtIndex = -1;
+
     @Override
     public void undo() {
         if (entity != null) {
             if (entity.getType() == PickableEntity.CTRLPT) {
+                assert(ctrlPtIndex >= 0);
+
                 CtrlPt c = (CtrlPt) entity;
-                c.parent.addPt(c.index, c);
+                c.parent.addPt(ctrlPtIndex, c);
                 c.parent.calcCurves();
             }
             Main.sim.addEntity(entity);

@@ -129,7 +129,6 @@ public class BezierPath {
 
 		// Iterate the control points
 		for (int i = 0; i < ctrlPts.size(); i++) {
-			ctrlPts.get(i).index = i;
 			Vec2 pt = ctrlPts.get(i).pos;
 
 			// Update existing curve
@@ -196,7 +195,6 @@ public class BezierPath {
 	 */
 	public void addPt(CtrlPt pt) {
 	    pt.parent = this;
-		pt.index = ctrlPts.size();
 		ctrlPts.add(pt);
 		calcCurves();
 	}
@@ -209,12 +207,12 @@ public class BezierPath {
 	public void addPt(int index, CtrlPt pt) {
 		pt.parent = this;
 		if (index <= ctrlPts.size()) {
-			pt.index = index;
 			ctrlPts.add(index, pt);
 			calcCurves();
 		}
 		else {
-			throw new IndexOutOfBoundsException("Attempted to add control point at out-of-bounds index");
+			//throw new IndexOutOfBoundsException("Attempted to add control point at out-of-bounds index");
+			System.err.println("Control point index out of bounds");
 		}
 	}
 

@@ -104,13 +104,12 @@ public class PlaceTool extends BaseTool {
 
     @Override
     public void cancel() {
+        entities.clear();
         Main.ui.compPane.selected = null;
         Main.ui.compPane.repaint();
 
         // Cancelling automagically undoes our changes
         Main.opStack.cancelCompoundOp();
-
-        entities.clear();
     }
 
 }

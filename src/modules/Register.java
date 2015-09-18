@@ -121,7 +121,7 @@ public class Register extends BaseModule {
                 boolean b1 = Integer.parseInt(str.substring(1, 2)) == 1;
                 boolean b2 = Integer.parseInt(str.substring(2, 3)) == 1;
                 boolean b3 = Integer.parseInt(str.substring(3)) == 1;
-                myData = new BinData(b3, b2, b1, b0); // note the order!
+                myData = new BinData(b0, b1, b2, b3); // note the order!
             }
             catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "Corrupt/unrecognized SwitchInput data: " + e.getMessage());

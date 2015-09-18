@@ -30,6 +30,8 @@ public class XMLReader {
      * @param path
      */
     public static void readFile(File xmlFile) {
+        Main.sim.beginDeferPropagations();
+
         try {
             DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbF.newDocumentBuilder();
@@ -202,5 +204,7 @@ public class XMLReader {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error while loading file "+xmlFile.getName()+": " + e.getMessage());
         }
+
+        Main.sim.endDeferPropagations();
     }
 }

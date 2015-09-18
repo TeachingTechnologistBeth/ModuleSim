@@ -11,7 +11,6 @@ import tools.DeleteOperation;
 public class CtrlPt extends PickableEntity {
 
     public BezierPath parent = null;
-    public int index = 0;
 
     /**
      * Create a control point at the specified position
@@ -36,7 +35,6 @@ public class CtrlPt extends PickableEntity {
      */
     public CtrlPt(CtrlPt pt) {
         pos.set(pt.pos);
-        index = pt.index;
     }
 
     /**
@@ -89,8 +87,9 @@ public class CtrlPt extends PickableEntity {
 
     @Override
     public void delete() {
+        DeleteOperation deleteOp = new DeleteOperation(this, parent.ctrlPts.indexOf(this));
         parent.removePt(this);
-        Main.opStack.pushOp(new DeleteOperation(this));
+        Main.opStack.pushOp(deleteOp);
     }
 
     @Override
