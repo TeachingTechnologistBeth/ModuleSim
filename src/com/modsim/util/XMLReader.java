@@ -164,7 +164,7 @@ public class XMLReader {
                         }
                     }
 
-                    // Generate the bezier curve
+                    // Generate the bezier path
                     BezierPath curve = new BezierPath();
 
                     NodeList points = link.getElementsByTagName("ctrlPt");

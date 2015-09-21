@@ -95,7 +95,7 @@ public class ModuleClipboard {
             Main.opStack.pushOp(new CreateOperation(l));
 
             // Need to return control points as well
-            output.addAll(l.curve.ctrlPts);
+            output.addAll(l.path.ctrlPts);
         }
 
         return output;
@@ -147,11 +147,11 @@ public class ModuleClipboard {
 
                     newPort.link = null;
                     targetPort.link = null;
-                    Link newLink = Link.createLink(newPort, targetPort, new BezierPath(oldPort.link.curve));
+                    Link newLink = Link.createLink(newPort, targetPort, new BezierPath(oldPort.link.path));
 
                     // Store the new link
                     if (newLink != null) {
-                        assert newLink.curve != oldPort.link.curve;
+                        assert newLink.path != oldPort.link.path;
 
                         newPort.link = newLink;
                         destLinks.add(newLink);

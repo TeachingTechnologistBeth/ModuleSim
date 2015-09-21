@@ -150,7 +150,7 @@ public class XMLWriter {
                     lElem.setAttribute("targ", "" + l.targ.ID);
 
                     // Curve points
-                    for (CtrlPt c : l.curve.ctrlPts) {
+                    for (CtrlPt c : l.path.ctrlPts) {
                         Element point = doc.createElement("ctrlPt");
                         point.setAttribute("x", "" + c.pos.x);
                         point.setAttribute("y", "" + c.pos.y);

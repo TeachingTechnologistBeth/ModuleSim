@@ -22,7 +22,7 @@ public class Link {
 
     public Port src;
     public Port targ;
-    public BezierPath curve;
+    public BezierPath path;
 
     public boolean highlight = false;
 
@@ -104,7 +104,7 @@ public class Link {
                 // (attempt to) create link in direction chosen
                 newLink.src = source;
                 newLink.targ = target;
-                newLink.curve = path;
+                newLink.path = path;
 
                 source.setMode(Port.Mode.MODE_OUTPUT);
                 target.setMode(Port.Mode.MODE_INPUT);
@@ -112,7 +112,7 @@ public class Link {
             else if (source.canOutput() && target.canInput()) {
                 newLink.src = source;
                 newLink.targ = target;
-                newLink.curve = path;
+                newLink.path = path;
 
                 if (!source.hasDirection()) {
                     source.setMode(Port.Mode.MODE_OUTPUT);
@@ -126,7 +126,7 @@ public class Link {
                 newLink.src = target;
                 newLink.targ = source;
                 path.reverse();
-                newLink.curve = path;
+                newLink.path = path;
 
                 if (!source.hasDirection()) {
                     source.setMode(Port.Mode.MODE_INPUT);
@@ -217,17 +217,17 @@ public class Link {
         }
 
         g.setStroke(new BasicStroke(2));
-        curve.draw(g);
+        path.draw(g);
     }
 
     /**
-     * Updates the Bezier curve for display
+     * Updates the Bezier path for display
      */
     public void updatePath() {
-        // Generate the curve
-        curve.setStart(src);
-        curve.setEnd(targ);
-        curve.calcCurves();
+        // Generate the path
+        path.setStart(src);
+        path.setEnd(targ);
+        path.calcCurves();
     }
 
     /**

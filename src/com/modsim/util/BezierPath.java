@@ -14,14 +14,24 @@ import com.modsim.Main;
  */
 public class BezierPath {
 
+    public class PointInfo {
+        public Vec2 pt;
+        public double dist;
+        public double t;
+        public int curveIndex;
+    }
+
 	public List<BezierCurve> curves = new ArrayList<>();
 	protected ArrayList<CtrlPt> ctrlPts = new ArrayList<>();
 
-	public Vec2 approxClosestPoint(Vec2 searchPt, int iterations) {
+	public PointInfo approxClosestPoint(Vec2 searchPt, int iterations) {
 		Vec2 bestPoint = new Vec2();
 		double bestDist = Double.POSITIVE_INFINITY;
+        double bestT = 0;
+        int bestCurveIndex = -1;
 
-		for (BezierCurve curve : curves) {
+		for (int cInd = 0; cInd < curves.size(); cInd++) {
+            BezierCurve curve = curves.get(cInd);
 			double topT = 1.0;
 			double bottomT = 0.0;
 
@@ -44,14 +54,35 @@ public class BezierPath {
 			if (curveDist < bestDist) {
 				bestDist = curveDist;
 				bestPoint = curvePoint;
+                bestCurveIndex = cInd;
+                bestT = (topT + bottomT) / 2;
 			}
 		}
 
-		return bestPoint;
+        PointInfo pInfo = new PointInfo();
+        pInfo.pt = bestPoint;
+        pInfo.dist = bestDist;
+        pInfo.curveIndex = bestCurveIndex;
+        pInfo.t = bestT;
+		return pInfo;
 	}
 
+    public CtrlPt closestCtrlPt(Vec2 searchPt) {
+        double bestDist = Double.POSITIVE_INFINITY;
+        CtrlPt bestPt = null;
+
+        for (CtrlPt pt : ctrlPts) {
+            if (pt.pos.dist(searchPt) < bestDist) {
+                bestPt = pt;
+                bestDist = pt.pos.dist(searchPt);
+            }
+        }
+
+        return bestPt;
+    }
+
 	/**
-	 * Defines an initial curve
+	 * Defines an initial path
 	 * @param start The start-point
 	 * @param c1off Offset for the first control point (from start)
 	 * @param end The end-point
@@ -144,7 +175,7 @@ public class BezierPath {
 	}
 
 	/**
-	 * Updates the curve list
+	 * Updates the path list
 	 */
 	public void calcCurves() {
 		Vec2 start = curves.get(0).p1;
@@ -155,7 +186,7 @@ public class BezierPath {
 
 		curves.clear();
 
-		// First curve - start pt and first ctrl pt
+		// First path - start pt and first ctrl pt
 		curves.add(new BezierCurve());
 		setStart(start, startC);
 
@@ -163,10 +194,10 @@ public class BezierPath {
 		for (int i = 0; i < ctrlPts.size(); i++) {
 			Vec2 pt = ctrlPts.get(i).pos;
 
-			// Update existing curve
+			// Update existing path
 			curves.get(i).p2 = pt;
 
-			// Add next curve
+			// Add next path
 			BezierCurve c = new BezierCurve();
 			c.p1 = pt;
 			curves.add(c);

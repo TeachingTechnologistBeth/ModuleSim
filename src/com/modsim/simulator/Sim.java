@@ -176,7 +176,7 @@ public class Sim implements Runnable {
             clearErrors();
             links.add(l);
 
-            for (CtrlPt c : l.curve.getCtrlPts()) {
+            for (CtrlPt c : l.path.getCtrlPts()) {
                 addEntity(c);
             }
         }

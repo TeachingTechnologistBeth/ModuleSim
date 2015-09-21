@@ -12,6 +12,7 @@ import com.modsim.modules.ports.Output;
 import com.modsim.modules.parts.Port;
 import com.modsim.simulator.*;
 import com.modsim.tools.*;
+import com.modsim.util.BezierPath;
 import com.modsim.util.Vec2;
 
 /**
@@ -33,10 +34,9 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
      */
     public static Link worldSpace_linkAt(Vec2 pt) {
         for (Link link : Main.sim.getLinks()) {
-            Vec2 closestPoint = link.curve.approxClosestPoint(pt, 6);
-            double dist = closestPoint.dist(pt);
+            BezierPath.PointInfo info = link.path.approxClosestPoint(pt, 6);
 
-            if (dist < 15.0) {
+            if (info.dist < 15.0) {
                 return link;
             }
         }
@@ -232,8 +232,12 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     public void mouseClicked(MouseEvent e) {
         testKeys(e);
+        BaseTool tool = Main.ui.view.curTool;
 
         if (e.getButton() == MouseEvent.BUTTON3) {
+            // Do nothing if the tool handles things
+            if (tool != null && (tool.handlesRbDown() || tool.handlesRbUp())) return;
+
             // Right-click
             PickableEntity targ = screenSpace_entityAt(e.getX(), e.getY());
 
@@ -253,11 +257,10 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     public void mousePressed(MouseEvent e) {
         testKeys(e);
+        BaseTool tool = Main.ui.view.curTool;
 
         if (e.getButton() == MouseEvent.BUTTON1) {
             // Left click handled by tools
-            BaseTool tool = Main.ui.view.curTool;
-
             PickableEntity targ = screenSpace_entityAt(e.getX(), e.getY());
 
             // See if module handles interaction - otherwise, use tools
@@ -280,24 +283,30 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                         Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
                     }
                     else {
-                        Vec2 worldSpace = screenToWorld(new Vec2(e.getX(), e.getY()));
-                        Link l = worldSpace_linkAt(worldSpace);
+                        // Link edit if we haven't hit a module
+                        if (targ == null) {
+                            Vec2 worldSpace = screenToWorld(new Vec2(e.getX(), e.getY()));
+                            Link l = worldSpace_linkAt(worldSpace);
 
-                        // Link edit behaviour
-                        if (l != null) {
-                            l.highlight = !l.highlight;
+                            if (l != null) {
+                                tool = new EditLinkTool(l);
+                                Main.ui.view.curTool = tool.mouseMove(e.getX(), e.getY());
+                                return;
+                            }
                         }
 
-                        // Selection behaviour
-                        else {
-                            tool = new SelectTool();
-                            Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
-                        }
+                        // Finally, try selection behaviour
+                        tool = new SelectTool();
+                        Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
                     }
                 }
             }
         }
         else if (e.getButton() == MouseEvent.BUTTON3) {
+            if (tool != null && tool.handlesRbDown()) {
+                Main.ui.view.curTool = tool.rbDown(e.getX(), e.getY());
+            }
+
             // Camera behaviour
             cStartX = e.getX();
             cStartY = e.getY();
@@ -328,6 +337,10 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             }
         }
         else if (e.getButton() == MouseEvent.BUTTON3) {
+            if (tool != null && tool.handlesRbUp()) {
+                Main.ui.view.curTool = tool.rbUp(e.getX(), e.getY());
+            }
+
             camDrag = false;
         }
     }

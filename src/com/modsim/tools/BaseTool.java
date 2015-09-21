@@ -11,6 +11,13 @@ public abstract class BaseTool {
 	public static boolean SHIFT = false;
 	public static boolean CTRL = false;
 
+	// Conditional handling
+	public boolean handlesRbDown()			{return false;}
+	public boolean handlesRbUp()			{return false;}
+
+	public BaseTool rbDown(int x, int y)  	{return this;}
+	public BaseTool rbUp(int x, int y)  	{return this;}
+
 	public BaseTool lbDown(int x, int y) 	{return this;}
 	public BaseTool lbUp(int x, int y) 		{return this;}
 	public BaseTool mouseMove(int x, int y) {return this;}

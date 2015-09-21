@@ -38,7 +38,7 @@ public class CtrlPt extends PickableEntity {
     }
 
     /**
-     * Updates the parent curve upon movement
+     * Updates the parent path upon movement
      * @param newPos
      */
     @Override
@@ -48,7 +48,7 @@ public class CtrlPt extends PickableEntity {
 
     @Override
     public boolean intersects(Vec2 pt) {
-        return pos.dist(pt) < 6;
+        return pos.dist(pt) < 15;
     }
 
     @Override
