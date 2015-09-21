@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.modsim.modules.parts.BidirPort;
+import com.modsim.modules.ports.BidirPort;
 import com.modsim.modules.parts.Port;
 import com.modsim.res.Colors;
 import com.modsim.simulator.PickableEntity;

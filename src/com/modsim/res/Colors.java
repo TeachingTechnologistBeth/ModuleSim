@@ -3,9 +3,6 @@ package com.modsim.res;
 import com.modsim.modules.parts.Port;
 
 import java.awt.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by awick on 21/09/2015.

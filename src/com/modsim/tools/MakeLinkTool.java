@@ -1,14 +1,14 @@
 package com.modsim.tools;
 
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 
 import com.modsim.Main;
+import com.modsim.operations.CreateOperation;
 import com.modsim.res.Colors;
 import com.modsim.util.*;
-import com.modsim.gui.ViewUtil;
+import com.modsim.gui.view.ViewUtil;
 import com.modsim.modules.*;
 import com.modsim.modules.parts.Port;
 
@@ -17,7 +17,7 @@ import com.modsim.modules.parts.Port;
  * @author aw12700
  *
  */
-public class LinkTool extends BaseTool {
+public class MakeLinkTool extends BaseTool {
 
 	public Port source;
 

@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 
 import com.modsim.Main;
 import com.modsim.simulator.PickableEntity;
-import com.modsim.tools.DeleteOperation;
+import com.modsim.operations.DeleteOperation;
 
 public class CtrlPt extends PickableEntity {
 

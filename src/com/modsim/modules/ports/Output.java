@@ -1,5 +1,7 @@
-package com.modsim.modules.parts;
+package com.modsim.modules.ports;
 
+
+import com.modsim.modules.parts.Port;
 
 /**
  * Output port for a module

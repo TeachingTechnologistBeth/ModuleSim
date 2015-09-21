@@ -1,6 +1,6 @@
 package com.modsim.util;
 
-import com.modsim.gui.View;
+import com.modsim.gui.view.View;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import com.modsim.modules.BaseModule;
 import com.modsim.modules.BaseModule.AvailableModules;
 import com.modsim.modules.Link;
-import com.modsim.modules.parts.BidirPort;
+import com.modsim.modules.ports.BidirPort;
 import com.modsim.modules.parts.Port;
 
 import org.w3c.dom.*;

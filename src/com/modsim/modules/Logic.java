@@ -1,12 +1,13 @@
 package com.modsim.modules;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import com.modsim.modules.parts.*;
+import com.modsim.modules.ports.Input;
+import com.modsim.modules.ports.Output;
 import com.modsim.res.Colors;
 import com.modsim.util.BinData;
 

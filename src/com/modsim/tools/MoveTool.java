@@ -1,7 +1,8 @@
 package com.modsim.tools;
 
-import com.modsim.gui.ViewUtil;
+import com.modsim.gui.view.ViewUtil;
 import com.modsim.Main;
+import com.modsim.operations.MoveOperation;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.Vec2;
 

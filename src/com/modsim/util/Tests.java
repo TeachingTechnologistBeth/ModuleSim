@@ -4,6 +4,8 @@ import java.awt.geom.AffineTransform;
 
 import com.modsim.modules.BaseModule;
 import com.modsim.modules.parts.*;
+import com.modsim.modules.ports.Input;
+import com.modsim.modules.ports.Output;
 
 public class Tests {
 

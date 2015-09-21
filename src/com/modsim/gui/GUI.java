@@ -1,5 +1,7 @@
 package com.modsim.gui;
 
+import com.modsim.gui.view.ContextMenu;
+import com.modsim.gui.view.View;
 import com.modsim.res.ResourceLoader;
 import com.modsim.Main;
 

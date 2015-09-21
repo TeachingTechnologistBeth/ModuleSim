@@ -10,9 +10,12 @@ import java.util.List;
 
 import com.modsim.Main;
 import com.modsim.modules.parts.*;
+import com.modsim.modules.ports.BidirPort;
+import com.modsim.modules.ports.Input;
+import com.modsim.modules.ports.Output;
 import com.modsim.res.Colors;
 import com.modsim.simulator.*;
-import com.modsim.tools.DeleteOperation;
+import com.modsim.operations.DeleteOperation;
 import com.modsim.util.BinData;
 import com.modsim.util.Vec2;
 

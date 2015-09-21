@@ -14,8 +14,41 @@ import com.modsim.Main;
  */
 public class BezierPath {
 
-	public List<BezierCurve> curves = new ArrayList<BezierCurve>();
-	protected ArrayList<CtrlPt> ctrlPts = new ArrayList<CtrlPt>();
+	public List<BezierCurve> curves = new ArrayList<>();
+	protected ArrayList<CtrlPt> ctrlPts = new ArrayList<>();
+
+	public Vec2 approxClosestPoint(Vec2 searchPt, int iterations) {
+		Vec2 bestPoint = new Vec2();
+		double bestDist = Double.POSITIVE_INFINITY;
+
+		for (BezierCurve curve : curves) {
+			double topT = 1.0;
+			double bottomT = 0.0;
+
+			for (int i = 0; i < iterations; i++) {
+				double t1 = bottomT + (topT - bottomT) / 4;
+				double t2 = topT - (topT - bottomT) / 4;
+				Vec2 p1 = curve.calcPoint(t1);
+				Vec2 p2 = curve.calcPoint(t2);
+
+				if (p1.dist(searchPt) < p2.dist(searchPt)) {
+					topT = (topT + bottomT) / 2;
+				}
+				else {
+					bottomT = (topT + bottomT) / 2;
+				}
+			}
+
+			Vec2 curvePoint = curve.calcPoint((topT + bottomT) / 2);
+			double curveDist = curvePoint.dist(searchPt);
+			if (curveDist < bestDist) {
+				bestDist = curveDist;
+				bestPoint = curvePoint;
+			}
+		}
+
+		return bestPoint;
+	}
 
 	/**
 	 * Defines an initial curve

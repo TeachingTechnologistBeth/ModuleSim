@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 import javax.swing.*;
 
 import com.modsim.Main;
+import com.modsim.gui.view.View;
 import com.modsim.tools.PlaceTool;
 import com.modsim.modules.BaseModule;
 import static com.modsim.modules.BaseModule.AvailableModules;

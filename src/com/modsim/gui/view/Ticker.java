@@ -1,4 +1,4 @@
-package com.modsim.gui;
+package com.modsim.gui.view;
 
 import com.modsim.Main;
 

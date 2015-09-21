@@ -1,9 +1,9 @@
 package com.modsim;
 
 import com.modsim.gui.GUI;
-import com.modsim.gui.Ticker;
+import com.modsim.gui.view.Ticker;
 import com.modsim.simulator.Sim;
-import com.modsim.tools.OperationStack;
+import com.modsim.operations.OperationStack;
 import com.modsim.util.ModuleClipboard;
 import com.modsim.util.Selection;
 

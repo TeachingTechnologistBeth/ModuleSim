@@ -1,6 +1,5 @@
 package com.modsim.modules;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +11,7 @@ import com.modsim.res.Colors.LEDColour;
 import com.modsim.util.BezierCurve;
 import com.modsim.util.Vec2;
 import com.modsim.modules.parts.LEDRow;
-import com.modsim.modules.parts.Output;
+import com.modsim.modules.ports.Output;
 import com.modsim.modules.parts.Port;
 
 /**

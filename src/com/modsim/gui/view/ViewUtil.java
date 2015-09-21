@@ -1,4 +1,4 @@
-package com.modsim.gui;
+package com.modsim.gui.view;
 
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -6,9 +6,9 @@ import java.util.List;
 
 import com.modsim.Main;
 import com.modsim.modules.*;
-import com.modsim.modules.parts.BidirPort;
-import com.modsim.modules.parts.Input;
-import com.modsim.modules.parts.Output;
+import com.modsim.modules.ports.BidirPort;
+import com.modsim.modules.ports.Input;
+import com.modsim.modules.ports.Output;
 import com.modsim.modules.parts.Port;
 import com.modsim.simulator.*;
 import com.modsim.tools.*;
@@ -25,6 +25,24 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     private double cStartX, cStartY;
     private double oldCX, oldCY;
     private boolean camDrag = false;
+
+    /**
+     * Finds a clicked link by approximate (binary-search) closest point on curve
+     * @param pt World-space point to check
+     * @return Link at point, or null if there is none
+     */
+    public static Link worldSpace_linkAt(Vec2 pt) {
+        for (Link link : Main.sim.getLinks()) {
+            Vec2 closestPoint = link.curve.approxClosestPoint(pt, 6);
+            double dist = closestPoint.dist(pt);
+
+            if (dist < 15.0) {
+                return link;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Tests collision with ports
@@ -258,13 +276,23 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
                     //Link behaviour
                     if (p != null) {
-                        tool = new LinkTool();
+                        tool = new MakeLinkTool();
                         Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
                     }
-                    // Selection behaviour
                     else {
-                        tool = new SelectTool();
-                        Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
+                        Vec2 worldSpace = screenToWorld(new Vec2(e.getX(), e.getY()));
+                        Link l = worldSpace_linkAt(worldSpace);
+
+                        // Link edit behaviour
+                        if (l != null) {
+                            l.highlight = !l.highlight;
+                        }
+
+                        // Selection behaviour
+                        else {
+                            tool = new SelectTool();
+                            Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
+                        }
                     }
                 }
             }

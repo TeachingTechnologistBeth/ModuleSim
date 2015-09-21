@@ -3,8 +3,9 @@ package com.modsim.tools;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.modsim.gui.ViewUtil;
+import com.modsim.gui.view.ViewUtil;
 import com.modsim.Main;
+import com.modsim.operations.CreateOperation;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.ModuleClipboard;
 import com.modsim.util.Vec2;

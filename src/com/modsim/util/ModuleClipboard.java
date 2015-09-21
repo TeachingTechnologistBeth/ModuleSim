@@ -5,7 +5,7 @@ import com.modsim.modules.Link;
 import com.modsim.modules.parts.Port;
 import com.modsim.Main;
 import com.modsim.simulator.PickableEntity;
-import com.modsim.tools.CreateOperation;
+import com.modsim.operations.CreateOperation;
 
 import java.util.ArrayList;
 import java.util.HashMap;

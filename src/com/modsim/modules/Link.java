@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 import com.modsim.modules.parts.Port;
 import com.modsim.Main;
 import com.modsim.res.Colors;
-import com.modsim.tools.DeleteOperation;
+import com.modsim.operations.DeleteOperation;
 import com.modsim.util.BezierPath;
 import com.modsim.util.BinData;
 
@@ -23,6 +23,8 @@ public class Link {
     public Port src;
     public Port targ;
     public BezierPath curve;
+
+    public boolean highlight = false;
 
     private int linkInd = -1;
 
@@ -207,7 +209,12 @@ public class Link {
      * @param g Graphics context to draw with
      */
     public void draw(Graphics2D g) {
-        g.setColor(Colors.blendedLinks[src.type][targ.type]);
+        if (highlight) {
+            g.setColor(Colors.selectedLink);
+        }
+        else {
+            g.setColor(Colors.blendedLinks[src.type][targ.type]);
+        }
 
         g.setStroke(new BasicStroke(2));
         curve.draw(g);

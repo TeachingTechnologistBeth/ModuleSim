@@ -1,4 +1,4 @@
-package com.modsim.gui;
+package com.modsim.gui.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.swing.*;
 
+import com.modsim.gui.MemEdit;
 import com.modsim.modules.BaseModule;
 import com.modsim.modules.BaseModule.AvailableModules;
 import com.modsim.modules.NRAM;
@@ -15,7 +16,7 @@ import com.modsim.modules.Register;
 import com.modsim.modules.parts.Port;
 import com.modsim.Main;
 import com.modsim.simulator.PickableEntity;
-import com.modsim.tools.RotateOperation;
+import com.modsim.operations.RotateOperation;
 import com.modsim.util.BinData;
 
 public class ContextMenu  {

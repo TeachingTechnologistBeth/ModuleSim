@@ -13,6 +13,8 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import com.modsim.modules.parts.*;
+import com.modsim.modules.ports.Input;
+import com.modsim.modules.ports.Output;
 import com.modsim.res.Colors;
 import com.modsim.res.Colors.LEDColour;
 import com.modsim.util.BinData;

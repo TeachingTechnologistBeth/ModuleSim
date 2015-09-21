@@ -4,7 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import com.modsim.gui.ViewUtil;
+import com.modsim.gui.view.ViewUtil;
 import com.modsim.Main;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.Selection;
