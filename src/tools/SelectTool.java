@@ -3,8 +3,6 @@ package tools;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.List;
 
 import gui.ViewUtil;
 import simulator.Main;
@@ -14,12 +12,16 @@ import util.Vec2;
 
 public class SelectTool extends BaseTool {
 
+    private Vec2 screenDragStart = new Vec2();
     private Vec2 dragStart = new Vec2();
     private Vec2 dragPos = new Vec2();
+
     private boolean dragging = false;
 
-    private Selection oldSelection = null;
     private Selection mySelection = null;
+    private Selection oldSelection = null;
+
+    private PickableEntity pickedEntity = null;
 
     public SelectTool() {
         mySelection = new Selection(Main.selection);
@@ -28,7 +30,7 @@ public class SelectTool extends BaseTool {
 
     @Override
     public BaseTool lbUp(int x, int y) {
-        PickableEntity e = ViewUtil.entityAt(x, y);
+        PickableEntity e = ViewUtil.screenSpace_entityAt(x, y);
 
         if (dragging && !mySelection.isEmpty()) {
             // Set the final selection
@@ -62,7 +64,11 @@ public class SelectTool extends BaseTool {
     public BaseTool lbDown(int x, int y) {
         synchronized (this) {
             // Don't actually set dragging=true till we get a mouseDrag() event
-            dragStart.set(ViewUtil.screenToWorld(new Vec2(x, y)));
+            screenDragStart.set(x, y);
+            dragStart.set(ViewUtil.screenToWorld(screenDragStart));
+
+            // Need to base contextual action on the item at the START of the drag
+            pickedEntity = ViewUtil.screenSpace_entityAt(x, y);
         }
 
         return this;
@@ -70,13 +76,12 @@ public class SelectTool extends BaseTool {
 
     @Override
     public BaseTool mouseDrag(int x, int y) {
-        // Select & start a move operation
-        PickableEntity e = ViewUtil.entityAt(x, y);
-
         if (!dragging) {
-            if (e != null && e.selected) {
-                return new MoveTool(x, y);
+            // Move if we started the drag on a selected entity
+            if (pickedEntity != null && pickedEntity.selected) {
+                return new MoveTool((int) screenDragStart.x, (int) screenDragStart.y);
             }
+            // Otherwise we'll start a selection box
             else {
                 synchronized (this) {
                     dragging = true;
@@ -86,6 +91,7 @@ public class SelectTool extends BaseTool {
                 }
             }
         }
+        // Selection box logic
         else {
             if (BaseTool.CTRL) {
                 // Switch to move tool

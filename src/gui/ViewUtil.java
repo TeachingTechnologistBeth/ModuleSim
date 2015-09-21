@@ -111,7 +111,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
      * @param y
      * @return
      */
-    public static PickableEntity entityAt(double x, double y) {
+    public static PickableEntity screenSpace_entityAt(double x, double y) {
         synchronized (Main.sim) {
             double[] pt = {x, y};
 
@@ -216,7 +216,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
         if (e.getButton() == MouseEvent.BUTTON3) {
             // Right-click
-            PickableEntity targ = entityAt(e.getX(), e.getY());
+            PickableEntity targ = screenSpace_entityAt(e.getX(), e.getY());
 
             if (targ != null) {
                 Main.selection.add(targ);
@@ -239,7 +239,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             // Left click handled by tools
             BaseTool tool = Main.ui.view.curTool;
 
-            PickableEntity targ = entityAt(e.getX(), e.getY());
+            PickableEntity targ = screenSpace_entityAt(e.getX(), e.getY());
 
             // See if module handles interaction - otherwise, use tools
             boolean handled = false;
@@ -287,7 +287,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 Main.ui.view.curTool = tool.lbUp(e.getX(), e.getY());
             }
             else {
-                PickableEntity targ = entityAt(e.getX(), e.getY());
+                PickableEntity targ = screenSpace_entityAt(e.getX(), e.getY());
 
                 if (targ == null) {
                     Main.selection.clear();
