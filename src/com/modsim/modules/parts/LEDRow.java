@@ -3,6 +3,8 @@ package com.modsim.modules.parts;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import com.modsim.res.Colors;
+import com.modsim.res.Colors.LEDColour;
 import com.modsim.util.BinData;
 
 /**
@@ -49,7 +51,7 @@ public class LEDRow extends VisiblePart {
 	@Override
 	public void paint(Graphics2D g) {
 		// Draw the LEDs
-		g.setColor(new Color(80,80,80));
+		g.setColor(Colors.ledBack);
 		g.fillRect(x-15, y-3, 30, 6);
 
 		BinData v = getVal();
@@ -63,7 +65,7 @@ public class LEDRow extends VisiblePart {
 				g.fillRect(offs+2, y-2, 4, 4);
 			}
 			else {
-				g.setColor(new Color(50,50,50));
+				g.setColor(Colors.ledOff);
 				g.fillRect(offs+2, y-2, 4, 4);
 			}
 		}

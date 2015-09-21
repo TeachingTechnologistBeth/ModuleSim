@@ -3,8 +3,9 @@ package com.modsim.modules;
 import java.awt.*;
 import java.util.HashMap;
 
-import com.modsim.modules.parts.LEDColour;
+import com.modsim.res.Colors.LEDColour;
 import com.modsim.modules.parts.Port;
+import com.modsim.res.Colors;
 import com.modsim.util.BinData;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Switch;
@@ -50,21 +51,21 @@ public class SwitchInput extends BaseModule {
 	@Override
 	public void paint(Graphics2D g) {
 		// Fill in polygon
-		g.setColor(new Color(100,100,100));
+		g.setColor(Colors.moduleFill);
 		drawTrapezoid(g, 10);
 
 		// Show output
-		g.setColor(new Color(120,120,120));
+		g.setColor(Colors.modulePorts);
 		drawOutputs(g);
 
 		// Draw switches
-		LEDColour switchCol = LEDColour.RED;
+		Colors.LEDColour switchCol = LEDColour.RED;
 		if (data.link != null) {
 			switch (data.link.targ.type) {
 			case Port.CTRL:
 				switchCol = LEDColour.BLUE;
 				break;
-			case Port.CLK:
+			case Port.CLOCK:
 				switchCol = LEDColour.GREEN;
 				break;
 			}

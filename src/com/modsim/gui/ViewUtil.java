@@ -54,7 +54,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 for (Output o : m.outputs) {
                     Vec2 p = new Vec2();
 
-                    if (o.type == Port.CTRL || o.type == Port.CLK) {
+                    if (o.type == Port.CTRL || o.type == Port.CLOCK) {
                         p.x = -m.w / 2;
                         p.y = -o.pos;
                     }
@@ -72,7 +72,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 for (Input in : m.inputs) {
                     Vec2 p = new Vec2();
 
-                    if (in.type == Port.CTRL || in.type == Port.CLK) {
+                    if (in.type == Port.CTRL || in.type == Port.CLOCK) {
                         p.x = m.w / 2;
                         p.y = -in.pos;
                     }
@@ -90,7 +90,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 for (BidirPort bd : m.bidirs) {
                     Vec2 p = new Vec2();
 
-                    if (bd.type == Port.CTRL || bd.type == Port.CLK) {
+                    if (bd.type == Port.CTRL || bd.type == Port.CLOCK) {
                         p.x = bd.side * m.w / 2;
                         p.y = -bd.pos;
                     }
@@ -116,22 +116,20 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
      * @return The picked entity, or null if the background was clicked
      */
     public static PickableEntity screenSpace_entityAt(double x, double y) {
-        synchronized (Main.sim) {
-            double[] pt = {x, y};
+        double[] pt = {x, y};
 
-            try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 1);}
-            catch (Exception e) {
-                System.err.println("Non invertible transform");
-                return null;
-            }
+        try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 1);}
+        catch (Exception e) {
+            System.err.println("Non invertible transform");
+            return null;
+        }
 
-            Vec2 clickPt = new Vec2(pt);
+        Vec2 clickPt = new Vec2(pt);
 
-            // Loop the entities
-            for (PickableEntity e : Main.sim.getEntities()) {
-                if (e.intersects(clickPt)) {
-                    return e;
-                }
+        // Loop the entities
+        for (PickableEntity e : Main.sim.getEntities()) {
+            if (e.intersects(clickPt)) {
+                return e;
             }
         }
 
@@ -146,12 +144,10 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     public static List<PickableEntity> worldSpace_entitiesWithin(double x1, double y1, double x2, double y2) {
         List<PickableEntity> result = new ArrayList<PickableEntity>();
 
-        synchronized (Main.sim) {
-            // Loop the entities
-            for (PickableEntity e : Main.sim.getEntities()) {
-                if (e.within(x1, y1, x2, y2)) {
-                    result.add(e);
-                }
+        // Loop the entities
+        for (PickableEntity e : Main.sim.getEntities()) {
+            if (e.within(x1, y1, x2, y2)) {
+                result.add(e);
             }
         }
 
@@ -169,24 +165,22 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     public static List<PickableEntity> screenSpace_entitiesWithin(double x, double y, double x2, double y2) {
         List<PickableEntity> result = new ArrayList<PickableEntity>();
 
-        synchronized (Main.sim) {
-            double[] pt = {x, y, x2, y2};
+        double[] pt = {x, y, x2, y2};
 
-            try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 2);}
-            catch (Exception e) {
-                System.err.println("Non inversible transform");
-            }
+        try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 2);}
+        catch (Exception e) {
+            System.err.println("Non invertible transform");
+        }
 
-            x = pt[0];
-            y = pt[1];
-            x2 = pt[2];
-            y2 = pt[3];
+        x = pt[0];
+        y = pt[1];
+        x2 = pt[2];
+        y2 = pt[3];
 
-            // Loop the entities
-            for (PickableEntity e : Main.sim.getEntities()) {
-                if (e.within(x, y, x2, y2)) {
-                    result.add(e);
-                }
+        // Loop the entities
+        for (PickableEntity e : Main.sim.getEntities()) {
+            if (e.within(x, y, x2, y2)) {
+                result.add(e);
             }
         }
 
@@ -194,13 +188,15 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     }
 
     /**
-     * Adjusts an on screen point to world-space
+     * Adjusts an on-screen point to world-space
      */
     public static Vec2 screenToWorld(Vec2 p) {
         double[] pt = p.asArray();
 
         try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 1);}
-        catch (Exception e) {}
+        catch (Exception e) {
+            return null;
+        }
 
         return new Vec2(pt);
     }
@@ -218,7 +214,6 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     public void mouseClicked(MouseEvent e) {
         testKeys(e);
-        System.out.println("Click");
 
         if (e.getButton() == MouseEvent.BUTTON3) {
             // Right-click
@@ -240,15 +235,14 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     public void mousePressed(MouseEvent e) {
         testKeys(e);
-        System.out.println("Press");
 
         if (e.getButton() == MouseEvent.BUTTON1) {
-            // Left click handled by com.modsim.tools
+            // Left click handled by tools
             BaseTool tool = Main.ui.view.curTool;
 
             PickableEntity targ = screenSpace_entityAt(e.getX(), e.getY());
 
-            // See if module handles interaction - otherwise, use com.modsim.tools
+            // See if module handles interaction - otherwise, use tools
             boolean handled = false;
             if (targ != null && targ.getType() == PickableEntity.MODULE) {
                 BaseModule m = (BaseModule) targ;
@@ -289,8 +283,6 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         testKeys(e);
         BaseTool tool = Main.ui.view.curTool;
 
-        System.out.println("Release");
-
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (tool != null) {
                 Main.ui.view.curTool = tool.lbUp(e.getX(), e.getY());
@@ -315,8 +307,6 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     public void mouseDragged(MouseEvent e) {
         testKeys(e);
         BaseTool tool = Main.ui.view.curTool;
-
-        System.out.println("Drag");
 
         if (camDrag) {
             Main.ui.view.camX = oldCX + e.getX() - cStartX;

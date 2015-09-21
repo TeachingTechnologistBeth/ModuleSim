@@ -12,6 +12,7 @@ import com.modsim.modules.parts.LEDRow;
 import com.modsim.modules.parts.Label;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Port;
+import com.modsim.res.Colors;
 
 /**
  * Multiplexor module
@@ -57,7 +58,7 @@ public class Mux extends BaseModule {
         dLEDs = new LEDRow(35, -70);
         addPart(dLEDs);
 
-        addPart(new Label(-45, 15, "MUX", 40, new Color(200,200,200)));
+        addPart(new Label(-45, 15, "MUX", 40, Colors.moduleLabel));
         propagate();
     }
 
@@ -69,13 +70,13 @@ public class Mux extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100,100,100));
+        g.setColor(Colors.moduleFill);
         drawBox(g, 10);
-        g.setColor(new Color(80,80,80));
+        g.setColor(Colors.moduleInset);
         drawTrapezoid(g, 10, 0, 55, 130, 40);
 
         // Show IO
-        g.setColor(new Color(120,120,120));
+        g.setColor(Colors.modulePorts);
         drawInputs(g);
         drawOutputs(g);
 

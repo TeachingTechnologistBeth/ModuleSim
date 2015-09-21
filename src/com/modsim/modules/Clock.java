@@ -5,9 +5,11 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 
+import com.modsim.res.Colors;
+import com.modsim.res.Fonts;
 import com.modsim.util.BinData;
 import com.modsim.modules.parts.LED;
-import com.modsim.modules.parts.LEDColour;
+import com.modsim.res.Colors.LEDColour;
 import com.modsim.modules.parts.Port;
 import com.modsim.modules.parts.PushBtn;
 
@@ -30,8 +32,8 @@ public class Clock extends BaseModule {
         w = 50;
         h = 100;
 
-        addOutput("Phase 1",  25, Port.CLK);
-        addOutput("Phase 2", -25, Port.CLK);
+        addOutput("Phase 1",  25, Port.CLOCK);
+        addOutput("Phase 2", -25, Port.CLOCK);
 
         phase1 = new LED(-10, -25, LEDColour.GREEN);
         phase2 = new LED(-10,  25, LEDColour.GREEN);
@@ -49,18 +51,18 @@ public class Clock extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100,100,100));
+        g.setColor(Colors.moduleFill);
         drawBox(g, 10);
 
         // Show IO
-        g.setColor(new Color(120,120,120));
+        g.setColor(Colors.modulePorts);
         drawOutputs(g);
 
         drawParts(g);
 
         // Show label
-        g.setColor(new Color(200,200,200));
-        g.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g.setColor(Colors.moduleLabel);
+        g.setFont(Fonts.moduleLabel);
         g.drawString("CLK", -18, 8);
     }
 

@@ -77,8 +77,16 @@ public class SelectTool extends BaseTool {
     @Override
     public BaseTool mouseDrag(int x, int y) {
         if (!dragging) {
-            // Move if we started the drag on a selected entity
-            if (pickedEntity != null && pickedEntity.selected) {
+            // Move if we started the drag on an entity
+            if (pickedEntity != null) {
+                if (!pickedEntity.selected) {
+                    if (BaseTool.SHIFT) {
+                        Main.selection.add(pickedEntity);
+                    }
+                    else {
+                        Main.selection.set(pickedEntity);
+                    }
+                }
                 return new MoveTool((int) screenDragStart.x, (int) screenDragStart.y);
             }
             // Otherwise we'll start a selection box

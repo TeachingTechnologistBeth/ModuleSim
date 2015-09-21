@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.modsim.Main;
 import com.modsim.modules.parts.*;
+import com.modsim.res.Colors;
 import com.modsim.simulator.*;
 import com.modsim.tools.DeleteOperation;
 import com.modsim.util.BinData;
@@ -216,7 +217,7 @@ public abstract class BaseModule extends PickableEntity {
         g.setStroke(new BasicStroke(2));
 
         for (Output o : outputs) {
-            boolean side = (o.type == Port.CTRL || o.type == Port.CLK);
+            boolean side = (o.type == Port.CTRL || o.type == Port.CLOCK);
 
             int aw = 10;
             int offset = o.pos;
@@ -246,14 +247,8 @@ public abstract class BaseModule extends PickableEntity {
 
             Color oldC = g.getColor();
 
-            if (o.type == Port.GENERIC)
-                g.setColor(Color.GRAY);
-            else if (o.type == Port.CTRL)
-                g.setColor(Color.BLUE);
-            else if (o.type == Port.CLK)
-                g.setColor(new Color(100, 160, 100));
-            else if (o.type == Port.DATA)
-                g.setColor(Color.RED);
+            // Color port by type
+            g.setColor(Colors.links[o.type]);
 
             if (!side)
                 g.fillArc(offset-5, base - 5, 10, 10, angle, 180);
@@ -273,7 +268,7 @@ public abstract class BaseModule extends PickableEntity {
 
         // Loop the inputs
         for (Input i : inputs) {
-            boolean side = (i.type == Port.CTRL || i.type == Port.CLK);
+            boolean side = (i.type == Port.CTRL || i.type == Port.CLOCK);
 
             int aw = 10;
             int offset = i.pos;
@@ -313,14 +308,8 @@ public abstract class BaseModule extends PickableEntity {
 
             Color oldC = g.getColor();
 
-            if (i.type == Port.GENERIC)
-                g.setColor(Color.GRAY);
-            else if (i.type == Port.CTRL)
-                g.setColor(Color.BLUE);
-            else if (i.type == Port.CLK)
-                g.setColor(new Color(100, 160, 100));
-            else if (i.type == Port.DATA)
-                g.setColor(Color.RED);
+            // Color port by type
+            g.setColor(Colors.links[i.type]);
 
             int x = offset-5;
             int y = base - 5;
@@ -374,14 +363,8 @@ public abstract class BaseModule extends PickableEntity {
 
             Color oldC = g.getColor();
 
-            if (bp.type == Port.GENERIC)
-                g.setColor(Color.GRAY);
-            else if (bp.type == Port.CTRL)
-                g.setColor(Color.BLUE);
-            else if (bp.type == Port.CLK)
-                g.setColor(new Color(100, 160, 100));
-            else if (bp.type == Port.DATA)
-                g.setColor(Color.RED);
+            // Port color by type
+            g.setColor(Colors.links[bp.type]);
 
             // Drawing style depends on port input/output mode
             if (bp.getMode() == Port.Mode.MODE_BIDIR || bp.getMode() == Port.Mode.MODE_OUTPUT) {
@@ -556,7 +539,7 @@ public abstract class BaseModule extends PickableEntity {
         // Get clicked point in object space
         try {toWorld.inverseTransform(rect, 0, rect, 0, 2);}
         catch (Exception e) {
-            System.err.println("Non inversible transform");
+            System.err.println("Non invertible transform");
         }
 
         x  = Math.min(rect[0], rect[2]);

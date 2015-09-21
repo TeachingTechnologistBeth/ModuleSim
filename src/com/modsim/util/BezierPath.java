@@ -72,7 +72,7 @@ public class BezierPath {
 	public void setStart(Port p) {
 		Vec2 c1;
 
-		if (p.type == Port.CTRL || p.type == Port.CLK)
+		if (p.type == Port.CTRL || p.type == Port.CLOCK)
 			c1 = new Vec2(p.side * Main.sim.grid * 2, 0);
 		else
 			c1 = new Vec2(0, p.side * Main.sim.grid * 2);
@@ -99,7 +99,7 @@ public class BezierPath {
 	public void setEnd(Port p) {
 		Vec2 c1;
 
-		if (p.type == Port.CTRL || p.type == Port.CLK)
+		if (p.type == Port.CTRL || p.type == Port.CLOCK)
 			c1 = new Vec2(p.side*Main.sim.grid*2, 0);
 		else
 			c1 = new Vec2(0, p.side*Main.sim.grid*2);

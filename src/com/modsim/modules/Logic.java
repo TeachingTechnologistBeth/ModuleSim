@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.modsim.modules.parts.*;
+import com.modsim.res.Colors;
 import com.modsim.util.BinData;
 
 /**
@@ -43,7 +44,7 @@ public class Logic extends BaseModule {
         addPart(leds);
 
         // Label
-        addPart(new Label(-45, -15, "LU", 40, new Color(200, 200, 200)));
+        addPart(new Label(-45, -15, "LU", 40, Colors.moduleLabel));
 
         // Function LEDs
         String[] labels = {"NOT", "AND", "OR", "XOR"};
@@ -56,7 +57,7 @@ public class Logic extends BaseModule {
             cLED[i] = new LED(xPos, yPos);
             addPart(cLED[i]);
 
-            addPart(new Label(xPos + 10, yPos+4, labels[i], 12));
+            addPart(new Label(xPos + 10, yPos+4, labels[i], 12, Colors.moduleSubLabel));
         }
 
         cLEDs = Collections.unmodifiableList(Arrays.asList(cLED));
@@ -71,13 +72,13 @@ public class Logic extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100, 100, 100));
+        g.setColor(Colors.moduleFill);
         drawBox(g, 10);
-        g.setColor(new Color(80,80,80));
+        g.setColor(Colors.moduleInset);
         drawTrapezoid(g, 10, 0, 35, 120, 80);
 
         // Show IO
-        g.setColor(new Color(120, 120, 120));
+        g.setColor(Colors.modulePorts);
         drawInputs(g);
         drawOutputs(g);
 

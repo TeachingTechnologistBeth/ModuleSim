@@ -1,6 +1,9 @@
 package com.modsim.modules.parts;
 
 import java.awt.Color;
+
+import com.modsim.res.Colors;
+import com.modsim.res.Colors.LEDColour;
 import java.awt.Graphics2D;
 
 public class LED extends TogglePart {
@@ -24,7 +27,7 @@ public class LED extends TogglePart {
 	@Override
 	public void paint(Graphics2D g) {
 		// Display the LED
-		g.setColor(Color.DARK_GRAY);
+		g.setColor(Colors.ledBack);
 		g.fillRect(x-4, y-4, 8, 8);
 
 		if (getEnabled()) {
@@ -34,7 +37,7 @@ public class LED extends TogglePart {
 			g.fillRect(x-2, y-2, 4, 4);
 		}
 		else {
-			g.setColor(new Color(50,50,50));
+			g.setColor(Colors.ledOff);
 			g.fillRect(x-2, y-2, 4, 4);
 		}
 

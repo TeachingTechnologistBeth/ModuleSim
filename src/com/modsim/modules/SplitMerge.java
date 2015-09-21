@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.modsim.modules.parts.BidirPort;
 import com.modsim.modules.parts.Port;
+import com.modsim.res.Colors;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.BezierCurve;
 import com.modsim.util.BinData;
@@ -78,7 +79,7 @@ public class SplitMerge extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100, 100, 100));
+        g.setColor(Colors.moduleFill);
         drawBox(g, 10);
 
         // Show drawing
@@ -113,7 +114,7 @@ public class SplitMerge extends BaseModule {
         }
 
         // Show output/input
-        g.setColor(new Color(120, 120, 120));
+        g.setColor(Colors.modulePorts);
         drawBidir(g);
 
         // Show LEDs

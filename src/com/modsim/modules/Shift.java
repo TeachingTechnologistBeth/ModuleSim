@@ -10,6 +10,7 @@ import com.modsim.modules.parts.LED;
 import com.modsim.modules.parts.LEDRow;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Port;
+import com.modsim.res.Colors;
 import com.modsim.util.BinData;
 
 public class Shift extends BaseModule {
@@ -66,11 +67,11 @@ public class Shift extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100, 100, 100));
+        g.setColor(Colors.moduleFill);
         drawTrapezoid(g, 10);
 
         // Show output/input
-        g.setColor(new Color(120, 120, 120));
+        g.setColor(Colors.modulePorts);
         drawOutputs(g);
         drawInputs(g);
 
@@ -78,7 +79,7 @@ public class Shift extends BaseModule {
         drawParts(g);
 
         // Show label
-        g.setColor(new Color(200, 200, 200));
+        g.setColor(Colors.moduleLabel);
         g.setFont(new Font("SansSerif", Font.BOLD, 20));
         g.drawString(isLeftShift ? "LSH" : "RSH", -20, 8);
     }

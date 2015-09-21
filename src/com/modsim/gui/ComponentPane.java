@@ -51,7 +51,7 @@ public class ComponentPane extends JPanel {
     public void paintComponent(Graphics oldG) {
         Graphics2D g = (Graphics2D) oldG;
 
-        g.setColor(new Color(255, 255, 255));
+        g.setColor(Color.WHITE);
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 

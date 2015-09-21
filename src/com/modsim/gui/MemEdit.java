@@ -40,7 +40,7 @@ public class MemEdit {
     private final JFileChooser filePick = new JFileChooser();
     private final FileNameExtensionFilter hexFilter = new FileNameExtensionFilter("Hex files", "hex");
     private final JScrollBar scroll = new JScrollBar(JScrollBar.VERTICAL);
-    private final JTextField jumpadr = new JTextField();
+    private final JTextField jumpAdr = new JTextField();
 
     private final MemView memView;
 
@@ -56,7 +56,7 @@ public class MemEdit {
         JPanel adrStrip = new JPanel();
         adrStrip.setLayout(new BoxLayout(adrStrip, BoxLayout.LINE_AXIS));
         adrStrip.add(new JLabel("  Jump to: "));
-        adrStrip.add(jumpadr);
+        adrStrip.add(jumpAdr);
 
         JButton goBtn = new JButton("Go");
         JButton lastBtn = new JButton("Last Changed");
@@ -87,7 +87,7 @@ public class MemEdit {
                 int adr;
 
                 try {
-                    adr = Integer.parseInt(jumpadr.getText(), 16);
+                    adr = Integer.parseInt(jumpAdr.getText(), 16);
                 }
                 catch (NumberFormatException nfe) {
                     return; // Fail silently.
@@ -99,7 +99,7 @@ public class MemEdit {
             }
         };
 
-        jumpadr.addActionListener(jumpListener);
+        jumpAdr.addActionListener(jumpListener);
         goBtn.addActionListener(jumpListener);
 
         lastBtn.addActionListener(new ActionListener() {

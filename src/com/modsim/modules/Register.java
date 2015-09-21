@@ -1,7 +1,5 @@
 package com.modsim.modules;
 
-import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +7,8 @@ import java.util.List;
 
 import com.modsim.modules.parts.Input;
 import com.modsim.modules.parts.Output;
+import com.modsim.res.Colors;
+import com.modsim.res.Fonts;
 import com.modsim.util.BinData;
 import com.modsim.modules.parts.LEDRow;
 import com.modsim.modules.parts.Port;
@@ -35,10 +35,10 @@ public class Register extends BaseModule {
         h = 50;
 
         dataIn      = addInput("Data in", 0, Port.DATA);
-        controlIn   = addInput("Control in", 0, Port.CLK, new BinData(0, 1, 0, 0));
+        controlIn   = addInput("Control in", 0, Port.CLOCK, new BinData(0, 1, 0, 0));
 
         dataOut     = addOutput("Data out", 0, Port.DATA);
-        controlOut  = addOutput("Control out", 0, Port.CLK);
+        controlOut  = addOutput("Control out", 0, Port.CLOCK);
 
         ledRow = new LEDRow(25, -20);
         addPart(ledRow);
@@ -54,19 +54,19 @@ public class Register extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100,100,100));
+        g.setColor(Colors.moduleFill);
         drawBox(g, 10);
 
         // Show IO
-        g.setColor(new Color(120,120,120));
+        g.setColor(Colors.modulePorts);
         drawInputs(g);
         drawOutputs(g);
 
         drawParts(g);
 
         // Show label
-        g.setColor(new Color(200,200,200));
-        g.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g.setColor(Colors.moduleLabel);
+        g.setFont(Fonts.moduleLabel);
         g.drawString("R", -7, 8);
     }
 

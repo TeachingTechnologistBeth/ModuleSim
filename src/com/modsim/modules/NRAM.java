@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 
 import com.modsim.modules.parts.*;
 import com.modsim.res.Colors;
+import com.modsim.res.Colors.LEDColour;
 import com.modsim.util.BinData;
 import com.modsim.util.HexReader;
 import com.modsim.util.HexWriter;
@@ -68,7 +69,7 @@ public class NRAM extends BaseModule {
         dataInA = addInput("Data in A (Low bits)", 25, Port.DATA);
 
         // Control
-        controlIn = addInput("Control in", -75, Port.CLK);
+        controlIn = addInput("Control in", -75, Port.CLOCK);
 
         // Address in
         addrA = addInput("Address in A (Lowest Bits)", 50, Port.CTRL);
@@ -81,7 +82,7 @@ public class NRAM extends BaseModule {
         dataOutA = addOutput("Data out A (Low bits)", 25, Port.DATA);
 
         // Control out
-        controlOut = addOutput("Control out", 0, Port.CLK);
+        controlOut = addOutput("Control out", 0, Port.CLOCK);
 
         clearOnReset = cleared;
         reset();
@@ -98,7 +99,7 @@ public class NRAM extends BaseModule {
         // The write jumper
         writeJumper = new Switch(-50, 50, LEDColour.BLUE);
         addPart(writeJumper);
-        addPart(new Label(10, 53, "WRITE", 10));
+        addPart(new Label(10, 53, "WRITE", 10, Colors.moduleSubLabel));
 
         propagate();
     }

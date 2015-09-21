@@ -29,7 +29,7 @@ public abstract class Port {
 
 	public static final int DATA = 0;
 	public static final int CTRL = 1;
-	public static final int CLK = 2;
+	public static final int CLOCK = 2;
 	public static final int GENERIC = 3;
 
 	public int type;
@@ -88,7 +88,7 @@ public abstract class Port {
 	public Vec2 getDisplayPos() {
 		Vec2 p = new Vec2();
 
-		if (type == Port.CTRL || type == Port.CLK) {
+		if (type == Port.CTRL || type == Port.CLOCK) {
 			p.set(side*owner.w/2, -pos);
 		}
 		else {

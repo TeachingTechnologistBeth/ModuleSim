@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 
 import com.modsim.modules.parts.Port;
 import com.modsim.Main;
+import com.modsim.res.Colors;
 import com.modsim.tools.DeleteOperation;
 import com.modsim.util.BezierPath;
 import com.modsim.util.BinData;
@@ -206,24 +207,7 @@ public class Link {
      * @param g Graphics context to draw with
      */
     public void draw(Graphics2D g) {
-        if (src.type == Port.CLK || targ.type == Port.CLK){
-            g.setColor(new Color(100, 160, 100));
-        }
-        else if (src.type == Port.GENERIC && targ.type == Port.GENERIC) {
-            g.setColor(Color.GRAY);
-        }
-        else if (	(src.type == Port.DATA || src.type == Port.GENERIC) && targ.type == Port.DATA ||
-                src.type == Port.DATA && targ.type == Port.GENERIC) {
-            g.setColor(Color.RED);
-        }
-        else if (	(src.type == Port.CTRL  || src.type == Port.GENERIC) && targ.type == Port.CTRL ||
-                src.type == Port.CTRL && targ.type == Port.GENERIC) {
-            g.setColor(Color.BLUE);
-        }
-        else {
-            // Mixed
-            g.setColor(new Color(255, 0, 100));
-        }
+        g.setColor(Colors.blendedLinks[src.type][targ.type]);
 
         g.setStroke(new BasicStroke(2));
         curve.draw(g);

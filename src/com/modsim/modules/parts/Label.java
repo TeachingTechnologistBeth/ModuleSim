@@ -1,5 +1,7 @@
 package com.modsim.modules.parts;
 
+import com.modsim.res.Fonts;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -12,8 +14,24 @@ public class Label extends VisiblePart {
 
     /**
      * Create a label
-     * @param x
-     * @param y
+     * @param x X offset from centre
+     * @param y Y offset from centre
+     * @param txt Text to display
+     * @param fontSize Size of label font
+     * @param col Color of label font
+     */
+    public Label(int x, int y, String txt, Color col) {
+        this.x = x;
+        this.y = y;
+        text = txt;
+        font = Fonts.moduleLabel;
+        color = col;
+    }
+
+    /**
+     * Create a label
+     * @param x X offset from centre
+     * @param y Y offset from centre
      * @param txt Text to display
      * @param fontSize Size of label font
      * @param col Color of label font
@@ -22,19 +40,10 @@ public class Label extends VisiblePart {
         this.x = x;
         this.y = y;
         text = txt;
-        font = new Font("Dialog", Font.BOLD, fontSize);
+        font = new Font(Fonts.moduleLabel.getFamily(),
+                Fonts.moduleLabel.getStyle(),
+                fontSize);
         color = col;
-    }
-
-    /**
-     * Create a label
-     * @param x
-     * @param y
-     * @param txt Text to display
-     * @param fontSize Size of label font
-     */
-    public Label(int x, int y, String txt, int fontSize) {
-        this(x, y, txt, fontSize, Color.GRAY);
     }
 
     @Override

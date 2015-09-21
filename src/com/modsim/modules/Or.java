@@ -10,9 +10,11 @@ import java.util.List;
 
 import com.modsim.modules.parts.Input;
 import com.modsim.modules.parts.LED;
-import com.modsim.modules.parts.LEDColour;
+import com.modsim.res.Colors;
+import com.modsim.res.Colors.LEDColour;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Port;
+import com.modsim.res.Fonts;
 import com.modsim.util.BinData;
 
 public class Or extends BaseModule {
@@ -30,21 +32,21 @@ public class Or extends BaseModule {
 
         // Output
         rOut = addOutput("Or'ed output", 0, Port.CTRL);
-        passOut = Collections.unmodifiableList(Arrays.asList(new Output[]{
+        passOut = Collections.unmodifiableList(Arrays.asList(
                 addOutput("Pass A", -50, Port.GENERIC),
                 addOutput("Pass B", -25, Port.GENERIC),
                 addOutput("Pass C", 25, Port.GENERIC),
-                addOutput("Pass D", 50, Port.GENERIC),
-        }));
+                addOutput("Pass D", 50, Port.GENERIC)
+        ));
 
         // Inputs
         chIn = addInput("Chain in", 0, Port.CTRL);
-        dIn = Collections.unmodifiableList(Arrays.asList(new Input[]{
+        dIn = Collections.unmodifiableList(Arrays.asList(
                 addInput("Input A", -50, Port.GENERIC),
                 addInput("Input B", -25, Port.GENERIC),
                 addInput("Input C", 25, Port.GENERIC),
-                addInput("Input D", 50, Port.GENERIC),
-        }));
+                addInput("Input D", 50, Port.GENERIC)
+        ));
 
         rLED = new LED(-60, 0, LEDColour.RED);
         addPart(rLED);
@@ -59,17 +61,17 @@ public class Or extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100, 100, 100));
+        g.setColor(Colors.moduleFill);
         drawTrapezoid(g, 10);
 
         // Show output/input
-        g.setColor(new Color(120, 120, 120));
+        g.setColor(Colors.modulePorts);
         drawOutputs(g);
         drawInputs(g);
 
         // Show label
-        g.setColor(new Color(200, 200, 200));
-        g.setFont(new Font("SansSerif", Font.BOLD, 20));
+        g.setColor(Colors.moduleLabel);
+        g.setFont(Fonts.moduleLabel);
         g.drawString("OR", -16, 8);
 
         // Show LED

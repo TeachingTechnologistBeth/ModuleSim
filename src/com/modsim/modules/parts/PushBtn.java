@@ -1,6 +1,9 @@
 package com.modsim.modules.parts;
 
 import java.awt.Color;
+
+import com.modsim.res.Colors;
+import com.modsim.res.Colors.LEDColour;
 import java.awt.Graphics2D;
 
 import com.modsim.Main;
@@ -78,9 +81,9 @@ public class PushBtn extends TogglePart {
             g.fillRect(x-w/2 + 1, y-h/2+1, w - 2, h - 2);
 		}
 		else {
-		    g.setColor(new Color(150, 150, 150));
+		    g.setColor(Colors.buttonTop);
 			g.fillRect(x-w/2, y-h/2, w, h);
-			g.setColor(new Color(130, 130, 130));
+			g.setColor(Colors.button);
             g.fillRect(x-w/2 + 1, y-h/2+1, w - 2, h-3);
 		}
 	}

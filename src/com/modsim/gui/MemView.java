@@ -8,6 +8,7 @@ import java.awt.geom.AffineTransform;
 import javax.swing.JPanel;
 
 import com.modsim.modules.NRAM;
+import com.modsim.res.Colors;
 
 public class MemView extends JPanel {
 
@@ -98,7 +99,7 @@ public class MemView extends JPanel {
             g.setTransform(xForm);
 
             // Divider line
-            g.setColor(new Color(200, 200, 200));
+            g.setColor(Colors.moduleLabel);
             g.drawLine(0, rowH-1, getWidth(), rowH-1);
         }
         else {
