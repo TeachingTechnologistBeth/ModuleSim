@@ -98,7 +98,7 @@ public class View extends JPanel {
 
             g.setTransform(old);
 
-            // Draw com.modsim.modules
+            // Draw modules
             for (BaseModule m : Main.sim.getModules()) {
                 m.updateXForm();
                 g.transform(m.toView);
@@ -108,6 +108,12 @@ public class View extends JPanel {
                     drawError(g);
                 }
 
+                g.setTransform(old);
+            }
+
+            for (BaseModule m : Main.sim.getModules()) {
+                g.transform(m.toView);
+                m.drawLabel(g);
                 g.setTransform(old);
             }
 

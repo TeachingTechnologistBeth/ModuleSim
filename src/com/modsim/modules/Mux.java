@@ -5,10 +5,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.modsim.modules.parts.SSText;
 import com.modsim.modules.ports.Input;
 import com.modsim.modules.parts.LED;
 import com.modsim.modules.parts.LEDRow;
-import com.modsim.modules.parts.Label;
 import com.modsim.modules.ports.Output;
 import com.modsim.modules.parts.Port;
 import com.modsim.res.Colors;
@@ -57,7 +57,7 @@ public class Mux extends BaseModule {
         dLEDs = new LEDRow(35, -70);
         addPart(dLEDs);
 
-        addPart(new Label(-45, 15, "MUX", 40, Colors.moduleLabel));
+        addPart(new SSText(-45, 15, "MUX", 40, Colors.moduleLabel));
         propagate();
     }
 

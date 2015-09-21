@@ -45,7 +45,7 @@ public class Logic extends BaseModule {
         addPart(leds);
 
         // Label
-        addPart(new Label(-45, -15, "LU", 40, Colors.moduleLabel));
+        addPart(new SSText(-45, -15, "LU", 40, Colors.moduleLabel));
 
         // Function LEDs
         String[] labels = {"NOT", "AND", "OR", "XOR"};
@@ -58,7 +58,7 @@ public class Logic extends BaseModule {
             cLED[i] = new LED(xPos, yPos);
             addPart(cLED[i]);
 
-            addPart(new Label(xPos + 10, yPos+4, labels[i], 12, Colors.moduleSubLabel));
+            addPart(new SSText(xPos + 10, yPos+4, labels[i], 12, Colors.moduleSubLabel));
         }
 
         cLEDs = Collections.unmodifiableList(Arrays.asList(cLED));

@@ -135,6 +135,7 @@ public class MemEdit {
      * Updates the view of the memory contents
      */
     public void update() {
+        frame.setTitle("NRAM " + targ.label);
         memView.setUpdated(updAdr);
         memView.repaint();
     }

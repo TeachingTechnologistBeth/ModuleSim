@@ -72,9 +72,9 @@ public class XMLWriter {
                 // Generate IDs for storage
                 genIDs();
 
-                // Store the com.modsim.modules
+                // Store the modules
                 List<BaseModule> modules = Main.sim.getModules();
-                Element mods = doc.createElement("com/modsim/modules");
+                Element mods = doc.createElement("ModuleSim");
                 rootElem.appendChild(mods);
 
                 for (BaseModule m : modules) {
@@ -88,6 +88,14 @@ public class XMLWriter {
                     dim.setAttribute("y", "" + m.pos.y);
                     dim.setAttribute("orient", "" + m.orientation);
                     modElem.appendChild(dim);
+
+                    // Label
+                    if (!m.label.isEmpty()) {
+                        Element label = doc.createElement("label");
+                        label.setAttribute("size", "" + m.labelSize);
+                        label.setTextContent(m.label);
+                        modElem.appendChild(label);
+                    }
 
                     // HAX: See XMLReader for an explanation of what's going on here
                     ArrayList<Port> moduleInputs = new ArrayList<>();

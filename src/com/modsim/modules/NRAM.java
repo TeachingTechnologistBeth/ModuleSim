@@ -101,7 +101,7 @@ public class NRAM extends BaseModule {
         // The write jumper
         writeJumper = new Switch(-50, 50, LEDColour.BLUE);
         addPart(writeJumper);
-        addPart(new Label(10, 53, "WRITE", 10, Colors.moduleSubLabel));
+        addPart(new SSText(10, 53, "WRITE", 10, Colors.moduleSubLabel));
 
         propagate();
     }

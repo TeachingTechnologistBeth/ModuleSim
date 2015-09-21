@@ -44,6 +44,10 @@ public class Colors {
     public static final Color errorFill = new Color(255, 255, 255, 60);
     public static final Color errorText = new Color(255, 10, 10);
 
+    // Labels
+    public static final Color labelFill = new Color(230, 230, 230, 200);
+    public static final Color labelText = new Color(0, 0, 0, 200);
+
     // LED/part colors
     public static final Color ledBack = new Color(0, 0, 0, 60);
     public static final Color ledOff = new Color(50, 50, 50);

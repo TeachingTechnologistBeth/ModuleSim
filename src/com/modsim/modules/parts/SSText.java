@@ -6,7 +6,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 
-public class Label extends VisiblePart {
+public class SSText extends VisiblePart {
 
     private String text;
     private Font font;
@@ -20,7 +20,7 @@ public class Label extends VisiblePart {
      * @param fontSize Size of label font
      * @param col Color of label font
      */
-    public Label(int x, int y, String txt, Color col) {
+    public SSText(int x, int y, String txt, Color col) {
         this.x = x;
         this.y = y;
         text = txt;
@@ -36,7 +36,7 @@ public class Label extends VisiblePart {
      * @param fontSize Size of label font
      * @param col Color of label font
      */
-    public Label(int x, int y, String txt, int fontSize, Color col) {
+    public SSText(int x, int y, String txt, int fontSize, Color col) {
         this.x = x;
         this.y = y;
         text = txt;

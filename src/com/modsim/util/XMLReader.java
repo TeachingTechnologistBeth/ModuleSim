@@ -80,6 +80,13 @@ public class XMLReader {
                     m.pos.y = Double.parseDouble(dim.getAttribute("y"));
                     m.orientation = Integer.parseInt(dim.getAttribute("orient"));
 
+                    // Set the label
+                    Element label = (Element) module.getElementsByTagName("label").item(0);
+                    if (label != null) {
+                        m.label = label.getTextContent();
+                        m.labelSize = Integer.parseInt(label.getAttribute("size"));
+                    }
+
                     // HAX: backwards-compatibility is fun for the whole family!
                     //   Previous versions of the program made no real distinction between normal ports and the
                     //   split-merge's bidirectional ports - they were stored in the input/output lists based on

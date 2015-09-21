@@ -5,13 +5,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.modsim.modules.parts.SSText;
 import com.modsim.res.Colors;
 import com.modsim.res.Colors.LEDColour;
 import com.modsim.util.BinData;
 import com.modsim.modules.ports.Input;
 import com.modsim.modules.parts.LED;
 import com.modsim.modules.parts.LEDRow;
-import com.modsim.modules.parts.Label;
 import com.modsim.modules.ports.Output;
 
 /**
@@ -53,12 +53,12 @@ public class AddSub extends BaseModule {
         cIn = addInput("Control in", 0, Input.CTRL);
 
         // Label
-        addPart(new Label(-45, -15, "AU", 40, Colors.moduleLabel));
+        addPart(new SSText(-45, -15, "AU", 40, Colors.moduleLabel));
 
         // Add display
         carryLED = new LED(-52, 6);
         addPart(carryLED);
-        addPart(new Label(-45, 9, "CARRY OUT", 10, Colors.moduleSubLabel));
+        addPart(new SSText(-45, 9, "CARRY OUT", 10, Colors.moduleSubLabel));
         leds = new LEDRow(35, -70);
         addPart(leds);
         boolLED = new LED(-45, -70, LEDColour.RED);
@@ -75,7 +75,7 @@ public class AddSub extends BaseModule {
             cLED[i] = new LED(xPos, yPos);
             addPart(cLED[i]);
 
-            addPart(new Label(xPos + 7, yPos+4, labels[i], 10, Colors.moduleSubLabel));
+            addPart(new SSText(xPos + 7, yPos+4, labels[i], 10, Colors.moduleSubLabel));
         }
 
         cLEDs = Collections.unmodifiableList(Arrays.asList(cLED));

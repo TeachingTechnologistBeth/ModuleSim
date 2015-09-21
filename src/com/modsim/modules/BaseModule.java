@@ -1,9 +1,8 @@
 package com.modsim.modules;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +13,7 @@ import com.modsim.modules.ports.BidirPort;
 import com.modsim.modules.ports.Input;
 import com.modsim.modules.ports.Output;
 import com.modsim.res.Colors;
+import com.modsim.res.Fonts;
 import com.modsim.simulator.*;
 import com.modsim.operations.DeleteOperation;
 import com.modsim.util.BinData;
@@ -37,6 +37,8 @@ public abstract class BaseModule extends PickableEntity {
     public AffineTransform toView = new AffineTransform();
 
     public int orientation = 0;
+    public String label = "";
+    public int labelSize = 0;
 
     public List<Port> ports = new ArrayList<>();
     public List<Input> inputs = new ArrayList<>();
@@ -190,6 +192,42 @@ public abstract class BaseModule extends PickableEntity {
      * @param g Graphics context to render with
      */
     public abstract void paint(Graphics2D g);
+
+    /**
+     * Displays the module's label in local space
+     * @param g Graphics context to render with
+     */
+    public void drawLabel(Graphics2D g) {
+        if (!label.isEmpty()) {
+            double height, margin;
+            Font font;
+            if (labelSize == 0) {
+                // Small
+                height = 27;
+                margin = 20;
+                font = Fonts.label;
+            }
+            else {
+                // Big
+                height = 54;
+                margin = 40;
+                font = Fonts.bigLabel;
+            }
+
+            // Text sizing/centering
+            g.setFont(font);
+            FontMetrics fm = g.getFontMetrics();
+            Rectangle2D r = fm.getStringBounds(label, g);
+            float x = (float) ((w - r.getWidth()) / 2 - w/2);
+            float y = (float) (((height - r.getHeight()) / 2 + fm.getDescent()) + h/2 + 25 + height/2);
+
+            g.setColor(Colors.labelFill);
+            drawBox(g, 5, 0, (int) (h / 2 + 25 + height/2), (int) Math.max(w, r.getWidth() + margin), (int) height);
+
+            g.setColor(Colors.labelText);
+            g.drawString(label, x, y);
+        }
+    }
 
     /**
      * Displays the module's bounding box
@@ -404,9 +442,23 @@ public abstract class BaseModule extends PickableEntity {
      * @param corner Corner size in pixels
      */
     protected void drawBox(Graphics2D g, int corner) {
-        int iw = (int)w, ih = (int)h;
-        int[] xPoints = {-iw/2, -iw/2+corner, iw/2-corner, iw/2, iw/2, iw/2-corner, -iw/2+corner, -iw/2};
-        int[] yPoints = { ih/2-corner, ih/2, ih/2, ih/2-corner, -ih/2+corner, -ih/2, -ih/2, -ih/2+corner};
+        drawBox(g, corner, 0, 0, (int) w, (int) h);
+    }
+
+    /**
+     * Draws a box with the specified dimensions
+     * @param g
+     * @param corner
+     * @param x
+     * @param y
+     * @param width
+     * @param height
+     */
+    protected void drawBox(Graphics2D g, int corner, int x, int y, int width, int height) {
+        int[] xPoints = {x-width/2, x-width/2+corner, x+width/2-corner, x+width/2,
+                x+width/2, x+width/2-corner, x-width/2+corner, x-width/2};
+        int[] yPoints = { y+height/2-corner, y+height/2, y+height/2, y+height/2-corner,
+                y-height/2+corner, y-height/2, y-height/2, y-height/2 + corner};
         g.fillPolygon(xPoints, yPoints, 8);
     }
 
@@ -641,6 +693,7 @@ public abstract class BaseModule extends PickableEntity {
     /**
      * Fill a string-string hash map with module-specific data for retrieval with dataIn.
      * Called by XMLWriter and the copy routines. Default behaviour is to return null, indicating that no relevant
+     * data is contained in the module.
      * @return A filled hash map structure, or null if no state is stored
      */
     public HashMap<String, String> dataOut() { return null; }

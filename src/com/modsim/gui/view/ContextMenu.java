@@ -15,6 +15,7 @@ import com.modsim.modules.NRAM;
 import com.modsim.modules.Register;
 import com.modsim.modules.parts.Port;
 import com.modsim.Main;
+import com.modsim.operations.LabelOperation;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.operations.RotateOperation;
 import com.modsim.util.BinData;
@@ -28,7 +29,7 @@ public class ContextMenu  {
 	private Port port;
 
 	private JMenuItem rmLink, rotCW, rotCCW, rot180, copy, paste, delete,
-			ramEdit, ramClear, regEdit, regClear;
+			ramEdit, ramClear, regEdit, regClear, labelEdit, labelSize;
 
 	/**
 	 * Instantiates the menu system, generating the menu items
@@ -110,6 +111,57 @@ public class ContextMenu  {
                 Main.selection.deleteAll();
 			}
 		});
+
+        ////////// Module-specific
+
+        // Labelling
+        labelEdit = new JMenuItem("Add/Edit Label");
+        labelEdit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String labelStr = JOptionPane.showInputDialog(Main.ui.frame, "");
+                if (labelStr == null) return;
+
+                Main.opStack.beginCompoundOp();
+                for (PickableEntity entity : entities) {
+                    if (entity.getType() == PickableEntity.MODULE) {
+                        BaseModule module = (BaseModule) entity;
+                        Main.opStack.pushOp(new LabelOperation(module, module.label, labelStr));
+                        module.label = labelStr;
+                    }
+                }
+                Main.opStack.endCompoundOp();
+            }
+        });
+
+        labelSize = new JMenu("Label size");
+        JMenuItem smallSize = new JMenuItem("Small (default)");
+        JMenuItem bigSize = new JMenuItem("Big");
+
+        smallSize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (PickableEntity entity : entities) {
+                    if (entity.getType() == PickableEntity.MODULE) {
+                        ((BaseModule) entity).labelSize = 0;
+                    }
+                }
+            }
+        });
+
+        bigSize.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (PickableEntity entity : entities) {
+                    if (entity.getType() == PickableEntity.MODULE) {
+                        ((BaseModule) entity).labelSize = 1;
+                    }
+                }
+            }
+        });
+
+        labelSize.add(smallSize);
+        labelSize.add(bigSize);
 
 		////////// Memory-specfic
 
@@ -240,30 +292,43 @@ public class ContextMenu  {
 	        menu.add(paste);
 	        menu.add(delete);
 
+
 			// Additional module options
-	        for (PickableEntity e : entities) {
-    	        // If it's an NRAM module
-    	        if (e.getType() == PickableEntity.MODULE && ((BaseModule)e).getModType().equals(AvailableModules.RAM)) {
-    	            menu.addSeparator();
-    	            menu.add(ramEdit);
-					menu.add(ramClear);
 
-					break;
-    	        }
-	        }
+            for (PickableEntity e : entities) {
+                // If it's an NRAM module
+                if (e.getType() == PickableEntity.MODULE && ((BaseModule)e).getModType().equals(AvailableModules.RAM)) {
+                    menu.addSeparator();
+                    menu.add(ramEdit);
+                    menu.add(ramClear);
 
-			for (PickableEntity e : entities) {
-				// If it's a Register module
-				if (e.getType() == PickableEntity.MODULE &&
+                    break;
+                }
+            }
+
+            for (PickableEntity e : entities) {
+                // If it's a Register module
+                if (e.getType() == PickableEntity.MODULE &&
 						((BaseModule)e).getModType().equals(AvailableModules.REGISTER)) {
-					menu.addSeparator();
-					menu.add(regEdit);
-					menu.add(regClear);
+                    menu.addSeparator();
+                    menu.add(regEdit);
+                    menu.add(regClear);
 
-					break;
-				}
-			}
-	    }
+                    break;
+                }
+            }
+
+            for (PickableEntity e : entities) {
+                // If it's a module
+                if (e.getType() == PickableEntity.MODULE) {
+                    menu.addSeparator();
+                    menu.add(labelEdit);
+                    menu.add(labelSize);
+
+                    break;
+                }
+            }
+        }
 
 	    // A menu gets shown any which way
 	    menu.show(Main.ui.view, x, y);
