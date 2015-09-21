@@ -26,10 +26,10 @@ import javax.swing.JTextField;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.modsim.Main;
-import util.BinData;
-import util.HexReader;
-import util.HexWriter;
-import modules.NRAM;
+import com.modsim.util.BinData;
+import com.modsim.util.HexReader;
+import com.modsim.util.HexWriter;
+import com.modsim.modules.NRAM;
 
 public class MemEdit {
 

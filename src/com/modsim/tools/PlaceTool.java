@@ -5,9 +5,9 @@ import java.util.List;
 
 import com.modsim.gui.ViewUtil;
 import com.modsim.Main;
-import simulator.PickableEntity;
-import util.ModuleClipboard;
-import util.Vec2;
+import com.modsim.simulator.PickableEntity;
+import com.modsim.util.ModuleClipboard;
+import com.modsim.util.Vec2;
 import com.modsim.modules.BaseModule;
 
 public class PlaceTool extends BaseTool {

@@ -8,15 +8,15 @@ import java.util.List;
 
 import javax.swing.*;
 
-import modules.BaseModule;
-import modules.BaseModule.AvailableModules;
-import modules.NRAM;
-import modules.Register;
-import modules.parts.Port;
+import com.modsim.modules.BaseModule;
+import com.modsim.modules.BaseModule.AvailableModules;
+import com.modsim.modules.NRAM;
+import com.modsim.modules.Register;
+import com.modsim.modules.parts.Port;
 import com.modsim.Main;
-import simulator.PickableEntity;
-import tools.RotateOperation;
-import util.BinData;
+import com.modsim.simulator.PickableEntity;
+import com.modsim.tools.RotateOperation;
+import com.modsim.util.BinData;
 
 public class ContextMenu  {
 

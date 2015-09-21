@@ -2,7 +2,7 @@ package com.modsim.gui;
 
 import java.awt.*;
 import javax.swing.JPanel;
-import static modules.BaseModule.AvailableModules;
+import static com.modsim.modules.BaseModule.AvailableModules;
 
 /**
  * The module selection pane
@@ -21,7 +21,7 @@ public class ComponentPane extends JPanel {
     }
 
     /**
-     * Adds the modules to the listing
+     * Adds the com.modsim.modules to the listing
      */
     private void addModules() {
         GridBagConstraints gb = new GridBagConstraints();

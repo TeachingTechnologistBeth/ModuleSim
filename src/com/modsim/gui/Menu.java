@@ -11,8 +11,8 @@ import java.util.prefs.Preferences;
 import javax.swing.*;
 
 import com.modsim.Main;
-import util.XMLReader;
-import util.XMLWriter;
+import com.modsim.util.XMLReader;
+import com.modsim.util.XMLWriter;
 
 /**
  * Manager for the main window app_menu

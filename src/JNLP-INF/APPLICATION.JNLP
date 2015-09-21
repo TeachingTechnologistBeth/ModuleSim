@@ -24,7 +24,7 @@
     </security>
     <application-desc
             name="ModuleSim v0.2.0"
-            main-class="simulator.Main">
+            main-class="com.modsim.Main">
     </application-desc>
     <update check="background"/>
 </jnlp>

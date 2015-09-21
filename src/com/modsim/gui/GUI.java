@@ -1,6 +1,6 @@
 package com.modsim.gui;
 
-import res.ResourceLoader;
+import com.modsim.res.ResourceLoader;
 import com.modsim.Main;
 
 import java.awt.event.WindowAdapter;

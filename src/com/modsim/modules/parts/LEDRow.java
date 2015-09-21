@@ -3,7 +3,7 @@ package com.modsim.modules.parts;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import util.BinData;
+import com.modsim.util.BinData;
 
 /**
  * Row of four LEDs (for data display)

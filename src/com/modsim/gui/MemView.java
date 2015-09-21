@@ -7,7 +7,7 @@ import java.awt.geom.AffineTransform;
 
 import javax.swing.JPanel;
 
-import modules.NRAM;
+import com.modsim.modules.NRAM;
 
 public class MemView extends JPanel {
 

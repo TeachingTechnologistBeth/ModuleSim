@@ -2,7 +2,7 @@ package com.modsim.simulator;
 
 import java.awt.Graphics2D;
 
-import util.Vec2;
+import com.modsim.util.Vec2;
 
 public abstract class PickableEntity {
 

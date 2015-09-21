@@ -10,10 +10,10 @@ import java.util.List;
 
 import com.modsim.Main;
 import com.modsim.modules.parts.*;
-import simulator.*;
-import tools.DeleteOperation;
-import util.BinData;
-import util.Vec2;
+import com.modsim.simulator.*;
+import com.modsim.tools.DeleteOperation;
+import com.modsim.util.BinData;
+import com.modsim.util.Vec2;
 
 /**
  * Base for module classes

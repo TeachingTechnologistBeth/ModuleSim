@@ -13,7 +13,7 @@ import com.modsim.modules.parts.LED;
 import com.modsim.modules.parts.LEDColour;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Port;
-import util.BinData;
+import com.modsim.util.BinData;
 
 public class Or extends BaseModule {
 

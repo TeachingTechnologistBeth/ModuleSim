@@ -12,7 +12,7 @@ import com.modsim.modules.parts.LEDRow;
 import com.modsim.modules.parts.Label;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Port;
-import util.BinData;
+import com.modsim.util.BinData;
 
 /**
  * Demultiplexor module

@@ -5,7 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 
-import util.BinData;
+import com.modsim.util.BinData;
 import com.modsim.modules.parts.LED;
 import com.modsim.modules.parts.LEDColour;
 import com.modsim.modules.parts.Port;
@@ -82,7 +82,7 @@ public class Clock extends BaseModule {
     @Override
     public void propagate() {
         // Reset mechanism
-        boolean sendReset = false;
+        boolean sendReset;
         if (resetBtn.getEnabled()) {
             sendReset = true;
             step = 0;

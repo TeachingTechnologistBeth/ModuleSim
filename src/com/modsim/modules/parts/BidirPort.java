@@ -1,7 +1,7 @@
 package com.modsim.modules.parts;
 
 import com.modsim.modules.BaseModule;
-import util.BinData;
+import com.modsim.util.BinData;
 
 /**
  * Created by awick on 15/09/2015.

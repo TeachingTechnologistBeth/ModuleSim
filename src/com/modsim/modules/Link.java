@@ -8,9 +8,9 @@ import javax.swing.JOptionPane;
 
 import com.modsim.modules.parts.Port;
 import com.modsim.Main;
-import tools.DeleteOperation;
-import util.BezierPath;
-import util.BinData;
+import com.modsim.tools.DeleteOperation;
+import com.modsim.util.BezierPath;
+import com.modsim.util.BinData;
 
 /**
  * Link between two ports

@@ -7,8 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import com.modsim.modules.parts.LEDColour;
 
-import util.BezierCurve;
-import util.Vec2;
+import com.modsim.util.BezierCurve;
+import com.modsim.util.Vec2;
 import com.modsim.modules.parts.LEDRow;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Port;

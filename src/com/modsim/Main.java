@@ -1,11 +1,11 @@
 package com.modsim;
 
-import com.gui.GUI;
-import com.gui.Ticker;
-import simulator.Sim;
-import tools.OperationStack;
-import util.ModuleClipboard;
-import util.Selection;
+import com.modsim.gui.GUI;
+import com.modsim.gui.Ticker;
+import com.modsim.simulator.Sim;
+import com.modsim.tools.OperationStack;
+import com.modsim.util.ModuleClipboard;
+import com.modsim.util.Selection;
 
 import javax.swing.*;
 

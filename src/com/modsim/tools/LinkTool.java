@@ -6,7 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 
 import com.modsim.Main;
-import util.*;
+import com.modsim.util.*;
 import com.modsim.gui.ViewUtil;
 import com.modsim.modules.*;
 import com.modsim.modules.parts.Port;

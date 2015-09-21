@@ -3,7 +3,7 @@ package com.modsim.tools;
 import com.modsim.modules.Link;
 import com.modsim.modules.parts.Port;
 import com.modsim.Main;
-import simulator.PickableEntity;
+import com.modsim.simulator.PickableEntity;
 
 /**
  * Created by Ali on 31/08/2015.

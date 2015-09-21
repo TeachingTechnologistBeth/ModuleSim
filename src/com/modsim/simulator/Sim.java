@@ -11,7 +11,7 @@ import com.modsim.modules.*;
 import static com.modsim.modules.BaseModule.AvailableModules;
 import com.modsim.modules.parts.Port;
 import sun.awt.Mutex;
-import util.CtrlPt;
+import com.modsim.util.CtrlPt;
 
 public class Sim implements Runnable {
 

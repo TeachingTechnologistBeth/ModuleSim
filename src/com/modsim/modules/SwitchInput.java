@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import com.modsim.modules.parts.LEDColour;
 import com.modsim.modules.parts.Port;
-import util.BinData;
+import com.modsim.util.BinData;
 import com.modsim.modules.parts.Output;
 import com.modsim.modules.parts.Switch;
 

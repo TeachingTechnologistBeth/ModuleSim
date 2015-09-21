@@ -13,10 +13,10 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import com.modsim.modules.parts.*;
-import res.Colors;
-import util.BinData;
-import util.HexReader;
-import util.HexWriter;
+import com.modsim.res.Colors;
+import com.modsim.util.BinData;
+import com.modsim.util.HexReader;
+import com.modsim.util.HexWriter;
 
 /**
  * NRAM Module Holds data and instructions for designs

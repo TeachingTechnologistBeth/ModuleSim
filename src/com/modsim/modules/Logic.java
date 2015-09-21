@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.modsim.modules.parts.*;
-import util.BinData;
+import com.modsim.util.BinData;
 
 /**
  * Logic Unit

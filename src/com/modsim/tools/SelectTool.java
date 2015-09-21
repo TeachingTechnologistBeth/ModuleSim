@@ -6,9 +6,9 @@ import java.awt.Graphics2D;
 
 import com.modsim.gui.ViewUtil;
 import com.modsim.Main;
-import simulator.PickableEntity;
-import util.Selection;
-import util.Vec2;
+import com.modsim.simulator.PickableEntity;
+import com.modsim.util.Selection;
+import com.modsim.util.Vec2;
 
 public class SelectTool extends BaseTool {
 

@@ -1,6 +1,6 @@
 package com.modsim.modules.parts;
 
-import util.BinData;
+import com.modsim.util.BinData;
 
 /**
  * Input port for a module

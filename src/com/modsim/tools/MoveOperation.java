@@ -1,7 +1,7 @@
 package com.modsim.tools;
 
-import simulator.PickableEntity;
-import util.Vec2;
+import com.modsim.simulator.PickableEntity;
+import com.modsim.util.Vec2;
 
 /**
  * Created by Ali on 30/08/2015.

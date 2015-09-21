@@ -13,9 +13,9 @@ import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import res.ResourceLoader;
+import com.modsim.res.ResourceLoader;
 import com.modsim.Main;
-import simulator.Sim;
+import com.modsim.simulator.Sim;
 
 public class ToolBar implements ActionListener, ChangeListener {
 

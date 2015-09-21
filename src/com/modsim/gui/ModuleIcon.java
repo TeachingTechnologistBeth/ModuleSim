@@ -7,9 +7,9 @@ import java.awt.event.MouseListener;
 import javax.swing.*;
 
 import com.modsim.Main;
-import tools.PlaceTool;
-import modules.BaseModule;
-import static modules.BaseModule.AvailableModules;
+import com.modsim.tools.PlaceTool;
+import com.modsim.modules.BaseModule;
+import static com.modsim.modules.BaseModule.AvailableModules;
 
 public class ModuleIcon extends JPanel implements MouseListener {
 

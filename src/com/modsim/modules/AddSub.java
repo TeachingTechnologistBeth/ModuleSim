@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import util.BinData;
+import com.modsim.util.BinData;
 import com.modsim.modules.parts.Input;
 import com.modsim.modules.parts.LED;
 import com.modsim.modules.parts.LEDColour;

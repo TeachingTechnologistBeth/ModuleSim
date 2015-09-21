@@ -9,7 +9,7 @@ import java.util.List;
 
 import com.modsim.modules.parts.Input;
 import com.modsim.modules.parts.Output;
-import util.BinData;
+import com.modsim.util.BinData;
 import com.modsim.modules.parts.LEDRow;
 import com.modsim.modules.parts.Port;
 

@@ -5,18 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.modsim.Main;
-import modules.*;
-import modules.parts.BidirPort;
-import modules.parts.Input;
-import modules.parts.Output;
-import modules.parts.Port;
-import simulator.*;
-import tools.*;
-import util.Vec2;
+import com.modsim.modules.*;
+import com.modsim.modules.parts.BidirPort;
+import com.modsim.modules.parts.Input;
+import com.modsim.modules.parts.Output;
+import com.modsim.modules.parts.Port;
+import com.modsim.simulator.*;
+import com.modsim.tools.*;
+import com.modsim.util.Vec2;
 
 /**
  * Listens for mouse events on the view.
- * Handles most user interaction with the view via the tools system.
+ * Handles most user interaction with the view via the com.modsim.tools system.
  * @author aw12700
  *
  */
@@ -243,12 +243,12 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         System.out.println("Press");
 
         if (e.getButton() == MouseEvent.BUTTON1) {
-            // Left click handled by tools
+            // Left click handled by com.modsim.tools
             BaseTool tool = Main.ui.view.curTool;
 
             PickableEntity targ = screenSpace_entityAt(e.getX(), e.getY());
 
-            // See if module handles interaction - otherwise, use tools
+            // See if module handles interaction - otherwise, use com.modsim.tools
             boolean handled = false;
             if (targ != null && targ.getType() == PickableEntity.MODULE) {
                 BaseModule m = (BaseModule) targ;

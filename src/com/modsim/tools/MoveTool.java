@@ -2,8 +2,8 @@ package com.modsim.tools;
 
 import com.modsim.gui.ViewUtil;
 import com.modsim.Main;
-import simulator.PickableEntity;
-import util.Vec2;
+import com.modsim.simulator.PickableEntity;
+import com.modsim.util.Vec2;
 
 import java.util.List;
 

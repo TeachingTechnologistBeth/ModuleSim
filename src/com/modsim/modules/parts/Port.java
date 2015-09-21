@@ -2,8 +2,8 @@ package com.modsim.modules.parts;
 
 import com.modsim.modules.BaseModule;
 import com.modsim.modules.Link;
-import util.BinData;
-import util.Vec2;
+import com.modsim.util.BinData;
+import com.modsim.util.Vec2;
 
 public abstract class Port {
 

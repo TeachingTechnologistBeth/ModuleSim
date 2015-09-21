@@ -10,10 +10,10 @@ import java.util.List;
 
 import com.modsim.modules.parts.BidirPort;
 import com.modsim.modules.parts.Port;
-import simulator.PickableEntity;
-import util.BezierCurve;
-import util.BinData;
-import util.Vec2;
+import com.modsim.simulator.PickableEntity;
+import com.modsim.util.BezierCurve;
+import com.modsim.util.BinData;
+import com.modsim.util.Vec2;
 
 public class SplitMerge extends BaseModule {
 

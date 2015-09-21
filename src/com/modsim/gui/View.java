@@ -6,13 +6,13 @@ import java.text.DecimalFormat;
 
 import javax.swing.*;
 
-import modules.BaseModule;
-import modules.Link;
-import res.Colors;
+import com.modsim.modules.BaseModule;
+import com.modsim.modules.Link;
+import com.modsim.res.Colors;
 import com.modsim.Main;
-import tools.BaseTool;
-import tools.PlaceTool;
-import util.Vec2;
+import com.modsim.tools.BaseTool;
+import com.modsim.tools.PlaceTool;
+import com.modsim.util.Vec2;
 
 /**
  * The main viewport for the simulator
@@ -98,7 +98,7 @@ public class View extends JPanel {
 
             g.setTransform(old);
 
-            // Draw modules
+            // Draw com.modsim.modules
             for (BaseModule m : Main.sim.getModules()) {
                 m.updateXForm();
                 g.transform(m.toView);
