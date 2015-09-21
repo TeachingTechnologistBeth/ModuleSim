@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import modules.parts.*;
+import res.Colors;
 import util.BinData;
 import util.HexReader;
 import util.HexWriter;
@@ -111,14 +112,14 @@ public class NRAM extends BaseModule {
     @Override
     public void paint(Graphics2D g) {
         // Fill in polygon
-        g.setColor(new Color(100, 100, 100));
+        g.setColor(Colors.moduleFill);
         drawBox(g, 10);
         // 'Control' area
-        g.setColor(new Color(80,80,80));
+        g.setColor(Colors.moduleInset);
         drawTrapezoid(g, 10, 0, 65, 130, 70);
 
         // Show IO
-        g.setColor(new Color(120, 120, 120));
+        g.setColor(Colors.modulePorts);
         drawInputs(g);
         drawOutputs(g);
 
@@ -126,7 +127,7 @@ public class NRAM extends BaseModule {
         drawParts(g);
 
         // Show label
-        g.setColor(new Color(200, 200, 200));
+        g.setColor(Colors.moduleLabel);
         g.setFont(new Font("SansSerif", Font.BOLD, 40));
         g.drawString("NRAM", -58, 15);
     }
@@ -167,6 +168,8 @@ public class NRAM extends BaseModule {
             // Alternatively, make BinData immutable?
             store[i] = new BinData(blank);
         }
+
+        updateEditor(0);
     }
 
     @Override
@@ -216,6 +219,18 @@ public class NRAM extends BaseModule {
         return a0.getUInt() | (a1.getUInt() << 4) | (a2.getUInt() << 8) | (a3.getUInt() << 12);
     }
 
+    private void updateEditor(int address) {
+        // Update the memory editor, if any
+        if (editor != null) {
+            editor.updAdr = address >> 1;
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    editor.update();
+                }
+            });
+        }
+    }
+
     public void write(int address, BinData d0, BinData d1) {
         if (address <= MAX_ADDR) {
             address = address << 1;
@@ -223,15 +238,7 @@ public class NRAM extends BaseModule {
             store[address] = d0;
             store[address | 1] = d1;
 
-            // Update the memory editor, if any
-            if (editor != null) {
-                editor.updAdr = address >> 1;
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        editor.update();
-                    }
-                });
-            }
+            updateEditor(address);
         } else {
             Logger.getLogger(NRAM.class.getName()).warning("NRAM tile index out of bounds.");
         }

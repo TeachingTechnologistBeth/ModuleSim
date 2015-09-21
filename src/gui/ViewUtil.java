@@ -27,8 +27,11 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     /**
      * Tests collision with ports
+     * @param x Screen-space x coord
+     * @param y Screen-space y coord
+     * @return The port selected, or null if there was none
      */
-    public static Port portAt(double x, double y) {
+    public static Port screenSpace_portAt(double x, double y) {
         double portR = 10;
 
         synchronized (Main.sim) {
@@ -107,9 +110,9 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     /**
      * Tests collision with entities
-     * @param x
-     * @param y
-     * @return
+     * @param x Screen-space x coord
+     * @param y Screen-space y coord
+     * @return The picked entity, or null if the background was clicked
      */
     public static PickableEntity screenSpace_entityAt(double x, double y) {
         synchronized (Main.sim) {
@@ -117,7 +120,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
             try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 1);}
             catch (Exception e) {
-                System.err.println("Non inversible transform");
+                System.err.println("Non invertible transform");
+                return null;
             }
 
             Vec2 clickPt = new Vec2(pt);
@@ -213,6 +217,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     public void mouseClicked(MouseEvent e) {
         testKeys(e);
+        System.out.println("Click");
 
         if (e.getButton() == MouseEvent.BUTTON3) {
             // Right-click
@@ -234,6 +239,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
     public void mousePressed(MouseEvent e) {
         testKeys(e);
+        System.out.println("Press");
 
         if (e.getButton() == MouseEvent.BUTTON1) {
             // Left click handled by tools
@@ -253,7 +259,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                     Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
                 }
                 else {
-                    Port p = portAt(e.getX(), e.getY());
+                    Port p = screenSpace_portAt(e.getX(), e.getY());
 
                     //Link behaviour
                     if (p != null) {
@@ -282,6 +288,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         testKeys(e);
         BaseTool tool = Main.ui.view.curTool;
 
+        System.out.println("Release");
+
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (tool != null) {
                 Main.ui.view.curTool = tool.lbUp(e.getX(), e.getY());
@@ -307,6 +315,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         testKeys(e);
         BaseTool tool = Main.ui.view.curTool;
 
+        System.out.println("Drag");
+
         if (camDrag) {
             Main.ui.view.camX = oldCX + e.getX() - cStartX;
             Main.ui.view.camY = oldCY + e.getY() - cStartY;
@@ -320,7 +330,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         testKeys(e);
         BaseTool tool = Main.ui.view.curTool;
 
-        Port p = portAt(e.getX(), e.getY());
+        Port p = screenSpace_portAt(e.getX(), e.getY());
         if (p != null) {
             if (p.hasDirection()) {
                 Main.ui.view.setToolTipText(p.text + " - " + p.getVal().toString() + (p.canOutput() ? " OUT" : " IN"));

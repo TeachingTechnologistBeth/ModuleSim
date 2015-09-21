@@ -9,6 +9,7 @@ import javax.swing.*;
 
 import modules.BaseModule;
 import modules.Link;
+import res.Colors;
 import simulator.Main;
 import simulator.PickableEntity;
 import tools.BaseTool;
@@ -72,11 +73,11 @@ public class View extends JPanel {
         AffineTransform old = new AffineTransform(g.getTransform());
 
         // Fill back
-        g.setColor(new Color(255, 255, 255));
+        g.setColor(Colors.background);
         g.fillRect(0, 0, getWidth(), getHeight());
 
         // Grid
-        g.setColor(new Color(230,230,230));
+        g.setColor(Colors.grid);
         double xD = (camX + getWidth()/2);
         double yD = (camY + getHeight()/2);
         double xOff = (int)xD % (int)(Main.sim.grid * zoom);
@@ -145,11 +146,11 @@ public class View extends JPanel {
      * Draws an error flag
      */
     public void drawError(Graphics2D g) {
-        g.setColor(new Color(255, 0, 0, 120));
+        g.setColor(Colors.errorEdge);
         g.drawOval(-30, -30, 60, 60);
-        g.setColor(new Color(255, 255, 255, 60));
+        g.setColor(Colors.errorFill);
         g.fillOval(-27, -27, 54, 54);
-        g.setColor(Color.RED);
+        g.setColor(Colors.errorText);
         g.fillRect(-3, -16, 6, 20);
         g.fillOval(-3, 8, 6, 6);
     }

@@ -91,48 +91,47 @@ public class SelectTool extends BaseTool {
                 }
             }
         }
+
         // Selection box logic
-        else {
-            if (BaseTool.CTRL) {
-                // Switch to move tool
-                return new MoveTool(x, y);
-            }
-
-            // Move the camera if we're dragging near the edge
-            double moveSpeed = 5;
-            double edgeWidth = 15;
-
-            if (x < edgeWidth) {
-                Main.ui.view.camX += moveSpeed;
-                Main.ui.view.calcXForm();
-            }
-            else if (x > Main.ui.view.getWidth() - edgeWidth) {
-                Main.ui.view.camX -= moveSpeed;
-            }
-
-            if (y < edgeWidth) {
-                Main.ui.view.camY += moveSpeed;
-                Main.ui.view.calcXForm();
-            }
-            else if (y > Main.ui.view.getHeight() - edgeWidth) {
-                Main.ui.view.camY -= moveSpeed;
-            }
-
-            //System.out.println("More dragging " + x + ", " + y);
-            dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y)));
-
-            Vec2 delta = new Vec2(dragPos);
-            delta.sub(dragStart);
-
-            double rx = Math.min(dragStart.x, dragStart.x + delta.x);
-            double rx2 = Math.max(dragStart.x, dragStart.x + delta.x);
-            double ry = Math.min(dragStart.y, dragStart.y + delta.y);
-            double ry2 = Math.max(dragStart.y, dragStart.y + delta.y);
-
-            mySelection.set(ViewUtil.worldSpace_entitiesWithin(rx, ry, rx2, ry2));
-            Main.selection.set(mySelection);
-            if (BaseTool.SHIFT) Main.selection.addAll(oldSelection);
+        if (BaseTool.CTRL) {
+            // Switch to move tool
+            return new MoveTool(x, y);
         }
+
+        // Move the camera if we're dragging near the edge
+        double moveSpeed = 5;
+        double edgeWidth = 15;
+
+        if (x < edgeWidth) {
+            Main.ui.view.camX += moveSpeed;
+            Main.ui.view.calcXForm();
+        }
+        else if (x > Main.ui.view.getWidth() - edgeWidth) {
+            Main.ui.view.camX -= moveSpeed;
+        }
+
+        if (y < edgeWidth) {
+            Main.ui.view.camY += moveSpeed;
+            Main.ui.view.calcXForm();
+        }
+        else if (y > Main.ui.view.getHeight() - edgeWidth) {
+            Main.ui.view.camY -= moveSpeed;
+        }
+
+        //System.out.println("More dragging " + x + ", " + y);
+        dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y)));
+
+        Vec2 delta = new Vec2(dragPos);
+        delta.sub(dragStart);
+
+        double rx = Math.min(dragStart.x, dragStart.x + delta.x);
+        double rx2 = Math.max(dragStart.x, dragStart.x + delta.x);
+        double ry = Math.min(dragStart.y, dragStart.y + delta.y);
+        double ry2 = Math.max(dragStart.y, dragStart.y + delta.y);
+
+        mySelection.set(ViewUtil.worldSpace_entitiesWithin(rx, ry, rx2, ry2));
+        Main.selection.set(mySelection);
+        if (BaseTool.SHIFT) Main.selection.addAll(oldSelection);
 
         return this;
     }

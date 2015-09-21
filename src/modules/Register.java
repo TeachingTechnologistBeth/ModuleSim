@@ -95,10 +95,16 @@ public class Register extends BaseModule {
         controlOut.setVal(controlVal);
     }
 
+    public void setStoredVal(BinData val) {
+        myData.set(val);
+    }
+
     public BinData getStoredVal() {
-        synchronized (this) {
-            return new BinData(myData);
-        }
+        return new BinData(myData);
+    }
+
+    public void clear() {
+        myData = new BinData(0);
     }
 
     @Override

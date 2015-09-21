@@ -49,7 +49,7 @@ public class LinkTool extends BaseTool {
 		if (working) {
 			current = ViewUtil.screenToWorld(new Vec2(x, y));
 
-			Port p = ViewUtil.portAt(x, y);
+			Port p = ViewUtil.screenSpace_portAt(x, y);
 			if (p != null) {
 				curve.setEnd(p);
 			}
@@ -91,7 +91,7 @@ public class LinkTool extends BaseTool {
 	 * @return True if successful
 	 */
 	public boolean startLink(int x, int y) {
-		source = ViewUtil.portAt(x, y);
+		source = ViewUtil.screenSpace_portAt(x, y);
 		if (source != null) {
 			working = true;
 			start = new Vec2(x, y);
@@ -113,7 +113,7 @@ public class LinkTool extends BaseTool {
 	 * @return True if link was completed
 	 */
 	public boolean endLink(int x, int y) {
-		Port targ = ViewUtil.portAt(x, y);
+		Port targ = ViewUtil.screenSpace_portAt(x, y);
 
 		if (targ != null) {
 			Main.opStack.beginCompoundOp();

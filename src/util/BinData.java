@@ -86,6 +86,18 @@ public class BinData {
     }
 
     /**
+     * Sets (individual bits) to a boolean
+     */
+    public void setBool(boolean bool3, boolean bool2, boolean bool1, boolean bool0) {
+        mask = 0xF;
+        int b3 = bool3 ? 1 : 0;
+        int b2 = bool2 ? 1 : 0;
+        int b1 = bool1 ? 1 : 0;
+        int b0 = bool0 ? 1 : 0;
+        val = (byte) (((b3&1)<<3) | ((b2&1)<<2) | ((b1&1)<<1) | (b0&1));
+    }
+
+    /**
      * Sets to an unsigned binary number
      * (Ignores integer's sign)
      */
@@ -158,7 +170,7 @@ public class BinData {
             val |= bv;
         }
     }
-    
+
     /**
      * Resolve a binary bit
      * @param bit Bit index
