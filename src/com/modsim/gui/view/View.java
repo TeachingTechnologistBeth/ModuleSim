@@ -177,27 +177,36 @@ public class View extends JPanel {
         }
     }
 
-    public void pasteInto() {
+    /**
+     * Whether or not a tool is currently in use
+     * @return True if tool is in use
+     */
+    public boolean hasTool() {
+        return curTool != null;
+    }
+
+    /**
+     * Cancels the current tool usage (if any)
+     */
+    public void cancelTool() {
         if (curTool != null) curTool.cancel();
-
-        if (!Main.clipboard.isEmpty()) {
-            curTool = new PlaceTool(Main.clipboard);
-        }
+        curTool = null;
     }
 
-    public void undo() {
-        if (curTool == null) Main.opStack.undo();
-        else {
-            curTool.cancel();
-            curTool = null;
-        }
+    /**
+     * Sets the current tool
+     * @param newTool New tool to use
+     */
+    public void setTool(BaseTool newTool) {
+        if (curTool != null) curTool.cancel();
+        curTool = newTool;
     }
 
-    public void redo() {
-        if (curTool == null) Main.opStack.redo();
-        else System.out.println("Cannot redo during tool use");
-    }
-
+    /**
+     * Zooms the viewport in on the specified screen point
+     * @param x X-coordinate
+     * @param y Y-coordinate
+     */
     public void zoomIn(int x, int y) {
         Vec2 zmPt = ViewUtil.screenToWorld(new Vec2(x, y));
 
@@ -214,6 +223,11 @@ public class View extends JPanel {
         }
     }
 
+    /**
+     * Zooms the view out form the specified screen point
+     * @param x X-coordinate
+     * @param y Y-coordinate
+     */
     public void zoomOut(int x, int y) {
         Vec2 zmPt = ViewUtil.screenToWorld(new Vec2(x, y));
 

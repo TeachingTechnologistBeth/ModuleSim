@@ -2,12 +2,14 @@ package com.modsim.gui.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
 
+import com.modsim.Ops;
 import com.modsim.gui.MemEdit;
 import com.modsim.modules.BaseModule;
 import com.modsim.modules.BaseModule.AvailableModules;
@@ -35,7 +37,7 @@ public class ContextMenu  {
 	 * Instantiates the menu system, generating the menu items
 	 */
 	public ContextMenu() {
-	    // Remove link
+	    // Remove link (this is still a special case for now)
         rmLink = new JMenuItem("Remove Link");
         rmLink.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
@@ -45,123 +47,26 @@ public class ContextMenu  {
             }
         });
 
-        // Rotation action
-        ActionListener rotate = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                String cmd = event.getActionCommand();
-                BaseModule.rotationDir dir;
-                if (cmd.contains("right")) {
-                    dir = BaseModule.rotationDir.ROT_CW;
-                }
-                else if (cmd.contains("left")) {
-                    dir = BaseModule.rotationDir.ROT_CCW;
-                }
-                else if (cmd.contains("180")) {
-                    dir = BaseModule.rotationDir.ROT_180;
-                }
-                else {
-                    throw new InvalidParameterException(cmd + " is not a valid rotation command.");
-                }
+		// Rotation
+		rotCW = Ops.Command.ROTATE_CW.generateMenuItem();
+		rotCCW = Ops.Command.ROTATE_CCW.generateMenuItem();
+		rot180 = Ops.Command.ROTATE_180.generateMenuItem();
 
-                Main.opStack.beginCompoundOp();
-                for (PickableEntity e : entities) {
-                    if (e.getClass().getGenericSuperclass() == BaseModule.class) {
-                        BaseModule m = (BaseModule) e;
-                        m.rotate(dir);
-
-                        Main.opStack.pushOp(new RotateOperation(m, dir));
-                    }
-                }
-                Main.opStack.endCompoundOp();
-            }
-        };
-
-		// Rotate CW
-		rotCW = new JMenuItem("Rotate right");
-		rotCW.addActionListener(rotate);
-
-		// Rotate CCW
-		rotCCW = new JMenuItem("Rotate left");
-		rotCCW.addActionListener(rotate);
-
-		// Rotate 180
-		rot180 = new JMenuItem("Rotate 180");
-		rot180.addActionListener(rotate);
-
-		// Copy/pasteInto
-        copy = new JMenuItem("Copy");
-        copy.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                Main.clipboard.copy(entities);
-            }
-        });
-
-        paste = new JMenuItem("Paste");
-        paste.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {
-                Main.ui.view.pasteInto();
-            }
-        });
+		// Copy/paste
+        copy = Ops.Command.COPY.generateMenuItem();
+        paste = Ops.Command.PASTE.generateMenuItem();
 
 		// Delete
-		delete = new JMenuItem("Delete");
-		delete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-                Main.selection.deleteAll();
-			}
-		});
+		delete = Ops.Command.DELETE.generateMenuItem();
 
         ////////// Module-specific
 
         // Labelling
-        labelEdit = new JMenuItem("Add/Edit Label");
-        labelEdit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String labelStr = JOptionPane.showInputDialog(Main.ui.frame, "");
-                if (labelStr == null) return;
-
-                Main.opStack.beginCompoundOp();
-                for (PickableEntity entity : entities) {
-                    if (entity.getType() == PickableEntity.MODULE) {
-                        BaseModule module = (BaseModule) entity;
-                        Main.opStack.pushOp(new LabelOperation(module, module.label, labelStr));
-                        module.label = labelStr;
-                    }
-                }
-                Main.opStack.endCompoundOp();
-            }
-        });
+        labelEdit = Ops.Command.EDIT_LABEL.generateMenuItem();
 
         labelSize = new JMenu("Label size");
-        JMenuItem smallSize = new JMenuItem("Small (default)");
-        JMenuItem bigSize = new JMenuItem("Big");
-
-        smallSize.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (PickableEntity entity : entities) {
-                    if (entity.getType() == PickableEntity.MODULE) {
-                        ((BaseModule) entity).labelSize = 0;
-                    }
-                }
-            }
-        });
-
-        bigSize.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                for (PickableEntity entity : entities) {
-                    if (entity.getType() == PickableEntity.MODULE) {
-                        ((BaseModule) entity).labelSize = 1;
-                    }
-                }
-            }
-        });
-
-        labelSize.add(smallSize);
-        labelSize.add(bigSize);
+        labelSize.add(Ops.Command.LABEL_BIG.generateMenuItem());
+        labelSize.add(Ops.Command.LABEL_SMALL.generateMenuItem());
 
 		////////// Memory-specfic
 

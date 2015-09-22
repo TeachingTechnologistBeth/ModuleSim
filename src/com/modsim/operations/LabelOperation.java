@@ -4,6 +4,8 @@ import com.modsim.modules.BaseModule;
 
 /**
  * Created by awick on 21/09/2015.
+ *
+ * Undo/redo for label string changes
  */
 public class LabelOperation extends BaseOperation {
 

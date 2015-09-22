@@ -1,8 +1,6 @@
 package com.modsim.gui;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -10,15 +8,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.JToolBar;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+import com.modsim.Ops;
 import com.modsim.res.ResourceLoader;
-import com.modsim.Main;
-import com.modsim.simulator.Sim;
 
-public class ToolBar implements ActionListener, ChangeListener {
-
+public class ToolBar {
 	public JToolBar toolbar = null;
 	public JButton btnPause, btnRun, btnStep;
 	public JSlider slideSpeed;
@@ -47,41 +41,38 @@ public class ToolBar implements ActionListener, ChangeListener {
 		toolbar.add(lbl);
 		slideSpeed = new JSlider(JSlider.HORIZONTAL, 0, 60, 10);
 		toolbar.add(slideSpeed);
-		slideSpeed.addChangeListener(this);
+		slideSpeed.addChangeListener(Ops.sliderSetSpeed);
 	}
 
 	/**
 	 * Generate the toolbar buttons
 	 */
 	private void addButtons() {
-		btnPause = createButton("pause", "PAUSE_SIM", "Pause the simulator");
+		btnPause = createButton("pause", Ops.Command.PAUSE);
 		toolbar.add(btnPause);
 
-		btnRun = createButton("run", "RUN_SIM", "Start the simulator");
+		btnRun = createButton("run", Ops.Command.RUN);
 		toolbar.add(btnRun);
 
-		btnStep = createButton("step", "STEP_SIM", "Step the simulation");
+		btnStep = createButton("step", Ops.Command.STEP);
 		toolbar.add(btnStep);
 	}
 
 	/**
 	 * Creates a toolbar button
 	 * @param img Image name (PNG)
-	 * @param actionCmd Command name
-	 * @param toolTip Tool-tip text to display
+	 * @param command Command to call
 	 * @return The new toolbar button
 	 */
-	private JButton createButton(	String img,
-									String actionCmd,
-									String toolTip ) {
+	private JButton createButton(String img, Ops.Command command) {
 		// Get the image
 		String path = img + ".png";
 		URL imgURL = ResourceLoader.class.getResource(path);
 
-		JButton btn = new JButton();
-		btn.setActionCommand(actionCmd);
-		btn.setToolTipText(toolTip);
-		btn.addActionListener(this);
+		JButton btn = new JButton(command.getName());
+		btn.setActionCommand(command.str());
+		btn.setToolTipText(command.getToolTip());
+		btn.addActionListener(Ops.core);
 		btn.setFocusable(false);
 
 		// Try the icon
@@ -96,27 +87,4 @@ public class ToolBar implements ActionListener, ChangeListener {
 
 		return btn;
 	}
-
-	public void actionPerformed(ActionEvent e) {
-		// Handle toolbar actions
-		String cmd = e.getActionCommand();
-		if (cmd.equals(btnPause.getActionCommand())) {
-			Main.sim.stop();
-		}
-		else if (cmd.equals(btnRun.getActionCommand())) {
-			Main.sim.start();
-		}
-		else if (cmd.equals(btnStep.getActionCommand())) {
-		    Main.sim.stop();
-		    Main.sim.step();
-		}
-	}
-
-    public void stateChanged(ChangeEvent e) {
-        // Adjust sim speed
-        JSlider src = (JSlider) e.getSource();
-        int val = (int) src.getValue();
-        long delay = (long) Math.pow(1.35, 60 - val);
-        Sim.delay = delay -1;
-    }
 }

@@ -1,5 +1,6 @@
 package com.modsim.gui;
 
+import com.modsim.Ops;
 import com.modsim.gui.view.ContextMenu;
 import com.modsim.gui.view.View;
 import com.modsim.res.ResourceLoader;
@@ -40,7 +41,7 @@ public class GUI {
 
 			switch (res) {
 				case JOptionPane.YES_OPTION:
-					return Main.ui.menu.save();
+					return Ops.FileIO.save();
 				case JOptionPane.NO_OPTION:
 					return true;
 
