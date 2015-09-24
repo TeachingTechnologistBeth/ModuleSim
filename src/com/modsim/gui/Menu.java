@@ -35,25 +35,13 @@ public class Menu {
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(KeyEvent.VK_F);
 
-        // Open simulation (with native dialog box)
-        KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
-        fileMenu.add(Ops.Command.OPEN.generateMenuItem(key));
+        fileMenu.add(new JMenuItem(Ops.open));
+        fileMenu.add(new JMenuItem(Ops.save));
+        fileMenu.add(new JMenuItem(Ops.save));
+        fileMenu.add(new JMenuItem(Ops.fileNew));
 
-        // Save simulation (native dialog box)
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
-        fileMenu.add(Ops.Command.SAVE.generateMenuItem(key));
-
-        // Save as
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
-        fileMenu.add(Ops.Command.SAVE_AS.generateMenuItem(key));
-
-        // New file
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
-        fileMenu.add(Ops.Command.NEW.generateMenuItem(key));
-
-        // Quit
         fileMenu.addSeparator();
-        fileMenu.add(Ops.Command.QUIT.generateMenuItem());
+        fileMenu.add(new JMenuItem(Ops.quit));
 
         app_menu.add(fileMenu);
     }
@@ -62,33 +50,16 @@ public class Menu {
         JMenu edit = new JMenu("Edit");
         edit.setMnemonic(KeyEvent.VK_E);
 
-        // Rotation
-        KeyStroke key = KeyStroke.getKeyStroke('[');
-        edit.add(Ops.Command.ROTATE_CCW.generateMenuItem(key));
-        key = KeyStroke.getKeyStroke(']');
-        edit.add(Ops.Command.ROTATE_CW.generateMenuItem(key));
-        edit.add(Ops.Command.ROTATE_180.generateMenuItem());
-
-        // Copy
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
-        edit.add(Ops.Command.COPY.generateMenuItem(key));
-
-        // Paste
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
-        edit.add(Ops.Command.PASTE.generateMenuItem(key));
-
-        // Undo
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
-        edit.add(Ops.Command.UNDO.generateMenuItem(key));
-
-        // Redo
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK);
-        edit.add(Ops.Command.REDO.generateMenuItem(key));
-
+        edit.add(new JMenuItem(Ops.undo));
+        edit.add(new JMenuItem(Ops.redo));
+        edit.add(new JMenuItem(Ops.copy));
+        edit.add(new JMenuItem(Ops.paste));
         edit.addSeparator();
-
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK);
-        edit.add(Ops.Command.EDIT_LABEL.generateMenuItem(key));
+        edit.add(new JMenuItem(Ops.rotateCW));
+        edit.add(new JMenuItem(Ops.rotateCCW));
+        edit.add(new JMenuItem(Ops.rotate180));
+        edit.addSeparator();
+        edit.add(new JMenuItem(Ops.labelEdit));
 
         app_menu.add(edit);
     }
@@ -97,11 +68,8 @@ public class Menu {
         JMenu sim = new JMenu("Simulation");
         sim.setMnemonic(KeyEvent.VK_S);
 
-        KeyStroke key = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0);
-        sim.add(Ops.Command.RUN_TOGGLE.generateMenuItem(key));
-
-        key = KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0);
-        sim.add(Ops.Command.STEP.generateMenuItem(key));
+        sim.add(Ops.toggleRun);
+        sim.add(Ops.step);
 
         app_menu.add(sim);
     }
@@ -109,7 +77,7 @@ public class Menu {
     private void addViewMenu() {
         JMenu view = new JMenu("View");
         view.setMnemonic(KeyEvent.VK_V);
-        view.add(Ops.Command.AA_TOGGLE.generateMenuItem());
+        view.add(Ops.toggleAA);
         app_menu.add(view);
     }
 

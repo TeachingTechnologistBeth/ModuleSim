@@ -48,13 +48,16 @@ public class ToolBar {
 	 * Generate the toolbar buttons
 	 */
 	private void addButtons() {
-		btnPause = createButton("pause", Ops.Command.PAUSE);
+		btnPause = new JButton(Ops.pause);
+		btnPause.setHideActionText(true);
 		toolbar.add(btnPause);
 
-		btnRun = createButton("run", Ops.Command.RUN);
+		btnRun = new JButton(Ops.run);
+		btnRun.setHideActionText(true);
 		toolbar.add(btnRun);
 
-		btnStep = createButton("step", Ops.Command.STEP);
+		btnStep = new JButton(Ops.step);
+		btnStep.setHideActionText(true);
 		toolbar.add(btnStep);
 	}
 
@@ -64,15 +67,12 @@ public class ToolBar {
 	 * @param command Command to call
 	 * @return The new toolbar button
 	 */
-	private JButton createButton(String img, Ops.Command command) {
+	private JButton createButton(String img) {
 		// Get the image
 		String path = img + ".png";
 		URL imgURL = ResourceLoader.class.getResource(path);
 
-		JButton btn = new JButton(command.getName());
-		btn.setActionCommand(command.str());
-		btn.setToolTipText(command.getToolTip());
-		btn.addActionListener(Ops.core);
+		JButton btn = new JButton();
 		btn.setFocusable(false);
 
 		// Try the icon

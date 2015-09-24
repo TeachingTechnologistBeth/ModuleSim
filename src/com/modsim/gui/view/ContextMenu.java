@@ -48,25 +48,25 @@ public class ContextMenu  {
         });
 
 		// Rotation
-		rotCW = Ops.Command.ROTATE_CW.generateMenuItem();
-		rotCCW = Ops.Command.ROTATE_CCW.generateMenuItem();
-		rot180 = Ops.Command.ROTATE_180.generateMenuItem();
+		rotCW = new JMenuItem(Ops.rotateCW);
+		rotCCW = new JMenuItem(Ops.rotateCCW);
+		rot180 = new JMenuItem(Ops.rotate180);
 
 		// Copy/paste
-        copy = Ops.Command.COPY.generateMenuItem();
-        paste = Ops.Command.PASTE.generateMenuItem();
+        copy = new JMenuItem(Ops.copy);
+        paste = new JMenuItem(Ops.paste);
 
 		// Delete
-		delete = Ops.Command.DELETE.generateMenuItem();
+		delete = new JMenuItem(Ops.delete);
 
         ////////// Module-specific
 
         // Labelling
-        labelEdit = Ops.Command.EDIT_LABEL.generateMenuItem();
+        labelEdit = new JMenuItem(Ops.labelEdit);
 
         labelSize = new JMenu("Label size");
-        labelSize.add(Ops.Command.LABEL_BIG.generateMenuItem());
-        labelSize.add(Ops.Command.LABEL_SMALL.generateMenuItem());
+        labelSize.add(new JMenuItem(Ops.labelSmall));
+        labelSize.add(new JMenuItem(Ops.labelBig));
 
 		////////// Memory-specfic
 

@@ -123,268 +123,149 @@ public class Ops {
 
             return false;
         }
+
+        /**
+         * Begins editing on a new design (with confirm if the current file is unsaved)
+         */
+        public static void fileNew() {
+            if (Main.ui.checkSave()) {
+                Main.sim.newSim();
+            }
+        }
     }
 
-    /**
-     * Enumeration of available commands
-     */
-    public enum Command {
-        UNDO("CMD_UNDO", "Undo", "Undo the previous operation"),
-        REDO("CMD_REDO", "Redo", "Repeat an operation that was undone"),
-        COPY("CMD_COPY", "Copy", "Copy the selection to the application clipboard"),
-        PASTE("CMD_PASTE", "Paste", "Paste into the design from the application clipboard"),
-        DELETE("CMD_DELETE", "Delete", "Deletes the selection"),
+    // Core application actions
+    public static final DesignAction undo, redo, copy, paste, delete, rotateCW, rotateCCW, rotate180,
+            labelEdit, labelBig, labelSmall,
+            pause, run, step, toggleRun, toggleAA, open, save, saveAs, fileNew, quit;
 
-        ROTATE_CW("CMD_ROT_CW", "Rotate clockwise"),
-        ROTATE_CCW("CMD_ROT_CCW", "Rotate counter-clockwise"),
-        ROTATE_180("CMD_ROT_180", "Rotate 180"),
+    static {
+        // Keyboard shortcuts
+        KeyStroke ctrlZ = KeyStroke.getKeyStroke(KeyEvent.VK_Z, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlY = KeyStroke.getKeyStroke(KeyEvent.VK_Y, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlC = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlV = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlN = KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlO = KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlS = KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlL = KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK);
+        KeyStroke ctrlShiftS = KeyStroke.getKeyStroke(KeyEvent.VK_S,
+                KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK);
 
-        EDIT_LABEL("CMD_LABEL_EDIT", "Add/Edit Label"),
-        LABEL_BIG("CMD_LABEL_BIG", "Big"),
-        LABEL_SMALL("CMD_LABEL_SMALL", "Small (default)"),
+        KeyStroke space = KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0);
+        KeyStroke period = KeyStroke.getKeyStroke(KeyEvent.VK_PERIOD, 0);
+        KeyStroke del = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);
+        KeyStroke lBracket = KeyStroke.getKeyStroke('[');
+        KeyStroke rBracket = KeyStroke.getKeyStroke(']');
 
-        PAUSE("SIM_PAUSE", "Pause Simulation"),
-        RUN("SIM_RUN", "Run Simulation"),
-        STEP("SIM_STEP", "Step Simulation"),
-        RUN_TOGGLE("SIM_TOGGLE", "Run/Pause Simulation", "Toggles the running state of the simulation"),
 
-        AA_TOGGLE("VIEW_TOGGLE_AA", "Toggle anti-aliasing", "Toggles anti-aliased rendering in the viewport: " +
-                "disabling AA may improve performance on older machines."),
+        /// Action implementations
 
-        OPEN("FILE_OPEN", "Open", "Open a saved design (discards the current one)", KeyEvent.VK_O),
-        SAVE("FILE_SAVE", "Save", "Save the current design", KeyEvent.VK_S),
-        SAVE_AS("FILE_SAVE_AS", "Save As", "Save the current design in a specific location"),
-        NEW("FILE_NEW", "New Design", "Start editing a new design (discard the current one)", KeyEvent.VK_N),
+        // Undo stack
+        undo = new DesignAction(event -> {Main.ui.view.cancelTool(); Main.opStack.undo();},
+                "Undo", "Undo the previous operation", ctrlZ);
+        redo = new DesignAction(event -> {if (!Main.ui.view.hasTool()) Main.opStack.redo();},
+                "Redo", "Repeat an undone operation", ctrlY);
 
-        QUIT("APP_EXIT", "Quit", "Exit ModuleSim", KeyEvent.VK_Q);
+        // Copy/paste
+        copy = new DesignAction(event -> Main.clipboard.copy(Main.selection), "Copy",
+                "Copy selection to application clipboard", ctrlC);
+        paste = new DesignAction(event -> {
+            Main.ui.view.cancelTool();
 
-        String cmdStr, name, tooltip = null;
-        int mnemonic = -1;
-
-        JMenuItem myItem = null;
-
-        public String str() { return cmdStr; }
-        public String getName() { return name; }
-        public String getToolTip() { return tooltip; }
-
-        public int getMnemonic() { return mnemonic; }
-
-        /**
-         * Generates or returns a menu item for this command.
-         * @return This command's menu item
-         */
-        public JMenuItem generateMenuItem() {
-            return generateMenuItem(null);
-        }
-
-        /**
-         * Generates or returns a menu item for this command. Setting the shortcut will override any previous
-         * setting.
-         * @param shortcut Keyboard shortcut for the command
-         * @return This command's menu item
-         */
-        public JMenuItem generateMenuItem(KeyStroke shortcut) {
-            JMenuItem newItem = new JMenuItem(name);
-            newItem.addActionListener(Ops.core);
-            newItem.setActionCommand(cmdStr);
-
-            if (tooltip != null) {
-                newItem.setToolTipText(tooltip);
+            if (!Main.clipboard.isEmpty()) {
+                Main.ui.view.setTool(new PlaceTool(Main.clipboard));
             }
-            if (mnemonic != -1) {
-                newItem.setMnemonic(mnemonic);
+            else {
+                System.out.println("Nothing to paste");
             }
+        }, "Paste", "Paste into the design from the application clipboard", ctrlV);
 
-            if (shortcut != null) {
-                newItem.setAccelerator(shortcut);
-                if (myItem != null) myItem.setAccelerator(shortcut);
-            }
-            else if (myItem != null) {
-                newItem.setAccelerator(myItem.getAccelerator());
-            }
+        // Deletion
+        delete = new DesignAction(event -> Main.selection.deleteAll(), "Delete", "Deletes the selection", del);
 
-            myItem = newItem;
-            return newItem;
-        }
+        // Rotation
+        rotateCW = new DesignAction(event -> doRotate(BaseModule.rotationDir.ROT_CW),
+                "Rotate clockwise", null, rBracket);
+        rotateCCW = new DesignAction(event -> doRotate(BaseModule.rotationDir.ROT_CCW),
+                "Rotate counter-clockwise", null, lBracket);
+        rotate180 = new DesignAction(event -> doRotate(BaseModule.rotationDir.ROT_180),
+                "Rotate 180");
 
-        Command(String cmdStr, String name) {
-            this.cmdStr = cmdStr;
-            this.name = name;
-        }
+        // Label editing
+        labelEdit = new DesignAction(event -> {
+            String labelStr = JOptionPane.showInputDialog(Main.ui.frame, "");
+            if (labelStr == null) return;
 
-        Command(String cmdStr, String name, String tooltip) {
-            this(cmdStr, name);
-            this.tooltip = tooltip;
-        }
-
-        Command(String cmdStr, String name, String tooltip, int mnemonic) {
-            this(cmdStr, name, tooltip);
-            this.mnemonic = mnemonic;
-        }
-
-        public static Command fromCmdStr(String text) {
-            if (text != null) {
-                for (Command cmd : Command.values()) {
-                    if (text.equals(cmd.cmdStr)) {
-                        return cmd;
-                    }
+            Main.opStack.beginCompoundOp();
+            for (PickableEntity entity : Main.selection.getEntities()) {
+                if (entity.getType() == PickableEntity.MODULE) {
+                    BaseModule module = (BaseModule) entity;
+                    Main.opStack.pushOp(new LabelOperation(module, module.label, labelStr));
+                    module.label = labelStr;
                 }
             }
+            Main.opStack.endCompoundOp();
+        }, "Add/Edit label", null, ctrlL);
 
-            throw new IllegalArgumentException("Command '" + text + "' not found");
-        }
+        // Label sizing
+        labelBig = new DesignAction(event -> {
+            for (PickableEntity entity : Main.selection.getEntities()) {
+                if (entity.getType() == PickableEntity.MODULE) {
+                    ((BaseModule) entity).labelSize = 1;
+                }
+            }
+        }, "Big");
+        labelSmall = new DesignAction(event -> {
+            for (PickableEntity entity : Main.selection.getEntities()) {
+                if (entity.getType() == PickableEntity.MODULE) {
+                    ((BaseModule) entity).labelSize = 0;
+                }
+            }
+        }, "Small (default)");
+
+        // Simulator controls
+        pause = new DesignAction(event -> Main.sim.stop(), "Pause Simulation");
+        run = new DesignAction(event -> Main.sim.start(), "Run Simulation");
+        toggleRun = new DesignAction(event -> {
+            if (Main.sim.running) Main.sim.stop();
+            else Main.sim.start();
+        }, "Run/Pause Simulation","Toggles the running state of the simulation", space);
+        step = new DesignAction(event -> {
+            Main.sim.stop();
+            Main.sim.step();
+        }, "Step Simulation", "Steps the simulation forward by one iteration", period);
+
+        // View controls
+        toggleAA = new DesignAction(event -> Main.ui.view.useAA = !Main.ui.view.useAA,
+                "Toggle anti-aliasing", "Toggles anti-aliased rendering in the viewport: " +
+                "disabling AA may improve performance on older machines.");
+
+        // FileIO operations
+        open = new DesignAction(event -> FileIO.open(),
+                "Open", "Open a saved design (discards the current one)", ctrlO, KeyEvent.VK_O);
+        save = new DesignAction(event -> FileIO.save(),
+                "Save", "Save the current design", ctrlS, KeyEvent.VK_S);
+        saveAs = new DesignAction(event -> FileIO.saveAs(),
+                "Save As", "Save the current design in a specific location", ctrlShiftS);
+        fileNew = new DesignAction(event -> FileIO.fileNew(),
+                "New Design", "Start editing a new design (discard the current one)", ctrlN, KeyEvent.VK_N);
+
+        quit = new DesignAction(event -> {},
+                "Quit", "Exit ModuleSim", KeyEvent.VK_Q);
     }
 
-    /**
-     * Main handler for menu button-type input events
-     */
-    public static final ActionListener core = new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String cmdStr = e.getActionCommand();
-            Command cmd = Command.fromCmdStr(cmdStr);
-
-            switch (cmd) {
-                // General commands
-                case UNDO:
-                    Main.ui.view.cancelTool();
-                    Main.opStack.undo();
-                    break;
-
-                case REDO:
-                    if (!Main.ui.view.hasTool()) Main.opStack.redo();
-                    break;
-
-                case COPY:
-                    Main.clipboard.copy(Main.selection);
-                    break;
-
-                case PASTE:
-                    Main.ui.view.cancelTool();
-
-                    if (!Main.clipboard.isEmpty()) {
-                        Main.ui.view.setTool(new PlaceTool(Main.clipboard));
-                    }
-                    else {
-                        System.out.println("Nothing to paste");
-                    }
-                    break;
-
-                case DELETE:
-                    Main.selection.deleteAll();
-                    break;
-
-                // Rotation
-                case ROTATE_CW:
-                case ROTATE_CCW:
-                case ROTATE_180:
-                    BaseModule.rotationDir dir;
-                    if (cmdStr.contains("CCW")) {
-                        dir = BaseModule.rotationDir.ROT_CCW;
-                    }
-                    else if (cmdStr.contains("CW")) {
-                        dir = BaseModule.rotationDir.ROT_CW;
-                    }
-                    else if (cmdStr.contains("180")) {
-                        dir = BaseModule.rotationDir.ROT_180;
-                    }
-                    else {
-                        throw new InvalidParameterException(cmd + " is not a valid rotation command.");
-                    }
-
-                    Main.opStack.beginCompoundOp();
-                    for (PickableEntity entity : Main.selection.getEntities()) {
-                        if (entity.getType() == PickableEntity.MODULE) {
-                            BaseModule m = (BaseModule) entity;
-                            m.rotate(dir);
-                            Main.opStack.pushOp(new RotateOperation(m, dir));
-                        }
-                    }
-                    Main.opStack.endCompoundOp();
-                    break;
-
-                // Labelling
-                case EDIT_LABEL:
-                    String labelStr = JOptionPane.showInputDialog(Main.ui.frame, "");
-                    if (labelStr == null) break;
-
-                    Main.opStack.beginCompoundOp();
-                    for (PickableEntity entity : Main.selection.getEntities()) {
-                        if (entity.getType() == PickableEntity.MODULE) {
-                            BaseModule module = (BaseModule) entity;
-                            Main.opStack.pushOp(new LabelOperation(module, module.label, labelStr));
-                            module.label = labelStr;
-                        }
-                    }
-                    Main.opStack.endCompoundOp();
-                    break;
-
-                case LABEL_BIG:
-                    for (PickableEntity entity : Main.selection.getEntities()) {
-                        if (entity.getType() == PickableEntity.MODULE) {
-                            ((BaseModule) entity).labelSize = 1;
-                        }
-                    }
-                    break;
-                case LABEL_SMALL:
-                    for (PickableEntity entity : Main.selection.getEntities()) {
-                        if (entity.getType() == PickableEntity.MODULE) {
-                            ((BaseModule) entity).labelSize = 0;
-                        }
-                    }
-                    break;
-
-                // Simulator commands
-                case PAUSE:
-                    Main.sim.stop();
-                    break;
-                case RUN:
-                    Main.sim.start();
-                    break;
-                case STEP:
-                    Main.sim.stop();
-                    Main.sim.step();
-                    break;
-                case RUN_TOGGLE:
-                    if (Main.sim.running) Main.sim.stop();
-                    else Main.sim.start();
-                    break;
-
-                // View options
-                case AA_TOGGLE:
-                    Main.ui.view.useAA = !Main.ui.view.useAA;
-                    break;
-
-                // File IO
-                case OPEN:
-                    FileIO.open();
-                    break;
-                case SAVE:
-                    FileIO.save();
-                    break;
-                case SAVE_AS:
-                    FileIO.saveAs();
-                    break;
-                case NEW:
-                    if (Main.ui.checkSave()) {
-                        Main.sim.newSim();
-                    }
-                    break;
-
-
-                // Quit
-                case QUIT:
-                    if (Main.ui.checkSave()) {
-                        System.exit(0);
-                    }
-                    break;
-
-
-                default:
-                    throw new IllegalArgumentException("Unrecognized command enumeration");
+    private static void doRotate(BaseModule.rotationDir dir){
+        Main.opStack.beginCompoundOp();
+        for (PickableEntity entity : Main.selection.getEntities()) {
+            if (entity.getType() == PickableEntity.MODULE) {
+                BaseModule m = (BaseModule) entity;
+                m.rotate(dir);
+                Main.opStack.pushOp(new RotateOperation(m, dir));
             }
         }
-    };
+        Main.opStack.endCompoundOp();
+    }
 
     /**
      * Handler for adjusting the simulation speed by slider
