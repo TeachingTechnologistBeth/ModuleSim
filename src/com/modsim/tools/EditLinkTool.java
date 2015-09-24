@@ -11,10 +11,13 @@ import com.modsim.util.CtrlPt;
 import com.modsim.util.Vec2;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.geom.Arc2D;
 
 /**
  * Created by awick on 21/09/2015.
+ *
+ * Tool for modifying existing links
  */
 public class EditLinkTool extends BaseTool {
 
@@ -124,6 +127,25 @@ public class EditLinkTool extends BaseTool {
 
             // Done
             placePoint = null;
+        }
+
+        return this;
+    }
+
+    @Override
+    public BaseTool keyDown(int key) {
+        switch (key) {
+            case KeyEvent.VK_X:
+                Main.opStack.cancelCompoundOp();
+                link.highlight = false;
+                link.delete();
+                return null;
+
+            case KeyEvent.VK_ENTER:
+                // Done
+                Main.opStack.endCompoundOp();
+                link.highlight = false;
+                return null;
         }
 
         return this;

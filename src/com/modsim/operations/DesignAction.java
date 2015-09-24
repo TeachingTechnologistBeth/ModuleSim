@@ -1,4 +1,4 @@
-package com.modsim;
+package com.modsim.operations;
 
 import com.modsim.res.ResourceLoader;
 

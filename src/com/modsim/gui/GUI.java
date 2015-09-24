@@ -1,6 +1,6 @@
 package com.modsim.gui;
 
-import com.modsim.Ops;
+import com.modsim.operations.Ops;
 import com.modsim.gui.view.ContextMenu;
 import com.modsim.gui.view.View;
 import com.modsim.res.ResourceLoader;

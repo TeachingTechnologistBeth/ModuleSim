@@ -2,7 +2,7 @@ package com.modsim.gui;
 
 import java.awt.event.KeyEvent;
 import javax.swing.*;
-import com.modsim.Ops;
+import com.modsim.operations.Ops;
 
 /**
  * Manager for the main window app_menu

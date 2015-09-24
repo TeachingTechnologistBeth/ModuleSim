@@ -1,6 +1,6 @@
 package com.modsim.gui;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
@@ -11,18 +11,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.io.File;
+import java.io.FilenameFilter;
+import java.util.prefs.Preferences;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.modsim.Main;
@@ -30,15 +22,20 @@ import com.modsim.util.BinData;
 import com.modsim.util.HexReader;
 import com.modsim.util.HexWriter;
 import com.modsim.modules.NRAM;
+import com.modsim.util.XMLReader;
 
 public class MemEdit {
 
-    private NRAM targ = null;
+    private NRAM nram = null;
 
     public final JDialog frame = new JDialog(Main.ui.frame, "Memory Viewer");
     private final JMenuBar menu = new JMenuBar();
-    private final JFileChooser filePick = new JFileChooser();
-    private final FileNameExtensionFilter hexFilter = new FileNameExtensionFilter("Hex files", "hex");
+    private final FilenameFilter hexFilter = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.endsWith(".hex");
+        }
+    };
     private final JScrollBar scroll = new JScrollBar(JScrollBar.VERTICAL);
     private final JTextField jumpAdr = new JTextField();
 
@@ -119,7 +116,7 @@ public class MemEdit {
         frame.setSize(300, 700);
         frame.setLocation(800, 100);
         frame.setVisible(true);
-        targ = nram;
+        this.nram = nram;
 
         update();
     }
@@ -135,7 +132,7 @@ public class MemEdit {
      * Updates the view of the memory contents
      */
     public void update() {
-        frame.setTitle("NRAM " + targ.label);
+        frame.setTitle("NRAM " + nram.label);
         memView.setUpdated(updAdr);
         memView.repaint();
     }
@@ -146,7 +143,7 @@ public class MemEdit {
      * @return The stored byte
      */
     public int getByte(int adr) {
-        BinData[] bits = targ.read(adr);
+        BinData[] bits = nram.read(adr);
         return (bits[1].getUInt() << 4) | (bits[0].getUInt());
     }
 
@@ -170,12 +167,40 @@ public class MemEdit {
         menuItem.setToolTipText("Load a hex data file into the module (replaces the current contents)");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                filePick.setFileFilter(hexFilter);
-                int r = filePick.showOpenDialog(frame);
+                Preferences prefs = Preferences.userNodeForPackage(MemEdit.class);
+                FileDialog fd = new FileDialog(frame, "Load Hex-encoded data", FileDialog.LOAD);
 
-                if (r == JFileChooser.APPROVE_OPTION) {
-                    File file = filePick.getSelectedFile();
-                    HexReader.readFile(file, targ);
+                fd.setFilenameFilter(hexFilter);
+                fd.setFile("*.hex"); // FilenameFilter doesn't work on Windows
+
+                fd.setDirectory(prefs.get("hex_fileDir", ""));
+                fd.setVisible(true);
+
+                if (fd.getFile() != null) {
+                    String path = fd.getDirectory() + fd.getFile();
+
+                    // Loop till we get a valid input
+                    while (!path.endsWith(".hex")) {
+                        int res = JOptionPane.showConfirmDialog(frame, "Data load: Warning",
+                                "That doesn't appear to be a hex file. Try and open anyway?",
+                                JOptionPane.YES_NO_CANCEL_OPTION);
+
+                        if (res == JOptionPane.YES_OPTION) break;
+                        else if (res == JOptionPane.NO_OPTION) {
+                            fd.setFile("*.hex");
+                            fd.setVisible(true);
+
+                            if (fd.getFile() == null) return;
+                            path = fd.getDirectory() + fd.getFile();
+                        }
+                        else {
+                            return;
+                        }
+                    }
+
+                    prefs.put("hex_fileDir", fd.getDirectory());
+                    File file = new File(path);
+                    HexReader.readFile(file, nram);
                     updAdr = -1;
                     update();
                 }
@@ -188,22 +213,29 @@ public class MemEdit {
         menuItem.setToolTipText("Saves the current NRAM contents to a hex data file");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                filePick.setFileFilter(hexFilter);
-                int r = filePick.showSaveDialog(frame);
+                Preferences prefs = Preferences.userNodeForPackage(MemEdit.class);
+                FileDialog fd = new FileDialog(frame, "Save Hex-encoded data", FileDialog.SAVE);
+                fd.setFilenameFilter(hexFilter);
+                // can just append .hex if the user doesn't
+                if (Main.sim.filePath.isEmpty()) {
+                    fd.setFile("*.hex");
+                } else {
+                    int ind = Main.sim.filePath.lastIndexOf('/');
+                    fd.setFile(Main.sim.filePath.substring(ind + 1));
+                }
 
-                if (r == JFileChooser.APPROVE_OPTION) {
-                    File file = filePick.getSelectedFile();
+                fd.setDirectory(prefs.get("hex_fileDir", ""));
+                fd.setVisible(true);
+
+                if (fd.getFile() != null) {
+                    String path = fd.getDirectory() + fd.getFile();
 
                     // Is the file being created with the correct extension?
-                    if (!file.getName().endsWith(".hex")) {
-                        File extFile = new File(file.getPath() + ".hex");
-                        if (! extFile.exists()) {
-                            // Rename the destination file if it doesn't exist.
-                            file = extFile;
-                        }
+                    if (!path.endsWith(".hex")) {
+                        path = path + ".hex";
                     }
 
-                    HexWriter.writeFile(file, targ);
+                    HexWriter.writeFile(new File(path), nram);
                 }
             }
         });
