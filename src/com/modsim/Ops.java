@@ -2,6 +2,7 @@ package com.modsim;
 
 import com.modsim.modules.BaseModule;
 import com.modsim.operations.LabelOperation;
+import com.modsim.operations.LabelSizeOperation;
 import com.modsim.operations.RotateOperation;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.tools.PlaceTool;
@@ -210,18 +211,28 @@ public class Ops {
 
         // Label sizing
         labelBig = new DesignAction(event -> {
+            Main.opStack.beginCompoundOp();
             for (PickableEntity entity : Main.selection.getEntities()) {
                 if (entity.getType() == PickableEntity.MODULE) {
-                    ((BaseModule) entity).labelSize = 1;
+                    BaseModule m = (BaseModule) entity;
+                    LabelSizeOperation sizeOp = new LabelSizeOperation(m, m.labelSize, 1);
+                    m.labelSize = 1;
+                    Main.opStack.pushOp(sizeOp);
                 }
             }
+            Main.opStack.endCompoundOp();
         }, "Big");
         labelSmall = new DesignAction(event -> {
+            Main.opStack.beginCompoundOp();
             for (PickableEntity entity : Main.selection.getEntities()) {
                 if (entity.getType() == PickableEntity.MODULE) {
-                    ((BaseModule) entity).labelSize = 0;
+                    BaseModule m = (BaseModule) entity;
+                    LabelSizeOperation sizeOp = new LabelSizeOperation(m, m.labelSize, 0);
+                    m.labelSize = 0;
+                    Main.opStack.pushOp(sizeOp);
                 }
             }
+            Main.opStack.endCompoundOp();
         }, "Small (default)");
 
         // Simulator controls
