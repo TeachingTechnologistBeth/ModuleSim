@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="7.0+" version="0.2.0.1" codebase="file:///F:/Documents/GitHub/ModuleSim"
+        href="src/JNLP-INF/APPLICATION.jnlp">
+    <information>
+        <title>ModuleSim</title>
+        <vendor>ModuleSim deployment test</vendor>
+        <offline-allowed/>
+        <association extensions="modsim" mime-type="application/modsim+xml"/>
+        <shortcut online="false" install="true">
+            <desktop/>
+            <menu sub-menu="ModuleSim"/>
+        </shortcut>
+    </information>
+    <resources>
+        <!-- Application Resources -->
+        <java version="1.8+" href=
+                "http://java.sun.com/products/autodl/j2se"/>
+        <jar href="out/artifacts/ModuleSim_jar/ModuleSim.jar"
+             main="true" />
+
+    </resources>
+    <security>
+        <all-permissions/>
+    </security>
+    <application-desc
+            name="ModuleSim v0.2.0"
+            main-class="com.modsim.Main">
+    </application-desc>
+    <update check="background"/>
+</jnlp>
