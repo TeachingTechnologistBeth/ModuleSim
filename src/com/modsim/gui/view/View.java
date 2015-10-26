@@ -24,7 +24,7 @@ public class View extends JPanel {
     public int zoomI = 3;
     public double zoom = zoomI * ZOOM_MULTIPLIER;
 
-    public static final double ZOOM_MULTIPLIER = 0.2;
+    public static final double ZOOM_MULTIPLIER = 0.15;
     public static final int ZOOM_LIMIT = 12;
 
     public double camX = 0, camY = 0;

@@ -133,7 +133,7 @@ public class Ops {
     // Core application actions
     public static final DesignAction undo, redo, copy, paste, delete, rotateCW, rotateCCW, rotate180,
             labelEdit, labelBig, labelSmall,
-            pause, run, step, toggleRun, toggleAA, open, save, saveAs, fileNew, quit;
+            pause, run, step, toggleRun, zoomIn, zoomOut, toggleAA, open, save, saveAs, fileNew, quit;
 
     static {
         // Keyboard shortcuts
@@ -241,7 +241,12 @@ public class Ops {
             Main.sim.stop();
             Main.sim.step();
         }, "Step Simulation", "Steps the simulation forward by one iteration", period);
-
+        
+        //Zoom controls
+        zoomIn = new DesignAction(event -> Main.ui.zoomInToView(), "Zoom In");
+        zoomOut = new DesignAction(event -> Main.ui.zoomOutToView(), "Zoom Out");
+        
+        
         // View controls
         toggleAA = new DesignAction(event -> Main.ui.view.useAA = !Main.ui.view.useAA,
                 "Toggle anti-aliasing", "Toggles anti-aliased rendering in the viewport: " +

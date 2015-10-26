@@ -195,6 +195,25 @@ public class GUI {
 		hSplit.add(view, JSplitPane.RIGHT);
 	}
 
+	/*
+	 * Accessible method for zooming into view
+	 */
+	public void zoomInToView()
+	{
+		view.zoomIn(view.getWidth()/2,view.getHeight()/2);
+	}
+	
+	/*
+	 * Accessible method for zooming out of view
+	 */
+	public void zoomOutToView()
+	{
+		view.zoomOut(view.getWidth()/2,view.getHeight()/2);
+	}
+	
+	
+	
+	
 	/**
 	 * Creates the context menu
 	 */

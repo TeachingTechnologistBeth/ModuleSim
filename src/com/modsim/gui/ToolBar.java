@@ -11,7 +11,7 @@ import com.modsim.operations.Ops;
 
 public class ToolBar {
 	public JToolBar toolbar = null;
-	public JButton btnPause, btnRun, btnStep;
+	public JButton btnPause, btnRun, btnStep, btnZoomIn, btnZoomOut;
 	public JSlider slideSpeed;
 
 	/**
@@ -32,7 +32,7 @@ public class ToolBar {
 		toolbar.setMargin(margin);
 
 		// Buttons
-		addButtons();
+		addSimButtons();
 		toolbar.addSeparator(new Dimension(15, 0));
 
 		// Slider
@@ -41,12 +41,15 @@ public class ToolBar {
 		slideSpeed = new JSlider(JSlider.HORIZONTAL, 0, 60, 10);
 		toolbar.add(slideSpeed);
 		slideSpeed.addChangeListener(Ops.sliderSetSpeed);
+		
+		toolbar.addSeparator(new Dimension(15, 0));
+		addNavButtons();
 	}
 
 	/**
-	 * Generate the toolbar buttons
+	 * Generate the toolbar simulation buttons
 	 */
-	private void addButtons() {
+	private void addSimButtons() {
 		btnPause = new JButton(Ops.pause);
 		btnPause.setHideActionText(true);
 		toolbar.add(btnPause);
@@ -58,5 +61,19 @@ public class ToolBar {
 		btnStep = new JButton(Ops.step);
 		btnStep.setHideActionText(true);
 		toolbar.add(btnStep);
+	}
+	
+	/**
+	 * Generate the toolbar navigation buttons
+	 */
+	private void addNavButtons()
+	{
+		btnZoomIn = new JButton(Ops.zoomIn);
+		btnZoomIn.setHideActionText(true);
+		toolbar.add(btnZoomIn);
+		
+		btnZoomOut = new JButton(Ops.zoomOut);
+		btnZoomOut.setHideActionText(true);
+		toolbar.add(btnZoomOut);
 	}
 }
