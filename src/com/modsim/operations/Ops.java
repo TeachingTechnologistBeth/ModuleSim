@@ -257,7 +257,7 @@ public class Ops {
         fileNew = new DesignAction(event -> FileIO.fileNew(),
                 "New Design", "Start editing a new design (discard the current one)", ctrlN, KeyEvent.VK_N);
 
-        quit = new DesignAction(event -> {},
+        quit = new DesignAction(event -> {if (Main.ui.checkSave()) Main.ui.frame.dispose(); },
                 "Quit", "Exit ModuleSim", KeyEvent.VK_Q);
     }
 

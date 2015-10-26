@@ -37,7 +37,7 @@ public class Menu {
 
         fileMenu.add(new JMenuItem(Ops.open));
         fileMenu.add(new JMenuItem(Ops.save));
-        fileMenu.add(new JMenuItem(Ops.save));
+        fileMenu.add(new JMenuItem(Ops.saveAs));
         fileMenu.add(new JMenuItem(Ops.fileNew));
 
         fileMenu.addSeparator();
