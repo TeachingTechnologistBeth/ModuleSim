@@ -26,7 +26,7 @@ public class Or extends BaseModule {
 
     Or() {
         w = 150;
-        h = 50;
+        h = 150;
 
         // Output
         rOut = addOutput("Or'ed output", 0, Port.CTRL);
@@ -60,7 +60,7 @@ public class Or extends BaseModule {
     public void paint(Graphics2D g) {
         // Fill in polygon
         g.setColor(Colors.moduleFill);
-        drawTrapezoid(g, 10);
+        drawBox(g, 10);
 
         // Show output/input
         g.setColor(Colors.modulePorts);
