@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import com.modsim.modules.parts.LEDRow;
@@ -12,6 +13,8 @@ import com.modsim.modules.ports.Input;
 import com.modsim.res.Colors;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.BinData;
+import com.modsim.util.HexReader;
+import com.modsim.util.HexWriter;
 
 public class LEDMatrix extends BaseModule {
 
@@ -119,5 +122,28 @@ public class LEDMatrix extends BaseModule {
 	public boolean isPersistEnabled(){
 		return persist;
 	}
+	
+	@Override
+    public HashMap<String, String> dataOut() {
+        if (!isPersistEnabled()) return null;
+
+        HashMap<String, String> data = new HashMap<>();
+        data.put("persist", "1");
+        
+        return data;
+    }
+	
+	@Override
+    public void dataIn(HashMap<String, String> data) {
+        if (data.containsKey("persist")) {
+            String storeStr = data.get("persist");
+            try{
+            	if(Integer.parseInt(storeStr)==1)
+            		turnOnPersist();
+            }catch(NumberFormatException e){
+            	//leave persist off
+            }   
+        }
+    }
 
 }
