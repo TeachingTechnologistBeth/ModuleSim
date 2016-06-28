@@ -712,7 +712,8 @@ public abstract class BaseModule extends PickableEntity {
         LEFT_SHIFT(new Shift(true), "Left-shift"),
         RIGHT_SHIFT(new Shift(false), "Right-shift"),
         SPLIT_MERGE(new SplitMerge(), "Splitter / Merger"),
-        SWITCH(new SwitchInput(), "Switch Input");
+        SWITCH(new SwitchInput(), "Switch Input"),
+    	LEDMatrix(new LEDMatrix(), "16x16 LED matrix");
 
         /**
          * The module represented by this enum value, to use to instantiate and display in GUI.

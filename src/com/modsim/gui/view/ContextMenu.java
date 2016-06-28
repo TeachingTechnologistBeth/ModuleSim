@@ -11,6 +11,7 @@ import com.modsim.operations.Ops;
 import com.modsim.gui.MemEdit;
 import com.modsim.modules.BaseModule;
 import com.modsim.modules.BaseModule.AvailableModules;
+import com.modsim.modules.LEDMatrix;
 import com.modsim.modules.NRAM;
 import com.modsim.modules.Register;
 import com.modsim.modules.parts.Port;
@@ -27,7 +28,7 @@ public class ContextMenu  {
 	private Port port;
 
 	private JMenuItem rmLink, rotCW, rotCCW, rot180, copy, paste, delete,
-			ramEdit, ramClear, regEdit, regClear, labelEdit, labelSize;
+			ramEdit, ramClear, regEdit, regClear, labelEdit, labelSize, persistanceOn, persistanceOff;
 
 	/**
 	 * Instantiates the menu system, generating the menu items
@@ -161,6 +162,37 @@ public class ContextMenu  {
 				}
 			}
 		});
+		
+		
+		///////////////LED Matrix specific
+		
+		//Toggle Persistance
+		persistanceOff = new JMenuItem("Turn off persist");
+		persistanceOff.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				for (PickableEntity entity : entities) {
+					if (entity.getType() == PickableEntity.MODULE &&
+							((BaseModule)entity).getModType().equals(AvailableModules.LEDMatrix)) {
+						LEDMatrix ledmatrix = (LEDMatrix) entity;
+						ledmatrix.turnOffPersist();						
+					}
+				}
+			}
+		});
+		
+		persistanceOn = new JMenuItem("Turn on persist");
+		persistanceOn.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				for (PickableEntity entity : entities) {
+					if (entity.getType() == PickableEntity.MODULE &&
+							((BaseModule)entity).getModType().equals(AvailableModules.LEDMatrix)) {
+						LEDMatrix ledmatrix = (LEDMatrix) entity;
+						ledmatrix.turnOnPersist();						
+					}
+				}
+			}
+		});
+		
 
 	}
 
@@ -202,7 +234,19 @@ public class ContextMenu  {
                     menu.addSeparator();
                     menu.add(ramEdit);
                     menu.add(ramClear);
-
+                    break;
+                }
+            }
+            
+            for (PickableEntity e : entities) {
+                // If it's an LEDMatrix module
+                if (e.getType() == PickableEntity.MODULE && ((BaseModule)e).getModType().equals(AvailableModules.LEDMatrix)) {
+                    menu.addSeparator();
+                    if(((LEDMatrix)e).isPersistEnabled()){
+                    	menu.add(persistanceOff);
+                    }else{
+                    	menu.add(persistanceOn);
+                    }
                     break;
                 }
             }
