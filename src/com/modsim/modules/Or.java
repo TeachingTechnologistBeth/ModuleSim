@@ -12,6 +12,7 @@ import com.modsim.res.Colors;
 import com.modsim.res.Colors.LEDColour;
 import com.modsim.modules.ports.Output;
 import com.modsim.modules.parts.Port;
+import com.modsim.modules.parts.SSText;
 import com.modsim.res.Fonts;
 import com.modsim.util.BinData;
 
@@ -48,6 +49,8 @@ public class Or extends BaseModule {
 
         rLED = new LED(-60, 0, LEDColour.RED);
         addPart(rLED);
+        
+        addPart(new SSText(-30, 15, "OR", 40, Colors.moduleLabel));        
         propagate();
     }
 
@@ -68,10 +71,10 @@ public class Or extends BaseModule {
         drawInputs(g);
 
         // Show label
-        g.setColor(Colors.moduleLabel);
+        /*g.setColor(Colors.moduleLabel);
         g.setFont(Fonts.moduleLabel);
         g.drawString("OR", -16, 8);
-
+*/
         // Show LED
         drawParts(g);
     }
