@@ -96,7 +96,7 @@ public class Demux extends BaseModule {
                 dataOutputs.get(i).setVal(dataIn.getVal());
                 controlLEDs.get(i).setEnabled(true);
             } else {
-                dataOutputs.get(i).setVal(new BinData());
+                dataOutputs.get(i).setVal(new BinData(0));
                 controlLEDs.get(i).setEnabled(false);
             }
         }
