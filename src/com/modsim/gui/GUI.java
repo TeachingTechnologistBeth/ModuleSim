@@ -11,6 +11,7 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.awt.*;
 import java.net.URL;
+import java.util.prefs.Preferences;
 
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -70,9 +71,27 @@ public class GUI {
 	 * @param arg Whether or not to display
 	 */
 	public void showUI(boolean arg) {
-		// Pack, centre and show
-		frame.pack();
-		frame.setLocationRelativeTo(null);
+		if (arg) {
+			Preferences prefs = Preferences.userNodeForPackage(GUI.class);
+			if (prefs.getBoolean("window_stored", false)) {
+				// Window border has been stored
+				int window_x, window_y, window_width, window_height;
+				window_x = prefs.getInt("window_x", 0);
+				window_y = prefs.getInt("window_y", 0);
+				window_height = prefs.getInt("window_height", 600);
+				window_width = prefs.getInt("window_width", 800);
+				frame.setBounds(window_x, window_y, window_width, window_height);
+				// Restore maximise state
+				if (prefs.getBoolean("window_maximised", false)) {
+					frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+				}
+			}
+			else {
+				// Pack & center the window
+				frame.pack();
+				frame.setLocationRelativeTo(null);
+			}
+		}
 		frame.setVisible(arg);
 	}
 
@@ -117,7 +136,26 @@ public class GUI {
         frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+				// Prevents closing without saving first
                 if (checkSave()) {
+					// Store window size/maximise state
+					Preferences prefs = Preferences.userNodeForPackage(GUI.class);
+					if ((frame.getExtendedState() & JFrame.MAXIMIZED_BOTH) != 0) {
+						prefs.putBoolean("window_maximised", true);
+						Rectangle windowBounds = e.getWindow().getBounds();
+						prefs.putInt("window_x", windowBounds.x + 50);
+						prefs.putInt("window_y", windowBounds.y + 50);
+					}
+					else {
+						prefs.putBoolean("window_maximised", false);
+						Rectangle windowBounds = e.getWindow().getBounds();
+						prefs.putInt("window_x", windowBounds.x);
+						prefs.putInt("window_y", windowBounds.y);
+						prefs.putInt("window_width", windowBounds.width);
+						prefs.putInt("window_height", windowBounds.height);
+					}
+					prefs.putBoolean("window_stored", true);
+					// Close the window
                     e.getWindow().dispose();
                 }
             }
@@ -181,6 +219,7 @@ public class GUI {
 											JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sp.getVerticalScrollBar().setUnitIncrement(10);
 		sp.setPreferredSize(new Dimension(210,0));
+		sp.setMinimumSize(new Dimension(210, 60));
 
 		hSplit.add(sp, JSplitPane.LEFT);
 	}
