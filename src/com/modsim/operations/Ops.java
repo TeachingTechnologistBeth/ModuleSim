@@ -1,6 +1,7 @@
 package com.modsim.operations;
 
 import com.modsim.Main;
+import com.modsim.gui.HelpWindow;
 import com.modsim.modules.BaseModule;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.tools.PlaceTool;
@@ -22,6 +23,16 @@ import java.util.prefs.Preferences;
  */
 public class Ops {
 
+	public static DesignAction showHelp = new DesignAction(event -> {
+		SwingUtilities.invokeLater(
+				new Runnable() {
+					@Override
+					public void run() {
+						new HelpWindow();
+					}
+				});
+		}, "Show help");
+	
     public static class FileIO {
         private static final FilenameFilter simFileFilter = new FilenameFilter() {
             @Override

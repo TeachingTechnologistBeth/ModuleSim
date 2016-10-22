@@ -1,5 +1,6 @@
 package com.modsim.gui;
 
+import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import javax.swing.*;
 import com.modsim.operations.Ops;
@@ -29,6 +30,10 @@ public class Menu {
         addEditMenu();
         addViewMenu();
         addSimMenu();
+        JMenuItem help = new JMenuItem(Ops.showHelp);
+        help.setMaximumSize(new Dimension(80, 100));
+        help.setMnemonic(KeyEvent.VK_H);
+        app_menu.add(help);
     }
 
     private void addFileMenu() {
