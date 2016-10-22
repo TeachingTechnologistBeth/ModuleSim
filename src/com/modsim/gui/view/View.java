@@ -1,7 +1,7 @@
 package com.modsim.gui.view;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.*;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
@@ -78,8 +78,8 @@ public class View extends JPanel {
         g.setColor(Colors.grid);
         double xD = (camX + getWidth()/2);
         double yD = (camY + getHeight()/2);
-        double xOff = (int)xD % (int)(Main.sim.grid * zoom);
-        double yOff = (int)yD % (int)(Main.sim.grid * zoom);
+        double xOff = xD % (Main.sim.grid * zoom);
+        double yOff = yD % (Main.sim.grid * zoom);
         g.translate(xOff, yOff);
         drawGrid(g);
 
@@ -168,13 +168,19 @@ public class View extends JPanel {
         int xNum = (int)(getWidth() / grid);
         int yNum = (int)(getHeight() / grid);
 
+        AffineTransform oldxform = new AffineTransform(g.getTransform());
+        Line2D verticalLine = new Line2D.Double(0.0, -grid, 0.0, getHeight() + grid);
+        Line2D horizontalLine = new Line2D.Double(-grid, 0.0, getWidth() + grid, 0.0);
         for (int i = 0; i <= xNum + 1; i++) {
-            g.drawLine((int)(i * grid), (int)-grid, (int)(i*grid), getHeight() + (int)grid);
+            g.draw(verticalLine);
+            g.translate(grid, 0.0);
         }
-
+        g.setTransform(oldxform);
         for (int i = 0; i <= yNum + 1; i++) {
-            g.drawLine((int)-grid, (int)(i * grid), getWidth() + (int)grid, (int)(i*grid));
+            g.draw(horizontalLine);
+            g.translate(0.0, grid);
         }
+        g.setTransform(oldxform);
     }
 
     /**
