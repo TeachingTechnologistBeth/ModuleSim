@@ -75,13 +75,28 @@ public class GUI {
 			Preferences prefs = Preferences.userNodeForPackage(GUI.class);
 			if (prefs.getBoolean("window_stored", false)) {
 				// Window border has been stored
-				int window_x, window_y, window_width, window_height;
-				window_x = prefs.getInt("window_x", 0);
-				window_y = prefs.getInt("window_y", 0);
-				window_height = prefs.getInt("window_height", 600);
-				window_width = prefs.getInt("window_width", 800);
-				frame.setBounds(window_x, window_y, window_width, window_height);
-				// Restore maximise state
+				int windowX, windowY, windowWidth, windowHeight;
+				windowX = prefs.getInt("window_x", 0);
+				windowY = prefs.getInt("window_y", 0);
+				windowHeight = prefs.getInt("window_height", 600);
+				windowWidth = prefs.getInt("window_width", 800);
+				// Check the window is within the boundaries of the active display(s)
+                GraphicsDevice[] devices = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices();
+                boolean onDesktop = false;
+                for (int i = 0; i < devices.length; i++) {
+                    Rectangle displayBounds = devices[i].getDefaultConfiguration().getBounds();
+                    if (displayBounds.intersects(windowX, windowY, windowWidth, windowHeight)) {
+                        onDesktop = true;
+                    }
+                }
+                if (onDesktop) {
+                    frame.setBounds(windowX, windowY, windowWidth, windowHeight);
+                }
+                else {
+                    frame.pack();
+                    frame.setLocationRelativeTo(null);
+                }
+				// Restores the maximise state
 				if (prefs.getBoolean("window_maximised", false)) {
 					frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 				}
