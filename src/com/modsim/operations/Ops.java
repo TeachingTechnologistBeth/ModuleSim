@@ -23,15 +23,7 @@ import java.util.prefs.Preferences;
  */
 public class Ops {
 
-	public static DesignAction showHelp = new DesignAction(event -> {
-		SwingUtilities.invokeLater(
-				new Runnable() {
-					@Override
-					public void run() {
-						new HelpWindow();
-					}
-				});
-		}, "Show help");
+	public static DesignAction showHelp = new DesignAction(event -> {new HelpWindow();}, "Show help");
 	
     public static class FileIO {
         private static final FilenameFilter simFileFilter = new FilenameFilter() {
