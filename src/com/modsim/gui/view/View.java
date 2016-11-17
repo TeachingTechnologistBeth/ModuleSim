@@ -102,7 +102,7 @@ public class View extends JPanel {
             for (BaseModule m : Main.sim.getModules()) {
                 m.updateXForm();
                 g.transform(m.toView);
-                m.paint(g);
+                m.paintStatic(g);
 
                 if (m.error) {
                     drawError(g);

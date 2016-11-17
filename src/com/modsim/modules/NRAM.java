@@ -112,7 +112,7 @@ public class NRAM extends BaseModule {
     }
 
     @Override
-    public void paint(Graphics2D g) {
+    public void paintStatic(Graphics2D g) {
         // Fill in polygon
         g.setColor(Colors.moduleFill);
         drawBox(g, 10);
@@ -124,9 +124,6 @@ public class NRAM extends BaseModule {
         g.setColor(Colors.modulePorts);
         drawInputs(g);
         drawOutputs(g);
-
-        // Show LEDs
-        drawParts(g);
 
         // Show label
         g.setColor(Colors.moduleLabel);
