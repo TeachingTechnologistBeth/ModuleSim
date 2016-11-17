@@ -72,6 +72,8 @@ public class Fanout extends BaseModule {
         for (BezierCurve c : curves) {
             c.draw(g);
         }
+
+        drawStaticParts(g);
     }
 
     @Override

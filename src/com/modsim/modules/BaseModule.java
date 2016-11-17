@@ -253,7 +253,7 @@ public abstract class BaseModule extends PickableEntity {
      * Draws the dynamically variable visible parts, typically LEDs and switches
      * @param g Graphics context to render with
      */
-    private void drawDynamicParts(Graphics2D g) {
+    protected void drawDynamicParts(Graphics2D g) {
         for (VisiblePart p : parts) {
             if (p.getRefreshMode() == VisiblePart.RefreshMode.Dynamic) {
                 p.paint(g);
@@ -265,7 +265,7 @@ public abstract class BaseModule extends PickableEntity {
      * Draws static visible parts, typically labels
      * @param g Graphics context to render with
      */
-    private void drawStaticParts(Graphics2D g) {
+    protected void drawStaticParts(Graphics2D g) {
         for (VisiblePart p : parts) {
             if (p.getRefreshMode() == VisiblePart.RefreshMode.Static) {
                 p.paint(g);

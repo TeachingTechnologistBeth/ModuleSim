@@ -129,6 +129,8 @@ public class NRAM extends BaseModule {
         g.setColor(Colors.moduleLabel);
         g.setFont(new Font("SansSerif", Font.BOLD, 40));
         g.drawString("NRAM", -58, 15);
+
+        drawStaticParts(g);
     }
 
     @Override

@@ -58,7 +58,7 @@ public class Clock extends BaseModule {
         g.setColor(Colors.modulePorts);
         drawOutputs(g);
 
-        drawParts(g);
+        drawStaticParts(g);
 
         // Show label
         g.setColor(Colors.moduleLabel);

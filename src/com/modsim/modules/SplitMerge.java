@@ -116,6 +116,8 @@ public class SplitMerge extends BaseModule {
         // Show output/input
         g.setColor(Colors.modulePorts);
         drawBidir(g);
+
+        drawStaticParts(g);
     }
 
     @Override

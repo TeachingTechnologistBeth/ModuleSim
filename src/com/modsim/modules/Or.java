@@ -70,10 +70,7 @@ public class Or extends BaseModule {
         drawOutputs(g);
         drawInputs(g);
 
-        // Show label
-        /*g.setColor(Colors.moduleLabel);
-        g.setFont(Fonts.moduleLabel);
-        g.drawString("OR", -16, 8);*/
+        drawStaticParts(g);
     }
 
     @Override

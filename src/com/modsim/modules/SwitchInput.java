@@ -79,7 +79,7 @@ public class SwitchInput extends BaseModule {
 		s3.setColour(switchCol);
 		s4.setColour(switchCol);
 
-		drawParts(g);
+		drawDynamicParts(g);
 	}
 
 	@Override

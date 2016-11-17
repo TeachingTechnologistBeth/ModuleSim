@@ -2,6 +2,7 @@ package com.modsim.gui.view;
 
 import java.awt.*;
 import java.awt.geom.*;
+import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
@@ -35,6 +36,9 @@ public class View extends JPanel {
 
     public boolean useAA = true;
 
+    private BufferedImage staticCanvas = null;
+    private boolean staticIsDirty = true;
+
     public View() {
         setFocusable(true);
         ViewUtil listener = new ViewUtil();
@@ -42,6 +46,8 @@ public class View extends JPanel {
         addMouseMotionListener(listener);
         addMouseWheelListener(listener);
         addKeyListener(listener);
+
+        //staticCanvas = getGraphicsConfiguration().createCompatibleImage(800, 600);
     }
 
     public void calcXForm() {
@@ -57,52 +63,78 @@ public class View extends JPanel {
     public void paintComponent(Graphics oldG) {
         Graphics2D g = (Graphics2D) oldG;
 
+        // The static canvas is used for drawing parts which do not vary with simulation state
+        if (staticCanvas == null || staticCanvas.getWidth() != getWidth() || staticCanvas.getHeight() != getHeight()) {
+            staticCanvas = getGraphicsConfiguration().createCompatibleImage(getWidth(), getHeight());
+            staticIsDirty = true;
+        }
+        Graphics2D staticG = staticCanvas.createGraphics();
+
         // Antialiasing
         if (useAA) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            staticG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         }
         else {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+            staticG.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         }
 
-        // View transform
+        // Refresh the view's transform
         calcXForm();
-
+        // Store the original view transform for restoration to a known state
         AffineTransform old = new AffineTransform(g.getTransform());
 
-        // Fill back
-        g.setColor(Colors.background);
-        g.fillRect(0, 0, getWidth(), getHeight());
-
-        // Grid
-        g.setColor(Colors.grid);
-        double xD = (camX + getWidth()/2);
-        double yD = (camY + getHeight()/2);
-        double xOff = xD % (Main.sim.grid * zoom);
-        double yOff = yD % (Main.sim.grid * zoom);
-        g.translate(xOff, yOff);
-        drawGrid(g);
-
-        g.setTransform(old);
-
-        // Draw links
-        g.transform(wToV);
         synchronized (Main.sim) {
-            for (Link l : Main.sim.getLinks()) {
-                if (l == null) {
-                    System.err.println("Warning: Null link encountered while drawing");
-                    continue;
+            // Static drawing
+            if (staticIsDirty) {
+                // Fill background
+                staticG.setTransform(old);
+                staticG.setColor(Colors.background);
+                staticG.fillRect(0, 0, getWidth(), getHeight());
+                // Grid
+                staticG.setColor(Colors.grid);
+                double xD = (camX + getWidth() / 2);
+                double yD = (camY + getHeight() / 2);
+                double xOff = xD % (Main.sim.grid * zoom);
+                double yOff = yD % (Main.sim.grid * zoom);
+                staticG.translate(xOff, yOff);
+                drawGrid(staticG);
+                staticG.setTransform(old);
+
+                // Draw links
+                staticG.transform(wToV);
+                for (Link l : Main.sim.getLinks()) {
+                    if (l == null) {
+                        System.err.println("Warning: Null link encountered while drawing");
+                        continue;
+                    }
+                    l.draw(staticG);
                 }
-                l.draw(g);
+
+                // Draw modules - static
+                staticG.setTransform(old);
+                for (BaseModule m : Main.sim.getModules()) {
+                    m.updateXForm();
+                    staticG.transform(m.toView);
+                    m.paintStatic(staticG);
+                    staticG.setTransform(old);
+                }
+
+                staticG.setTransform(old);
+
+                // Static canvas is now up-to-date
+                staticIsDirty = false;
             }
 
-            g.setTransform(old);
+            // Static stuff is drawn below all dynamic stuff
+            g.drawImage(staticCanvas, 0, 0, getWidth(), getHeight(), null);
 
-            // Draw modules
+            // Draw modules - dynamic
             for (BaseModule m : Main.sim.getModules()) {
                 m.updateXForm();
                 g.transform(m.toView);
-                m.paintStatic(g);
+                m.paintDynamic(g);
 
                 if (m.error) {
                     drawError(g);
@@ -111,12 +143,14 @@ public class View extends JPanel {
                 g.setTransform(old);
             }
 
+            // Labels are drawn over all module renderings
             for (BaseModule m : Main.sim.getModules()) {
                 g.transform(m.toView);
                 m.drawLabel(g);
                 g.setTransform(old);
             }
 
+            // Highlighted bounds are drawn over labels
             for (BaseModule m : Main.sim.getModules()) {
                 if (m.selected) {
                     g.transform(m.toView);
@@ -250,4 +284,10 @@ public class View extends JPanel {
         }
     }
 
+    /***
+     * Flags the static canvas as dirty, triggering a redraw of all static parts on the next view update
+     */
+    public void flagStaticRedraw() {
+        staticIsDirty = true;
+    }
 }

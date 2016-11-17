@@ -82,6 +82,8 @@ public class Logic extends BaseModule {
         g.setColor(Colors.modulePorts);
         drawInputs(g);
         drawOutputs(g);
+
+        drawStaticParts(g);
     }
 
     @Override

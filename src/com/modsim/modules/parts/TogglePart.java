@@ -19,4 +19,9 @@ public abstract class TogglePart extends VisiblePart {
 	public void reset() {
 	    enabled = false;
 	}
+
+	@Override
+	public RefreshMode getRefreshMode() {
+        return RefreshMode.Dynamic;
+    }
 }

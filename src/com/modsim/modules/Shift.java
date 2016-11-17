@@ -78,6 +78,8 @@ public class Shift extends BaseModule {
         g.setColor(Colors.moduleLabel);
         g.setFont(new Font("SansSerif", Font.BOLD, 20));
         g.drawString(isLeftShift ? "LSH" : "RSH", -20, 8);
+
+        drawStaticParts(g);
     }
 
     @Override

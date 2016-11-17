@@ -66,6 +66,8 @@ public class Register extends BaseModule {
         g.setColor(Colors.moduleLabel);
         g.setFont(Fonts.moduleLabel);
         g.drawString("R", -7, 8);
+
+        drawStaticParts(g);
     }
 
     @Override

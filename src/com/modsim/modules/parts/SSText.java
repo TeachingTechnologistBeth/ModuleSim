@@ -59,4 +59,8 @@ public class SSText extends VisiblePart {
         // Noop
     }
 
+    @Override
+    public RefreshMode getRefreshMode() {
+        return RefreshMode.Static;
+    }
 }

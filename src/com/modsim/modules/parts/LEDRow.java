@@ -76,4 +76,8 @@ public class LEDRow extends VisiblePart {
         curVal = new BinData(0);
     }
 
+    @Override
+	public RefreshMode getRefreshMode() {
+		return RefreshMode.Dynamic;
+	}
 }

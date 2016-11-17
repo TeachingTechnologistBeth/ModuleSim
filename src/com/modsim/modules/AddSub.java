@@ -99,6 +99,8 @@ public class AddSub extends BaseModule {
         g.setColor(Colors.moduleSubLabel);
         drawInputs(g);
         drawOutputs(g);
+
+        drawStaticParts(g);
     }
 
     @Override
