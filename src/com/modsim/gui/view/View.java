@@ -21,13 +21,16 @@ import com.modsim.util.Vec2;
  */
 public class View extends JPanel {
 
-    public int zoomI = 3;
+	public int init_zoomI = 3;
+	public double init_camX = 0, init_camY = 0;
+		
+    public int zoomI = init_zoomI;
     public double zoom = zoomI * ZOOM_MULTIPLIER;
 
     public static final double ZOOM_MULTIPLIER = 0.15;
     public static final int ZOOM_LIMIT = 12;
 
-    public double camX = 0, camY = 0;
+    public double camX = init_camX, camY = init_camY;
     public AffineTransform wToV = new AffineTransform();
 
     private static final long serialVersionUID = 1L;
@@ -249,5 +252,14 @@ public class View extends JPanel {
             camY -= newScreenPt.y - y;
         }
     }
+
+	public void resetView() {
+		//center view
+		camX = init_camX;
+		camY = init_camY;
+		//reset zoom
+		zoomI = init_zoomI;
+	    zoom = zoomI * ZOOM_MULTIPLIER;
+	}
 
 }

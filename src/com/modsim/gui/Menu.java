@@ -83,6 +83,7 @@ public class Menu {
         JMenu view = new JMenu("View");
         view.setMnemonic(KeyEvent.VK_V);
         view.add(Ops.toggleAA);
+        view.add(Ops.resetView);
         app_menu.add(view);
     }
 
