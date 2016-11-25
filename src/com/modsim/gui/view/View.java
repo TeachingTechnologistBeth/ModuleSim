@@ -84,12 +84,13 @@ public class View extends JPanel {
         calcXForm();
         // Store the original view transform for restoration to a known state
         AffineTransform old = new AffineTransform(g.getTransform());
+        AffineTransform oldStatic = new AffineTransform(staticG.getTransform());
 
         synchronized (Main.sim) {
             // Static drawing
             if (staticIsDirty) {
                 // Fill background
-                staticG.setTransform(old);
+                staticG.setTransform(oldStatic);
                 staticG.setColor(Colors.background);
                 staticG.fillRect(0, 0, getWidth(), getHeight());
                 // Grid
@@ -100,7 +101,7 @@ public class View extends JPanel {
                 double yOff = yD % (Main.sim.grid * zoom);
                 staticG.translate(xOff, yOff);
                 drawGrid(staticG);
-                staticG.setTransform(old);
+                staticG.setTransform(oldStatic);
 
                 // Draw links
                 staticG.transform(wToV);
@@ -113,15 +114,15 @@ public class View extends JPanel {
                 }
 
                 // Draw modules - static
-                staticG.setTransform(old);
+                staticG.setTransform(oldStatic);
                 for (BaseModule m : Main.sim.getModules()) {
                     m.updateXForm();
                     staticG.transform(m.toView);
                     m.paintStatic(staticG);
-                    staticG.setTransform(old);
+                    staticG.setTransform(oldStatic);
                 }
 
-                staticG.setTransform(old);
+                staticG.setTransform(oldStatic);
 
                 // Static canvas is now up-to-date
                 staticIsDirty = false;
