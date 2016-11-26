@@ -68,4 +68,8 @@ public class Switch extends TogglePart {
 		}
 	}
 
+	@Override
+	public void povTick() {
+		// Don't care
+	}
 }

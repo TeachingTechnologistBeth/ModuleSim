@@ -385,18 +385,13 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             Main.ui.view.curTool = tool.mouseMove(e.getX(), e.getY());
         }
 
-        Main.ui.view.repaint();
+        Main.ui.view.flagDynamicRedraw();
     }
 
     public void mouseWheelMoved(MouseWheelEvent e) {
         testKeys(e);
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-            if (e.getWheelRotation() < 0) {
-                Main.ui.view.zoomIn(e.getX(), e.getY());
-            }
-            else {
-                Main.ui.view.zoomOut(e.getX(), e.getY());
-            }
+            Main.ui.view.zoom(e.getX(), e.getY(), e.getPreciseWheelRotation());
         }
 
         Main.ui.view.flagStaticRedraw();

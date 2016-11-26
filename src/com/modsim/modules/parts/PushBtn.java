@@ -88,4 +88,8 @@ public class PushBtn extends TogglePart {
 		}
 	}
 
+	@Override
+	public void povTick() {
+		// Don't care
+	}
 }

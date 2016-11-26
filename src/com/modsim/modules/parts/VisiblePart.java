@@ -25,6 +25,10 @@ public abstract class VisiblePart {
 
 	// Display
 	public abstract void paint(Graphics2D g);
-	public abstract void reset();
 	public abstract RefreshMode getRefreshMode();
+
+	/***
+	 * Use to update the part's persistence-of-vision data
+	 */
+	public abstract void povTick();
 }

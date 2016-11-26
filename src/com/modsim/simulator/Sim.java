@@ -18,7 +18,6 @@ public class Sim implements Runnable {
     private Thread thread;
     public final Mutex lock = new Mutex();
 
-    //private boolean[] visited = new boolean[1024];
     private int lastLinkInd = 0;
 
     public static long delay = 2500000;
@@ -102,6 +101,8 @@ public class Sim implements Runnable {
             filePath = "";
             Main.ui.updateTitle();
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
     /**
@@ -216,9 +217,6 @@ public class Sim implements Runnable {
             // Iterate
             step();
 
-            // Update view
-            Main.ui.view.flagDynamicRedraw();
-
             // Calculate speed
             iterations++;
             long now = System.currentTimeMillis();
@@ -280,6 +278,9 @@ public class Sim implements Runnable {
                 propagate(m);
             }
         }
+
+        // Request view update
+        Main.ui.view.flagDynamicRedraw();
     }
 
     /**

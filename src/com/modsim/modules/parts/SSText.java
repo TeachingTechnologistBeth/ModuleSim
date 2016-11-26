@@ -55,8 +55,8 @@ public class SSText extends VisiblePart {
     }
 
     @Override
-    public void reset() {
-        // Noop
+    public void povTick() {
+        // Don't care
     }
 
     @Override

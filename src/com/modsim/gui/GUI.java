@@ -254,7 +254,7 @@ public class GUI {
 	 */
 	public void zoomInToView()
 	{
-		view.zoomIn(view.getWidth()/2,view.getHeight()/2);
+		view.zoom(view.getWidth()/2, view.getHeight()/2, 1.0);
 	}
 	
 	/*
@@ -262,7 +262,7 @@ public class GUI {
 	 */
 	public void zoomOutToView()
 	{
-		view.zoomOut(view.getWidth()/2,view.getHeight()/2);
+		view.zoom(view.getWidth()/2, view.getHeight()/2, -1.0);
 	}
 	
 	

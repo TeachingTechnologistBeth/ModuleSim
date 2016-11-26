@@ -4,11 +4,13 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
+import java.util.prefs.Preferences;
 
 import javax.swing.*;
 
 import com.modsim.modules.BaseModule;
 import com.modsim.modules.Link;
+import com.modsim.modules.parts.VisiblePart;
 import com.modsim.res.Colors;
 import com.modsim.Main;
 import com.modsim.tools.BaseTool;
@@ -38,9 +40,15 @@ public class View extends JPanel {
 
     public boolean useAA = true;
 
+    private int dynamicRefreshRate = 30;
+
     private BufferedImage staticCanvas = null;
     private boolean staticIsDirty = true;
     private long lastDynamicPaint = 0;
+
+    // Zoom caps
+    public static final double minZoom = 0.01;
+    public static final double maxZoom = 6.0;
 
     public View() {
         setFocusable(true);
@@ -50,7 +58,32 @@ public class View extends JPanel {
         addMouseWheelListener(listener);
         addKeyListener(listener);
 
-        //staticCanvas = getGraphicsConfiguration().createCompatibleImage(800, 600);
+        // Fetch the preferred refresh rate
+        Preferences prefs = Preferences.userNodeForPackage(View.class);
+        dynamicRefreshRate = prefs.getInt("dynamic_refresh_rate", dynamicRefreshRate);
+    }
+
+    /***
+     * @return The current dynamic refresh rate
+     */
+    public int getDynamicRefreshRate() {
+        return dynamicRefreshRate;
+    }
+
+    /***
+     * Sets and stores the dynamic refresh rate for the view. Capped to 5-120Hz
+     * @param newRate The new refresh rate, in Hz
+     */
+    public void setDynamicRefreshRate(int newRate) {
+        if (newRate < 5) {
+            newRate = 5;
+        }
+        else if (newRate > 120) {
+            newRate = 120;
+        }
+        Preferences prefs = Preferences.userNodeForPackage(View.class);
+        dynamicRefreshRate = newRate;
+        prefs.putInt("dynamic_refresh_rate", newRate);
     }
 
     public void calcXForm() {
@@ -192,9 +225,9 @@ public class View extends JPanel {
     }
 
     /**
-     * Draws an error flag
+     * Draws a module's error flag
      */
-    public void drawError(Graphics2D g) {
+    private void drawError(Graphics2D g) {
         g.setColor(Colors.errorEdge);
         g.drawOval(-30, -30, 60, 60);
         g.setColor(Colors.errorFill);
@@ -205,27 +238,32 @@ public class View extends JPanel {
     }
 
     /**
-     * Draws a grid
+     * Draws the background grid
      */
-    public void drawGrid(Graphics2D g) {
+    private void drawGrid(Graphics2D g) {
         double grid = zoom * Main.sim.grid;
+
+        // When extremely zoomed-out, displaying the grid is costly and pointless
+        if (grid < 1.5) {
+            return;
+        }
 
         int xNum = (int)(getWidth() / grid);
         int yNum = (int)(getHeight() / grid);
 
-        AffineTransform oldxform = new AffineTransform(g.getTransform());
+        AffineTransform oldTransform = new AffineTransform(g.getTransform());
         Line2D verticalLine = new Line2D.Double(0.0, -grid, 0.0, getHeight() + grid);
         Line2D horizontalLine = new Line2D.Double(-grid, 0.0, getWidth() + grid, 0.0);
         for (int i = 0; i <= xNum + 1; i++) {
             g.draw(verticalLine);
             g.translate(grid, 0.0);
         }
-        g.setTransform(oldxform);
+        g.setTransform(oldTransform);
         for (int i = 0; i <= yNum + 1; i++) {
             g.draw(horizontalLine);
             g.translate(0.0, grid);
         }
-        g.setTransform(oldxform);
+        g.setTransform(oldTransform);
     }
 
     /**
@@ -254,45 +292,25 @@ public class View extends JPanel {
     }
 
     /**
-     * Zooms the viewport in on the specified screen point
+     * Smoothly zooms the viewport in or out of the specified screen point
      * @param x X-coordinate
      * @param y Y-coordinate
      */
-    public void zoomIn(int x, int y) {
+    public void zoom(int x, int y, double amount) {
         Vec2 zmPt = ViewUtil.screenToWorld(new Vec2(x, y));
 
-        zoomI++;
-        if (zoomI > ZOOM_LIMIT) {
-            zoomI --;
+        zoom -= zoom * amount * ZOOM_MULTIPLIER;
+        if (zoom < minZoom) {
+            zoom = minZoom;
         }
-        else {
-            zoom = zoomI * ZOOM_MULTIPLIER;
-            calcXForm();
-            Vec2 newScreenPt = ViewUtil.worldToScreen(zmPt);
-            camX -= newScreenPt.x - x;
-            camY -= newScreenPt.y - y;
+        else if (zoom > maxZoom) {
+            zoom = maxZoom;
         }
-    }
-
-    /**
-     * Zooms the view out form the specified screen point
-     * @param x X-coordinate
-     * @param y Y-coordinate
-     */
-    public void zoomOut(int x, int y) {
-        Vec2 zmPt = ViewUtil.screenToWorld(new Vec2(x, y));
-
-        zoomI--;
-        if (zoomI < 1) {
-            zoomI = 1;
-        }
-        else {
-            zoom = zoomI * ZOOM_MULTIPLIER;
-            calcXForm();
-            Vec2 newScreenPt = ViewUtil.worldToScreen(zmPt);
-            camX -= newScreenPt.x - x;
-            camY -= newScreenPt.y - y;
-        }
+        calcXForm();
+        Vec2 newScreenPt = ViewUtil.worldToScreen(zmPt);
+        camX -= newScreenPt.x - x;
+        camY -= newScreenPt.y - y;
+        calcXForm();
     }
 
     /***
@@ -308,12 +326,16 @@ public class View extends JPanel {
      */
     public void flagDynamicRedraw() {
         long currentTime = System.currentTimeMillis();
-        if (abs(currentTime - lastDynamicPaint) > 33) {
+        if (abs(currentTime - lastDynamicPaint) > (1000 / dynamicRefreshRate)) {
             repaint();
         }
         else {
             // persistence-of-vision simulation
-            // TODO!!
+            for (BaseModule m : Main.sim.getModules()) {
+                for (VisiblePart p : m.parts) {
+                    p.povTick();
+                }
+            }
         }
     }
 }
