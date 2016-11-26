@@ -384,6 +384,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         if (tool != null) {
             Main.ui.view.curTool = tool.mouseMove(e.getX(), e.getY());
         }
+
+        Main.ui.view.repaint();
     }
 
     public void mouseWheelMoved(MouseWheelEvent e) {
@@ -418,6 +420,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         else if (v.curTool != null) {
             v.curTool = v.curTool.keyDown(e.getKeyCode());
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
     public void keyReleased(KeyEvent e) {
@@ -425,10 +429,11 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         if (v.curTool != null) {
             v.curTool.keyUp(e.getKeyCode());
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
-    public void keyTyped(KeyEvent e) {
-    }
+    public void keyTyped(KeyEvent e) {}
 
     public void testKeys(MouseEvent e) {
         BaseTool.CTRL = e.isControlDown();

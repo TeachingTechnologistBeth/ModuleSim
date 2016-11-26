@@ -98,7 +98,7 @@ public class Sim implements Runnable {
             propModules.clear();
             entities.clear();
 
-           Main.opStack.clearAll();
+            Main.opStack.clearAll();
             filePath = "";
             Main.ui.updateTitle();
         }
@@ -215,6 +215,9 @@ public class Sim implements Runnable {
         while(running) {
             // Iterate
             step();
+
+            // Update view
+            Main.ui.view.flagDynamicRedraw();
 
             // Calculate speed
             iterations++;

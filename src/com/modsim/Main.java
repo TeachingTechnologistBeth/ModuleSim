@@ -1,7 +1,6 @@
 package com.modsim;
 
 import com.modsim.gui.GUI;
-import com.modsim.gui.view.Ticker;
 import com.modsim.simulator.Sim;
 import com.modsim.operations.OperationStack;
 import com.modsim.util.ModuleClipboard;
@@ -35,10 +34,6 @@ public class Main {
 				ui = new GUI();
 				ui.generateUI();
 				ui.showUI(true);
-
-				// Start render ticking
-				Thread t = new Thread(new Ticker());
-				t.start();
 
 				// Start sim ticking - sim is initialized below *before* this is called
 				sim.start();
