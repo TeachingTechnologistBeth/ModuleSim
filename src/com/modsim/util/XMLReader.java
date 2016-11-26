@@ -188,6 +188,7 @@ public class XMLReader {
                     // Add to the simulation
                     if (l != null) {
                         Main.sim.addLink(l);
+                        Main.sim.propagate(l.targ.owner);
                     }
                     else {
                         badLinks++;
