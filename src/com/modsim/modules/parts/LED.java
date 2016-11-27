@@ -11,6 +11,9 @@ public class LED extends TogglePart {
 	private Color color;
 	private Color hColor;
 
+	private int povTicks = 0;
+	private int povHits = 0;
+
     // Convenience method, single LEDs are most commonly control.
     public LED(int x, int y) {
         this(x, y, LEDColour.BLUE);
@@ -30,9 +33,9 @@ public class LED extends TogglePart {
 		g.setColor(Colors.ledBack);
 		g.fillRect(x-4, y-4, 8, 8);
 
-		if (getEnabled()) {
+		if (getEnabled() || povHits > 0) {
 			g.setColor(color);
-			g.fillRect(x-4, y-4, 8, 8);
+            g.fillRect(x-4, y-4, 8, 8);
 			g.setColor(hColor);
 			g.fillRect(x-2, y-2, 4, 4);
 		}
@@ -41,6 +44,15 @@ public class LED extends TogglePart {
 			g.fillRect(x-2, y-2, 4, 4);
 		}
 
+		povTicks = 0;
+        povHits = 0;
 	}
 
+	@Override
+	public void povTick() {
+		povTicks++;
+		if (getEnabled()) {
+			povHits++;
+		}
+	}
 }

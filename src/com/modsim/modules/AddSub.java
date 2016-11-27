@@ -88,7 +88,7 @@ public class AddSub extends BaseModule {
     }
 
     @Override
-    public void paint(Graphics2D g) {
+    public void paintStatic(Graphics2D g) {
         // Fill in polygon
         g.setColor(Colors.moduleFill);
         drawBox(g, 10);
@@ -100,8 +100,7 @@ public class AddSub extends BaseModule {
         drawInputs(g);
         drawOutputs(g);
 
-        // Show LEDs
-        drawParts(g);
+        drawStaticParts(g);
     }
 
     @Override

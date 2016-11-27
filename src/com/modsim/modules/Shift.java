@@ -64,7 +64,7 @@ public class Shift extends BaseModule {
     }
 
     @Override
-    public void paint(Graphics2D g) {
+    public void paintStatic(Graphics2D g) {
         // Fill in polygon
         g.setColor(Colors.moduleFill);
         drawTrapezoid(g, 10);
@@ -74,13 +74,12 @@ public class Shift extends BaseModule {
         drawOutputs(g);
         drawInputs(g);
 
-        // Show LEDs
-        drawParts(g);
-
         // Show label
         g.setColor(Colors.moduleLabel);
         g.setFont(new Font("SansSerif", Font.BOLD, 20));
         g.drawString(isLeftShift ? "LSH" : "RSH", -20, 8);
+
+        drawStaticParts(g);
     }
 
     @Override

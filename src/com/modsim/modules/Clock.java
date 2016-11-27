@@ -49,7 +49,7 @@ public class Clock extends BaseModule {
     }
 
     @Override
-    public void paint(Graphics2D g) {
+    public void paintStatic(Graphics2D g) {
         // Fill in polygon
         g.setColor(Colors.moduleFill);
         drawBox(g, 10);
@@ -58,7 +58,7 @@ public class Clock extends BaseModule {
         g.setColor(Colors.modulePorts);
         drawOutputs(g);
 
-        drawParts(g);
+        drawStaticParts(g);
 
         // Show label
         g.setColor(Colors.moduleLabel);

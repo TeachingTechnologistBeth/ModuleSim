@@ -82,7 +82,8 @@ public class ModuleIcon extends JPanel implements MouseListener {
 		g.translate(getWidth() - 40, getHeight() / 2);
 		double scale = 90 / (module.h + module.w);
 		g.scale(scale, scale);
-		module.paint(g);
+		module.paintStatic(g);
+		module.paintDynamic(g);
 	}
 
 	public void mousePressed(MouseEvent arg0) {

@@ -212,5 +212,6 @@ public class XMLReader {
         }
 
         Main.sim.endDeferPropagations();
+        Main.ui.view.flagStaticRedraw();
     }
 }

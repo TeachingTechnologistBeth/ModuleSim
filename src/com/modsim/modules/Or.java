@@ -60,7 +60,7 @@ public class Or extends BaseModule {
     }
 
     @Override
-    public void paint(Graphics2D g) {
+    public void paintStatic(Graphics2D g) {
         // Fill in polygon
         g.setColor(Colors.moduleFill);
         drawBox(g, 10);
@@ -70,13 +70,7 @@ public class Or extends BaseModule {
         drawOutputs(g);
         drawInputs(g);
 
-        // Show label
-        /*g.setColor(Colors.moduleLabel);
-        g.setFont(Fonts.moduleLabel);
-        g.drawString("OR", -16, 8);
-*/
-        // Show LED
-        drawParts(g);
+        drawStaticParts(g);
     }
 
     @Override

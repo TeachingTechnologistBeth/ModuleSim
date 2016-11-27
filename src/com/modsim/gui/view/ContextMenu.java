@@ -167,7 +167,7 @@ public class ContextMenu  {
 		///////////////LED Matrix specific
 		
 		//Toggle Persistance
-		persistanceOff = new JMenuItem("Turn off persist");
+		persistanceOff = new JMenuItem("Turn off low-speed persistence");
 		persistanceOff.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				for (PickableEntity entity : entities) {
@@ -180,7 +180,7 @@ public class ContextMenu  {
 			}
 		});
 		
-		persistanceOn = new JMenuItem("Turn on persist");
+		persistanceOn = new JMenuItem("Turn on low-speed persistence");
 		persistanceOn.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				for (PickableEntity entity : entities) {

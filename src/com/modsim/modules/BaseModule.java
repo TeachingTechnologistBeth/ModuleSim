@@ -188,10 +188,19 @@ public abstract class BaseModule extends PickableEntity {
     }
 
     /**
-     * Displays the module in local space
+     * Draws static components for the module, in local space
      * @param g Graphics context to render with
      */
-    public abstract void paint(Graphics2D g);
+    public void paintStatic(Graphics2D g) {
+        drawStaticParts(g);
+    }
+
+    /**
+     * Draws dynamic (variable with module state) components for the module,
+     * in local space.
+     * @param g Graphics context to render with
+     */
+    public void paintDynamic(Graphics2D g) { drawDynamicParts(g); }
 
     /**
      * Displays the module's label in local space
@@ -241,12 +250,26 @@ public abstract class BaseModule extends PickableEntity {
     }
 
     /**
-     * Draws the visible parts
+     * Draws the dynamically variable visible parts, typically LEDs and switches
      * @param g Graphics context to render with
      */
-    protected void drawParts(Graphics2D g) {
+    protected void drawDynamicParts(Graphics2D g) {
         for (VisiblePart p : parts) {
-            p.paint(g);
+            if (p.getRefreshMode() == VisiblePart.RefreshMode.Dynamic) {
+                p.paint(g);
+            }
+        }
+    }
+
+    /**
+     * Draws static visible parts, typically labels
+     * @param g Graphics context to render with
+     */
+    protected void drawStaticParts(Graphics2D g) {
+        for (VisiblePart p : parts) {
+            if (p.getRefreshMode() == VisiblePart.RefreshMode.Static) {
+                p.paint(g);
+            }
         }
     }
 
@@ -602,10 +625,8 @@ public abstract class BaseModule extends PickableEntity {
         x2 = Math.max(rect[0], rect[2]);
         y2 = Math.max(rect[1], rect[3]);
 
-        if (    x < - w/2 && x2 > w/2 &&
-                y < - h/2 && y2 > h/2 )
-            return true;
-        else return false;
+        return x < -w / 2 && x2 > w / 2 &&
+                y < -h / 2 && y2 > h / 2;
     }
 
     @Override
@@ -621,13 +642,8 @@ public abstract class BaseModule extends PickableEntity {
         double nx = dpt[0];
         double ny = dpt[1];
 
-        if (    nx > - w/2 && nx < w/2 &&
-                ny > - h/2 && ny < h/2 ) {
-            return true;
-        }
-        else {
-            return false;
-        }
+        return nx > -w / 2 && nx < w / 2 &&
+                ny > -h / 2 && ny < h / 2;
     }
 
     @Override

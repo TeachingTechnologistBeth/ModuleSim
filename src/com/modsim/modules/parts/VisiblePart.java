@@ -11,6 +11,11 @@ import com.modsim.modules.BaseModule;
  */
 public abstract class VisiblePart {
 
+	public enum RefreshMode {
+		Static,
+		Dynamic
+	}
+
 	int x, y;
 	public BaseModule owner;
 
@@ -20,5 +25,10 @@ public abstract class VisiblePart {
 
 	// Display
 	public abstract void paint(Graphics2D g);
-	public abstract void reset();
+	public abstract RefreshMode getRefreshMode();
+
+	/***
+	 * Use to update the part's persistence-of-vision data
+	 */
+	public abstract void povTick();
 }

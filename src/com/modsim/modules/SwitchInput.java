@@ -49,7 +49,7 @@ public class SwitchInput extends BaseModule {
     }
 
 	@Override
-	public void paint(Graphics2D g) {
+	public void paintStatic(Graphics2D g) {
 		// Fill in polygon
 		g.setColor(Colors.moduleFill);
 		drawTrapezoid(g, 10);
@@ -57,17 +57,20 @@ public class SwitchInput extends BaseModule {
 		// Show output
 		g.setColor(Colors.modulePorts);
 		drawOutputs(g);
+	}
 
+	@Override
+	public void paintDynamic(Graphics2D g) {
 		// Draw switches
 		Colors.LEDColour switchCol = LEDColour.RED;
 		if (data.link != null) {
 			switch (data.link.targ.type) {
-			case Port.CTRL:
-				switchCol = LEDColour.BLUE;
-				break;
-			case Port.CLOCK:
-				switchCol = LEDColour.GREEN;
-				break;
+				case Port.CTRL:
+					switchCol = LEDColour.BLUE;
+					break;
+				case Port.CLOCK:
+					switchCol = LEDColour.GREEN;
+					break;
 			}
 		}
 
@@ -76,7 +79,7 @@ public class SwitchInput extends BaseModule {
 		s3.setColour(switchCol);
 		s4.setColour(switchCol);
 
-		drawParts(g);
+		drawDynamicParts(g);
 	}
 
 	@Override

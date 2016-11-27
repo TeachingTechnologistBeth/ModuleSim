@@ -52,7 +52,7 @@ public class Register extends BaseModule {
     }
 
     @Override
-    public void paint(Graphics2D g) {
+    public void paintStatic(Graphics2D g) {
         // Fill in polygon
         g.setColor(Colors.moduleFill);
         drawBox(g, 10);
@@ -62,12 +62,12 @@ public class Register extends BaseModule {
         drawInputs(g);
         drawOutputs(g);
 
-        drawParts(g);
-
         // Show label
         g.setColor(Colors.moduleLabel);
         g.setFont(Fonts.moduleLabel);
         g.drawString("R", -7, 8);
+
+        drawStaticParts(g);
     }
 
     @Override

@@ -14,10 +14,15 @@ import com.modsim.util.BinData;
  */
 public class LEDRow extends VisiblePart {
 
+	private static final int NLEDS = 4;
+
 	private Color color = Color.BLUE;
 	private Color hColor = Color.BLUE;
 
 	private volatile BinData curVal = new BinData(0);
+
+	private int povTicks = 0;
+	private int povHits[] = new int[NLEDS];
 
     // Convenience method, LEDRow is usually data.
     public LEDRow(int x, int y) {
@@ -55,10 +60,10 @@ public class LEDRow extends VisiblePart {
 		g.fillRect(x-15, y-3, 30, 6);
 
 		BinData v = getVal();
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < NLEDS; i++) {
 			int offs = x+(1-i)*8;
 
-			if (v.getBit(i) == 1) {
+			if (v.getBit(i) == 1 || povHits[i] > 0) {
 				g.setColor(color);
 				g.fillRect(offs+1, y-3, 6, 6);
 				g.setColor(hColor);
@@ -69,11 +74,30 @@ public class LEDRow extends VisiblePart {
 				g.fillRect(offs+2, y-2, 4, 4);
 			}
 		}
+
+		resetPov();
+	}
+
+	@Override
+	public void povTick() {
+		povTicks++;
+		BinData v = getVal();
+		for (int i = 0; i < NLEDS; i++) {
+			if (v.getBit(i) == 1) {
+				povHits[i]++;
+			}
+		}
+	}
+
+	private void resetPov() {
+		povTicks = 0;
+		for (int i = 0; i < NLEDS; i++) {
+			povHits[i] = 0;
+		}
 	}
 
     @Override
-    public void reset() {
-        curVal = new BinData(0);
-    }
-
+	public RefreshMode getRefreshMode() {
+		return RefreshMode.Dynamic;
+	}
 }

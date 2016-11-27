@@ -314,6 +314,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             oldCY = Main.ui.view.camY;
             camDrag = true;
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
     public void mouseReleased(MouseEvent e) {
@@ -343,6 +345,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
             camDrag = false;
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
     public void mouseDragged(MouseEvent e) {
@@ -356,6 +360,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         else if (tool != null) {
             Main.ui.view.curTool = tool.mouseDrag(e.getX(), e.getY());
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
     public void mouseMoved(MouseEvent e) {
@@ -378,18 +384,17 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         if (tool != null) {
             Main.ui.view.curTool = tool.mouseMove(e.getX(), e.getY());
         }
+
+        Main.ui.view.flagDynamicRedraw();
     }
 
     public void mouseWheelMoved(MouseWheelEvent e) {
         testKeys(e);
         if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-            if (e.getWheelRotation() < 0) {
-                Main.ui.view.zoomIn(e.getX(), e.getY());
-            }
-            else {
-                Main.ui.view.zoomOut(e.getX(), e.getY());
-            }
+            Main.ui.view.zoom(e.getX(), e.getY(), e.getPreciseWheelRotation());
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
     public void keyPressed(KeyEvent e) {
@@ -410,6 +415,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         else if (v.curTool != null) {
             v.curTool = v.curTool.keyDown(e.getKeyCode());
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
     public void keyReleased(KeyEvent e) {
@@ -417,10 +424,11 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         if (v.curTool != null) {
             v.curTool.keyUp(e.getKeyCode());
         }
+
+        Main.ui.view.flagStaticRedraw();
     }
 
-    public void keyTyped(KeyEvent e) {
-    }
+    public void keyTyped(KeyEvent e) {}
 
     public void testKeys(MouseEvent e) {
         BaseTool.CTRL = e.isControlDown();

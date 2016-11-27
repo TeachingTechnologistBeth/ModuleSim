@@ -66,6 +66,8 @@ public class PlaceTool extends BaseTool {
             e.moveRelative(cur);
         }
 
+        // Update view
+        Main.ui.view.flagStaticRedraw();
         return this;
     }
 
