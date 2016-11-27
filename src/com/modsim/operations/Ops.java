@@ -136,7 +136,7 @@ public class Ops {
     // Core application actions
     public static final DesignAction undo, redo, copy, paste, delete, rotateCW, rotateCCW, rotate180,
             labelEdit, labelBig, labelSmall,
-            pause, run, step, toggleRun, zoomIn, zoomOut, toggleAA, open, save, saveAs, fileNew, quit;
+            pause, run, step, toggleRun, zoomIn, zoomOut, resetView, toggleAA, open, save, saveAs, fileNew, quit;
 
     static {
         // Keyboard shortcuts
@@ -248,7 +248,7 @@ public class Ops {
         //Zoom controls
         zoomIn = new DesignAction(event -> Main.ui.zoomInToView(), "Zoom In");
         zoomOut = new DesignAction(event -> Main.ui.zoomOutToView(), "Zoom Out");
-        
+        resetView = new DesignAction(event -> Main.ui.resetView(), "Reset View");
         
         // View controls
         toggleAA = new DesignAction(event -> Main.ui.view.useAA = !Main.ui.view.useAA,

@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -177,6 +178,8 @@ public class XMLWriter {
             // Saving operation
             TransformerFactory tf = TransformerFactory.newInstance();
             Transformer t = tf.newTransformer();
+            t.setOutputProperty(OutputKeys.INDENT, "yes");
+            t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             DOMSource src = new DOMSource(doc);
             StreamResult r = new StreamResult(xmlFile);
 

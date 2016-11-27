@@ -44,9 +44,9 @@ public class XMLReader {
             // View load
             Element view = (Element) doc.getElementsByTagName("view").item(0);
             View v = Main.ui.view;
-            v.camX = Double.parseDouble(view.getAttribute("camX"));
-            v.camY = Double.parseDouble(view.getAttribute("camY"));
-            v.zoomI = Integer.parseInt(view.getAttribute("zoom"));
+            v.init_camX = v.camX = Double.parseDouble(view.getAttribute("camX"));
+            v.init_camY = v.camY = Double.parseDouble(view.getAttribute("camY"));
+            v.init_zoomI = v.zoomI = Integer.parseInt(view.getAttribute("zoom"));
             v.zoom = View.ZOOM_MULTIPLIER * v.zoomI;
             v.calcXForm();
 

@@ -265,7 +265,10 @@ public class GUI {
 		view.zoom(view.getWidth()/2, view.getHeight()/2, -1.0);
 	}
 	
-	
+	public void resetView()
+	{
+		view.resetView();
+	} 
 	
 	
 	/**
