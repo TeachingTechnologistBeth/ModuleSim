@@ -2,7 +2,9 @@ package com.modsim.simulator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import javax.swing.JOptionPane;
 
@@ -40,6 +42,8 @@ public class Sim implements Runnable {
     private List<BaseModule> deferredPropagators = new ArrayList<>();
     private int deferring = 0;
 
+    private Queue<QueueItem> propagationQueue;
+    
     /**
      * Begin deferring propagation operations (preventing errors during large-scale operations)
      */
@@ -103,7 +107,7 @@ public class Sim implements Runnable {
             filePath = "";
             Main.ui.updateTitle();
         }
-
+        propagationQueue = new LinkedList<QueueItem>();
         Main.ui.view.flagStaticRedraw();
     }
 
@@ -328,9 +332,9 @@ public class Sim implements Runnable {
                     p.link.targ.setVal(p.getVal());
 
                     // Add link to visited - remove after propagation
-                    visited[id] = true;
-                    doPropagate(p.link.targ.owner, visited);
-                    visited[id] = false;
+                    boolean[] clone = visited.clone();
+                    clone[id] = true;
+                    propagationQueue.add(new QueueItem(p.link.targ.owner, clone));
                 }
                 p.updated = false;
             }
@@ -343,7 +347,21 @@ public class Sim implements Runnable {
      */
     public void propagate(BaseModule m) {
         synchronized (lock) {
-            doPropagate(m, new boolean[1024]);
+        	propagationQueue.add(new QueueItem(m, new boolean[1024]));
+        	while(!propagationQueue.isEmpty()){
+        		QueueItem it = propagationQueue.remove();
+        		doPropagate(it.baseModule, it.visited);
+        	}
         }
     }
+    
+    class QueueItem {
+    	private BaseModule baseModule;
+    	private boolean[] visited;
+    	public QueueItem(BaseModule m, boolean[] v){
+    		baseModule = m;
+    		visited = v;
+    	}
+    }
+    
 }
