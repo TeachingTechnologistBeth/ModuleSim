@@ -107,4 +107,13 @@ public class BidirPort extends Port {
         return !(mode == Mode.MODE_BIDIR);
     }
 
+	public boolean isConnected() {
+		BinData data = this.getVal();
+		for(int i = 0; i<4; i++)
+		{
+			if(data.getBit(i)!=BinData.NOCON) return true;
+		}
+		return false;
+	}
+
 }

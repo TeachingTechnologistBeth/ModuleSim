@@ -120,7 +120,8 @@ public class MakeLinkTool extends BaseTool {
 			Main.opStack.beginCompoundOp();
 			Link l = Link.createLink(source, targ, curve);
 			if (l != null) {
-				Main.sim.addLink(l);
+	            Main.sim.addLink(l);
+	            Main.sim.propagate(l.targ.owner);
 				Main.opStack.pushOp(new CreateOperation(l));
 			}
 			Main.opStack.endCompoundOp();

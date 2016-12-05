@@ -152,7 +152,7 @@ public class ModuleClipboard {
                     // Store the new link
                     if (newLink != null) {
                         assert newLink.path != oldPort.link.path;
-
+                        Main.sim.propagate(newLink.targ.owner);
                         newPort.link = newLink;
                         destLinks.add(newLink);
                     }

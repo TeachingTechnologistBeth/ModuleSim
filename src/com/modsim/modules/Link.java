@@ -167,9 +167,7 @@ public class Link {
             // Changes are done
             Main.opStack.endCompoundOp();
 
-            // Propagate
             newLink.targ.setVal(newLink.src.getVal());
-            Main.sim.propagate(newLink.targ.owner);
 
             return newLink;
         }
