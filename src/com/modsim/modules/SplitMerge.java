@@ -8,8 +8,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import com.modsim.modules.ports.BidirPort;
+import com.modsim.Main;
 import com.modsim.modules.parts.Port;
+import com.modsim.modules.parts.SSText;
 import com.modsim.res.Colors;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.BezierCurve;
@@ -74,6 +78,14 @@ public class SplitMerge extends BaseModule {
         cs[8] = new BezierCurve(new Vec2(B + b1,  23),  new Vec2(d - b0, -23), // B1-d0
                                 new Vec2(B + b1, -15),  new Vec2(d - b0, 15));
         curves = Collections.unmodifiableList(Arrays.asList(cs));
+        
+        parts.add(new SSText(A-10, 24, "DCBA", 7, Colors.labelText));
+        parts.add(new SSText(B-10, 24, "XXDC", 7, Colors.labelText));
+        parts.add(new SSText(a+10, -24, "ABXX", -7, Colors.labelText));
+        parts.add(new SSText(b+10, -24, "BXXX", -7, Colors.labelText));
+        parts.add(new SSText(c+10, -24, "CDXX", -7, Colors.labelText));
+        parts.add(new SSText(d+10, -24, "DXXX", -7, Colors.labelText));
+
     }
 
     @Override
@@ -133,12 +145,22 @@ public class SplitMerge extends BaseModule {
 
         // Switch based on propagation direction
         if (portA0.wasUpdated() || portA1.wasUpdated()) {
+        	if(portA0.isConnected() && portA1.isConnected())
+        	{
+        		JOptionPane.showMessageDialog(Main.ui.pane, "Error: There must only be one connection to that size of split/merge.");
+        		Port port = portA0.wasUpdated()?portA0:portA1;
+        		synchronized (Main.sim)
+				{
+	        		Main.sim.removeLink(port.link);	        		
+        		}
+        		return;
+        	}
             b0_val.setBit(0, a0_val.getBit(0)); // A0-a0
             b1_val.setBit(0, a0_val.getBit(1)); // A1-b1
             b0_val.setBit(1, a0_val.getBit(1)); // A1-a1
 
             // Resolution of 3-state logic for merges
-            b3_val.setBit(0, a0_val.getBit(3));     // A3-d0
+            b3_val.setBit(0, a0_val.getBit(3));   // A3-d0
             b3_val.resolveBit(0, a1_val.getBit(1)); // B1-d0
 
             b2_val.setBit(0, a0_val.getBit(2));     // A2-c0
@@ -151,15 +173,15 @@ public class SplitMerge extends BaseModule {
                     portB2.wasUpdated() || portB3.wasUpdated()) {
             a0_val.setBit(0, b0_val.getBit(0)); // a0-A0
             a0_val.setBit(2, b2_val.getBit(0)); // c0-A2
-            a0_val.setBit(3, b2_val.getBit(1)); // c1-A3
             a1_val.setBit(0, b2_val.getBit(0)); // c0-B0
 
             // Resolution of 3-state logic for merges
-            a1_val.setBit(1, b2_val.getBit(1));     // c1-B1
-            a1_val.resolveBit(1, b3_val.getBit(0)); // d0-B1
-
-            a0_val.setBit(1, b0_val.getBit(1));     // a1-A1
-            a0_val.resolveBit(1, b1_val.getBit(0)); // b0-A1
+            int val = b2_val.getBit(1) | b3_val.getBit(0);
+            a1_val.setBit(1, val);
+            a0_val.setBit(3, val);
+            
+            val = b0_val.getBit(1) | b1_val.getBit(0);
+            a0_val.setBit(1, val);
         }
 
         // Set the values

@@ -130,16 +130,6 @@ public class View extends JPanel {
             drawGrid(staticG);
             staticG.setTransform(oldStatic);
 
-            // Draw links
-            staticG.transform(wToV);
-            for (Link l : Main.sim.getLinks()) {
-                if (l == null) {
-                    System.err.println("Warning: Null link encountered while drawing");
-                    continue;
-                }
-                l.draw(staticG);
-            }
-
             // Draw modules - static
             staticG.setTransform(oldStatic);
             for (BaseModule m : Main.sim.getModules()) {
@@ -149,6 +139,16 @@ public class View extends JPanel {
                 staticG.setTransform(oldStatic);
             }
 
+            // Draw links
+            staticG.transform(wToV);
+            for (Link l : Main.sim.getLinks()) {
+                if (l == null) {
+                    System.err.println("Warning: Null link encountered while drawing");
+                    continue;
+                }
+                l.draw(staticG);
+            }
+            
             staticG.setTransform(oldStatic);
 
             // Static canvas is now up-to-date
