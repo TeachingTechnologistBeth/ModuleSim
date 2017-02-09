@@ -36,6 +36,7 @@ public class Main {
 				ui.showUI(true);
 
 				// Start sim ticking - sim is initialized below *before* this is called
+				sim.newSim();
 				sim.start();
 			}
 		});

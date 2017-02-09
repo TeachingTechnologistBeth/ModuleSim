@@ -81,10 +81,10 @@ public class SplitMerge extends BaseModule {
         
         parts.add(new SSText(A-10, 24, "DCBA", 7, Colors.labelText));
         parts.add(new SSText(B-10, 24, "XXDC", 7, Colors.labelText));
-        parts.add(new SSText(a+10, -24, "XXBA", -7, Colors.labelText));
-        parts.add(new SSText(b+10, -24, "XXXB", -7, Colors.labelText));
-        parts.add(new SSText(c+10, -24, "XXDC", -7, Colors.labelText));
-        parts.add(new SSText(d+10, -24, "XXXD", -7, Colors.labelText));
+        parts.add(new SSText(a+10, -24, "ABXX", -7, Colors.labelText));
+        parts.add(new SSText(b+10, -24, "BXXX", -7, Colors.labelText));
+        parts.add(new SSText(c+10, -24, "CDXX", -7, Colors.labelText));
+        parts.add(new SSText(d+10, -24, "DXXX", -7, Colors.labelText));
 
     }
 
