@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import com.modsim.modules.ports.BidirPort;
 import com.modsim.Main;
 import com.modsim.modules.parts.Port;
+import com.modsim.modules.parts.SSText;
 import com.modsim.res.Colors;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.BezierCurve;
@@ -77,6 +78,14 @@ public class SplitMerge extends BaseModule {
         cs[8] = new BezierCurve(new Vec2(B + b1,  23),  new Vec2(d - b0, -23), // B1-d0
                                 new Vec2(B + b1, -15),  new Vec2(d - b0, 15));
         curves = Collections.unmodifiableList(Arrays.asList(cs));
+        
+        parts.add(new SSText(A-10, 24, "DCBA", 7, Colors.labelText));
+        parts.add(new SSText(B-10, 24, "XXDC", 7, Colors.labelText));
+        parts.add(new SSText(a+10, -24, "XXBA", -7, Colors.labelText));
+        parts.add(new SSText(b+10, -24, "XXXB", -7, Colors.labelText));
+        parts.add(new SSText(c+10, -24, "XXDC", -7, Colors.labelText));
+        parts.add(new SSText(d+10, -24, "XXXD", -7, Colors.labelText));
+
     }
 
     @Override
