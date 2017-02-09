@@ -107,7 +107,7 @@ public class Sim implements Runnable {
             filePath = "";
             Main.ui.updateTitle();
         }
-        propagationQueue = new LinkedList<QueueItem>();
+		propagationQueue = new LinkedList<QueueItem>();
         Main.ui.view.flagStaticRedraw();
     }
 
