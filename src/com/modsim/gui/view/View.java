@@ -314,6 +314,8 @@ public class View extends JPanel {
         camX -= newScreenPt.x - x;
         camY -= newScreenPt.y - y;
         calcXForm();
+        //redraw
+        flagStaticRedraw();
     }
 
     /***

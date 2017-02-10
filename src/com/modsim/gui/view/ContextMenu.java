@@ -40,6 +40,8 @@ public class ContextMenu  {
             public void actionPerformed(ActionEvent arg0) {
                 if (port != null && port.link != null) {
 					port.link.delete();
+					//redraw
+					Main.ui.view.flagStaticRedraw();
 				}
             }
         });

@@ -95,6 +95,8 @@ public class Selection {
         }
         clear();
         Main.opStack.endCompoundOp();
+        //redraw
+        Main.ui.view.flagStaticRedraw();
     }
 
     public boolean isEmpty() {
