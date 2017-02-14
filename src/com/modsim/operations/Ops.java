@@ -161,10 +161,19 @@ public class Ops {
         /// Action implementations
 
         // Undo stack
-        undo = new DesignAction(event -> {Main.ui.view.cancelTool(); Main.opStack.undo();},
-                "Undo", "Undo the previous operation", ctrlZ);
-        redo = new DesignAction(event -> {if (!Main.ui.view.hasTool()) Main.opStack.redo();},
-                "Redo", "Repeat an undone operation", ctrlY);
+        undo = new DesignAction(event -> {
+            Main.ui.view.cancelTool();
+            Main.opStack.undo();
+            //redraw
+            Main.ui.view.flagStaticRedraw();
+        }, "Undo", "Undo the previous operation", ctrlZ);
+        redo = new DesignAction(event -> {
+            if (!Main.ui.view.hasTool()) {
+                Main.opStack.redo();
+            }
+            //redraw
+            Main.ui.view.flagStaticRedraw();
+        }, "Redo", "Repeat an undone operation", ctrlY);
 
         // Copy/paste
         copy = new DesignAction(event -> Main.clipboard.copy(Main.selection), "Copy",
@@ -181,7 +190,11 @@ public class Ops {
         }, "Paste", "Paste into the design from the application clipboard", ctrlV);
 
         // Deletion
-        delete = new DesignAction(event -> Main.selection.deleteAll(), "Delete", "Deletes the selection", del);
+        delete = new DesignAction(event -> {
+            Main.selection.deleteAll();
+            //redraw
+            Main.ui.view.flagStaticRedraw();
+        }, "Delete", "Deletes the selection", del);
 
         // Rotation
         rotateCW = new DesignAction(event -> doRotate(BaseModule.rotationDir.ROT_CW),
@@ -205,6 +218,8 @@ public class Ops {
                 }
             }
             Main.opStack.endCompoundOp();
+            //redraw
+            Main.ui.view.flagStaticRedraw();
         }, "Add/Edit label", null, ctrlL);
 
         // Label sizing
@@ -219,6 +234,8 @@ public class Ops {
                 }
             }
             Main.opStack.endCompoundOp();
+            //redraw
+            Main.ui.view.flagStaticRedraw();
         }, "Big");
         labelSmall = new DesignAction(event -> {
             Main.opStack.beginCompoundOp();
@@ -231,6 +248,8 @@ public class Ops {
                 }
             }
             Main.opStack.endCompoundOp();
+            //redraw
+            Main.ui.view.flagStaticRedraw();
         }, "Small (default)");
 
         // Simulator controls
@@ -251,7 +270,11 @@ public class Ops {
         resetView = new DesignAction(event -> Main.ui.resetView(), "Reset View");
         
         // View controls
-        toggleAA = new DesignAction(event -> Main.ui.view.useAA = !Main.ui.view.useAA,
+        toggleAA = new DesignAction(event -> {
+            Main.ui.view.useAA = !Main.ui.view.useAA;
+            //redraw
+            Main.ui.view.flagStaticRedraw();
+        },
                 "Toggle anti-aliasing", "Toggles anti-aliased rendering in the viewport: " +
                 "disabling AA may improve performance on older machines.");
 
@@ -279,6 +302,8 @@ public class Ops {
             }
         }
         Main.opStack.endCompoundOp();
+        //redraw
+        Main.ui.view.flagStaticRedraw();
     }
 
     /**
