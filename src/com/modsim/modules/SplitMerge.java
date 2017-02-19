@@ -15,6 +15,7 @@ import com.modsim.Main;
 import com.modsim.modules.parts.Port;
 import com.modsim.modules.parts.SSText;
 import com.modsim.res.Colors;
+import com.modsim.res.Fonts;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.util.BezierCurve;
 import com.modsim.util.BinData;
@@ -79,12 +80,12 @@ public class SplitMerge extends BaseModule {
                                 new Vec2(B + b1, -15),  new Vec2(d - b0, 15));
         curves = Collections.unmodifiableList(Arrays.asList(cs));
         
-        parts.add(new SSText(A-10, 24, "DCBA", 7, Colors.labelText));
-        parts.add(new SSText(B-10, 24, "XXDC", 7, Colors.labelText));
-        parts.add(new SSText(a+10, -24, "ABXX", -7, Colors.labelText));
-        parts.add(new SSText(b+10, -24, "BXXX", -7, Colors.labelText));
-        parts.add(new SSText(c+10, -24, "CDXX", -7, Colors.labelText));
-        parts.add(new SSText(d+10, -24, "DXXX", -7, Colors.labelText));
+        parts.add(new SSText(A-8, 24, "DCBA", 7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
+        parts.add(new SSText(B-8, 24, "XXDC", 7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
+        parts.add(new SSText(a+8, -24, "XXBA", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
+        parts.add(new SSText(b+8, -24, "XXXB", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
+        parts.add(new SSText(c+8, -24, "XXDC", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
+        parts.add(new SSText(d+8, -24, "XXXD", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
 
     }
 
