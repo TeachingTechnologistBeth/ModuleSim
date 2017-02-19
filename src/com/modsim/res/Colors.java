@@ -39,7 +39,9 @@ public class Colors {
     public static final Color moduleLabel = new Color(200, 200, 200);
     public static final Color modulePorts = new Color(120, 120, 120);
     public static final Color moduleSubLabel = new Color(120, 120, 120);
-
+    
+    public static final Color splitMergeLabel = new Color(60, 60, 60);
+    
     public static final Color errorEdge = new Color(255, 0, 0, 120);
     public static final Color errorFill = new Color(255, 255, 255, 60);
     public static final Color errorText = new Color(255, 10, 10);

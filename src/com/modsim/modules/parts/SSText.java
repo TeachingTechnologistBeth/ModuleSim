@@ -45,7 +45,17 @@ public class SSText extends VisiblePart {
                 fontSize);
         color = col;
     }
-
+    
+    public SSText(int x, int y, String txt, int fontSize, Color col, String font_name) {
+        this.x = x;
+        this.y = y;
+        text = txt;
+        font = new Font(font_name,
+                Fonts.moduleLabel.getStyle(),
+                fontSize);
+        color = col;
+    }
+    
     @Override
     public void paint(Graphics2D g) {
         // Draw the text
