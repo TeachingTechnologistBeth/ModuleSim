@@ -277,6 +277,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 else {
                     Port p = screenSpace_portAt(e.getX(), e.getY());
 
+                    Main.selection.clear();
+
                     //Link behaviour
                     if (p != null) {
                         tool = new MakeLinkTool();
@@ -408,7 +410,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             }
         }
         // Delete selection
-        else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
+        else if (e.getKeyCode() == KeyEvent.VK_DELETE
+                 && !Main.selection.isEmpty()) {
             Main.selection.deleteAll();
         }
         // Pass to tool

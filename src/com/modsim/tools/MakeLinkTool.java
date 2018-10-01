@@ -94,7 +94,9 @@ public class MakeLinkTool extends BaseTool {
 	public boolean startLink(int x, int y) {
 		source = ViewUtil.screenSpace_portAt(x, y);
 		if (source != null) {
-			working = true;
+            Main.selection.clear();
+
+            working = true;
 			start = new Vec2(x, y);
 			curve = new BezierPath();
 
