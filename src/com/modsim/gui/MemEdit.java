@@ -156,6 +156,42 @@ public class MemEdit {
     }
 
     /**
+     * Handles a save action to save the data
+     * @param e The event that triggered the action
+     * @param shouldClose Whether the window should close after a successful save
+     */
+    private void saveActionPerformed(ActionEvent e, boolean shouldClose) {
+        Preferences prefs = Preferences.userNodeForPackage(MemEdit.class);
+        FileDialog fd = new FileDialog(frame, "Save Hex-encoded data", FileDialog.SAVE);
+        fd.setFilenameFilter(hexFilter);
+        // can just append .hex if the user doesn't
+        if (Main.sim.filePath.isEmpty()) {
+            fd.setFile("*.hex");
+        } else {
+            int ind = Main.sim.filePath.lastIndexOf('/');
+            fd.setFile(Main.sim.filePath.substring(ind + 1));
+        }
+
+        fd.setDirectory(prefs.get("hex_fileDir", ""));
+        fd.setVisible(true);
+
+        if (fd.getFile() != null) {
+            String path = fd.getDirectory() + fd.getFile();
+
+            // Is the file being created with the correct extension?
+            if (!path.endsWith(".hex")) {
+                path = path + ".hex";
+            }
+
+            HexWriter.writeFile(new File(path), nram);
+
+            if (shouldClose) {
+                close();
+            }
+        }
+    }
+
+    /**
      * Fills the file menu
      */
     private void addFileMenu() {
@@ -209,34 +245,31 @@ public class MemEdit {
         file.add(menuItem);
 
         menuItem = new JMenuItem("Save Data");
-        menuItem.setMnemonic(KeyEvent.VK_O);
+        menuItem.setMnemonic(KeyEvent.VK_S);
         menuItem.setToolTipText("Saves the current NRAM contents to a hex data file");
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                Preferences prefs = Preferences.userNodeForPackage(MemEdit.class);
-                FileDialog fd = new FileDialog(frame, "Save Hex-encoded data", FileDialog.SAVE);
-                fd.setFilenameFilter(hexFilter);
-                // can just append .hex if the user doesn't
-                if (Main.sim.filePath.isEmpty()) {
-                    fd.setFile("*.hex");
-                } else {
-                    int ind = Main.sim.filePath.lastIndexOf('/');
-                    fd.setFile(Main.sim.filePath.substring(ind + 1));
-                }
+                saveActionPerformed(e, false);
+            }
+        });
+        file.add(menuItem);
 
-                fd.setDirectory(prefs.get("hex_fileDir", ""));
-                fd.setVisible(true);
+        menuItem = new JMenuItem("Close without save");
+        menuItem.setMnemonic(KeyEvent.VK_X);
+        menuItem.setToolTipText("Closes the window without saving NRAM contents");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                close();
+            }
+        });
+        file.add(menuItem);
 
-                if (fd.getFile() != null) {
-                    String path = fd.getDirectory() + fd.getFile();
-
-                    // Is the file being created with the correct extension?
-                    if (!path.endsWith(".hex")) {
-                        path = path + ".hex";
-                    }
-
-                    HexWriter.writeFile(new File(path), nram);
-                }
+        menuItem = new JMenuItem("Close with save");
+        menuItem.setMnemonic(KeyEvent.VK_D);
+        menuItem.setToolTipText("Saves the current NRAM contents to a hex data file and closes the window");
+        menuItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                saveActionPerformed(e, true);
             }
         });
         file.add(menuItem);
