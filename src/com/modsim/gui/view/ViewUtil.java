@@ -401,14 +401,14 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
         View v = Main.ui.view;
 
         // Cancel tool usage on escape press
-        if (e.getKeyChar() == KeyEvent.VK_ESCAPE) {
+        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             if (v.curTool != null) {
                 v.curTool.cancel();
                 v.curTool = null;
             }
         }
         // Delete selection
-        else if (e.getKeyChar() == KeyEvent.VK_DELETE) {
+        else if (e.getKeyCode() == KeyEvent.VK_DELETE) {
             Main.selection.deleteAll();
         }
         // Pass to tool
