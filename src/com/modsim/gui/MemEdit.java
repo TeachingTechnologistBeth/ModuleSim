@@ -28,7 +28,7 @@ public class MemEdit {
 
     private NRAM nram = null;
 
-    public final JDialog frame = new JDialog(Main.ui.frame, "Memory Viewer");
+    public final JDialog frame = new JDialog(Main.ui.frame, "Memory Viewer", Dialog.ModalityType.MODELESS);
     private final JMenuBar menu = new JMenuBar();
     private final FilenameFilter hexFilter = new FilenameFilter() {
         @Override
