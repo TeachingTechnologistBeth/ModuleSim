@@ -410,7 +410,9 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             }
         }
         // Delete selection
-        else if (e.getKeyCode() == KeyEvent.VK_DELETE
+        else if ((   e.getKeyCode() == KeyEvent.VK_DELETE
+                  || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
+                  || e.getKeyCode() == KeyEvent.VK_X)
                  && !Main.selection.isEmpty()) {
             Main.selection.deleteAll();
         }

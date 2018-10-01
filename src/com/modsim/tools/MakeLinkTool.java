@@ -68,7 +68,9 @@ public class MakeLinkTool extends BaseTool {
 
 	@Override
 	public BaseTool keyDown(int key) {
-		if (key == KeyEvent.VK_BACK_SPACE) {
+		if (   key == KeyEvent.VK_BACK_SPACE
+            || key == KeyEvent.VK_DELETE
+            || key == KeyEvent.VK_X) {
 			if (curve.removePt()) 	return this;
 			else 					return null;
 		}
