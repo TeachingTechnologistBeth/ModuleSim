@@ -68,7 +68,9 @@ public class MakeLinkTool extends BaseTool {
 
 	@Override
 	public BaseTool keyDown(int key) {
-		if (key == KeyEvent.VK_BACK_SPACE) {
+		if (   key == KeyEvent.VK_BACK_SPACE
+            || key == KeyEvent.VK_DELETE
+            || key == KeyEvent.VK_X) {
 			if (curve.removePt()) 	return this;
 			else 					return null;
 		}
@@ -94,7 +96,9 @@ public class MakeLinkTool extends BaseTool {
 	public boolean startLink(int x, int y) {
 		source = ViewUtil.screenSpace_portAt(x, y);
 		if (source != null) {
-			working = true;
+            Main.selection.clear();
+
+            working = true;
 			start = new Vec2(x, y);
 			curve = new BezierPath();
 

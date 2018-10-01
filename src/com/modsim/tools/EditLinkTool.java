@@ -136,6 +136,8 @@ public class EditLinkTool extends BaseTool {
     public BaseTool keyDown(int key) {
         switch (key) {
             case KeyEvent.VK_X:
+            case KeyEvent.VK_DELETE:
+            case KeyEvent.VK_BACK_SPACE:
                 Main.opStack.cancelCompoundOp();
                 link.highlight = false;
                 link.delete();
