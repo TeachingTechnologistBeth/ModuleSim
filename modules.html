@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="UTF-8">
+<title>components</title>
+<link rel="stylesheet" href="stylesheets/modules/styles.css">
+</head>
+<body>
+<h1>Components</h1>
+
+<p>This section is based on documentation created by Louis Jackowski-Ashley,
+Sam Russell and Richard Grafton who also created the images used here.</p>
+
+<p>All hex8 wires/ports carry a 4 bit signal. The following kinds of signals exist.</p>
+
+<ul>
+<li>Clock signal (green in ModuleSim).</li>
+<li>Data signal (red in ModuleSim).</li>
+<li>Control signal (blue in ModuleSim).</li>
+</ul>
+
+<p>ModuleSim uses purple for signals where it can’t tell if they should be red or
+blue and gray where it has no idea at all.</p>
+
+<p>As a rule of thumb, the control port (right hand side) of all registers should
+be connected to a green wire - if this is not the case, you’re probably blocking
+the reset signal - and apart from passing split/merges these should be the only
+uses of green wires in your design. Furthermore, the less you pass green wires
+through fan-outs, the better: it is possible to build a complete hex8 processor
+without any fan-outs on green wires at all.</p>
+
+<p>When discussing a signal, “bit 0” means the least significant (rightmost) bit,
+“bit 1” is its neighbour and “bit 3” is the most significant (leftmost) bit.
+Thus <code>0010</code> is a number with bit 1 set (we count from the right, but the first
+one is bit 0) and <code>1100</code> is a number with bits 0 and 1 at zero and bits 2 and 3
+set to 1.</p>
+
+<p>Sometimes we use a <code>*</code> to indicate a bit that doesn’t matter. Thus when we say
+a control input of <code>**1*</code> resets a register we mean that if bit 1 is set, the
+register resets whatever the other bits are.</p>
+
+<h2>Register</h2>
+
+<figure>
+<img src="images/modules/register.png" alt="register">
+<figcaption>register</figcaption>
+</figure>
+
+<p>A register stores a 4 bit value and outputs this on its data output port (top).
+When the control input (right) is <code>*101</code>, that is bits 0 and 3 are 1, bit 2 is 0
+and bit 3 can be anything, the register copies the value from its data input
+(bottom) into its storage. When the control input is <code>**1*</code>, the register resets
+its storage to <code>0000</code>.</p>
+
+<p>Register storage is erased if the register loses power (i.e. you disconnect all
+cables).</p>
+
+<p>The control output (left) is always an exact copy of the control input.</p>
+
+<p><strong>Warning</strong>: as long as something is connnected to the control input, a register
+operates exactly as described. If the control input is disconnected, the control
+input defaults to <code>0101</code> and not <code>0000</code> as one might imagine, i.e. a register
+with its control input disconnected works as if it were just a wire from data
+in to data out.</p>
+
+<h3>Use</h3>
+
+<p>You can chain two registers to make an 8-bit register. Simply connect the
+control out (left) of the right register to control in (right) of the left
+register.</p>
+
+<p>The control in of a register should always be either a raw clock signal (either
+directly from the clock or chained through other registers on the way) or a
+properly split/merged clock signal. This ensures that pressing the reset button
+on the clock will reset all registers.</p>
+
+<p>We call bit 0 of a register’s control signal the clock bit and bit 2 the enable
+bit. A register only stores its input if both these bits are set (and bit 1,
+the reset bit, is zero). This allows us to create registers that only store a
+value if both a certain clock phase is active and a certain condition is true.</p>
+
+<h2>Fanout</h2>
+
+<figure>
+<img src="images/modules/4-way-fanout.png" alt="4-way-fanout">
+<figcaption>4-way-fanout</figcaption>
+</figure>
+
+<p>A fanout simply takes one input (bottom) and repeats it 4 times (top).</p>
+
+<h3>Use</h3>
+
+<p>The only thing to say here is <strong>NOT</strong> to use fanouts when you can avoid it. You
+can often avoid using fanouts by chaining signals. For example, if you want to
+drive two registers with the same control signal, just connect control out from
+one register to control in of the other. Similarly, if you want a data signal to
+activate two chained or modules, chain the signal through the first into the
+second. That is why they are called chained or after all.</p>
+
+<p>Using fanouts is unavoidable if you have the output value of a register and you
+want to send it to e.g. two different AUs.</p>
+
+<h2>Clock</h2>
+
+<figure>
+<img src="images/modules/clock.png" alt="clock">
+<figcaption>clock</figcaption>
+</figure>
+
+<p>The clock component has two outputs “A” and “B” and cycles between the following
+four states:</p>
+
+<ul>
+<li>A = <code>0000</code>, B = <code>0000</code> (all off)</li>
+<li>A = <code>0001</code>, B = <code>0000</code> (phase “a”)</li>
+<li>A = <code>0000</code>, B = <code>0000</code> (all off)</li>
+<li>A = <code>0000</code>, B = <code>0001</code> (phase “b”)</li>
+</ul>
+
+<p>The switches and buttons control the clock speed and auto/manual mode. In auto
+mode, the “rate” switch selects “fast” or “slow” and the speed dial allows this
+to be more finely tuned. In manual mode, which can be selected by changing the
+auto/manual switch, the clock does not move by itself and you press the “manual”
+button to advance the clock by one state on each press.</p>
+
+<p>The reset button sends a signal of <code>**1*</code> on both outputs, causing any registers
+connected to either clock output to reset to <code>0000</code>. A good processor design
+must ensure that the reset signal reaches <strong>all</strong> registers whenever the reset
+button is pressed.</p>
+
+<p>The clock is also a source of power.</p>
+
+<h3>Use</h3>
+
+<p>Use exactly one clock in your design and make sure all registers are connected
+to it in such a way that the reset signal works. You will want to create a
+system that lets you pretend you had a clock with more than 2 phases, details of
+which will be in the exercises for your computer architecture unit.</p>
+
+<h2>Multiplexor</h2>
+
+<figure>
+<img src="images/modules/multiplexor.png" alt="multiplexor">
+<figcaption>multiplexor</figcaption>
+</figure>
+
+<p>The multiplexor takes 4 data inputs (bottom), selects one of them with the help
+of a control signal (right) and outputs it (top). The control output on the left
+is an exact copy of the control input on the right, allowing you to chain two
+multiplexors to make an 8-bit multiplexor for example.</p>
+
+<p>The multiplexor only cares about the low 2 bits of its control signal and
+selects the output accordingly:</p>
+
+<ul>
+<li><code>**00</code> selects input A (this is the default).</li>
+<li><code>**01</code> selects input B.</li>
+<li><code>**10</code> selects input C.</li>
+<li><code>**11</code> selects input D.</li>
+</ul>
+
+<h3>Use</h3>
+
+<p>Multiplexors have two uses. The first is to select one of multiple inputs, e.g.
+if you have a register that you sometimes want to have connected to another
+register and sometimes to memory, you place a multiplexor in front of it and
+use the control signal to select which of the two inputs to pass through.</p>
+
+<p>The second use is as a switch. If you want a module to sometimes get input X and
+sometimes input Y (where both X and Y are 4-bit values), you can set up a
+multiplexor with X on input A and Y on input B and then use a 1-bit control
+signal (e.g. you only need to care about bit 0) to switch between X and Y.</p>
+
+<p>A variation of the second use is an “and” switch. If you want a certain wire to
+be <code>0001</code> when both X and Y are <code>0001</code>, otherwise <code>0000</code> then you can set up a
+multiplexor with the A, C, D inputs empty, X connected to B and Y to the control
+input (or the other way round).</p>
+
+<ul>
+<li>When Y is <code>0000</code>, the multiplexor is passing through its A input which is
+also <code>0000</code>.</li>
+<li>When Y is <code>0001</code> and X is <code>0000</code> then the multiplexor is outputting X, so
+the output is still <code>0000</code>.</li>
+<li>When both X and Y are <code>0001</code> then the multiplexor is passing through its B
+input (as Y is <code>0001</code>), but that is X so you get an output of <code>0001</code>.</li>
+</ul>
+
+<p>This is a useful technique to do the logical “and” of 1-bit control signals.
+Better still, the Y signal is available for further uses on the control out of
+the multiplexor so you can save a fan-out in some cases.</p>
+
+<h2>Demultiplexor</h2>
+
+<figure>
+<img src="images/modules/demultiplexor.png" alt="demultiplexor">
+<figcaption>demultiplexor</figcaption>
+</figure>
+
+<p>The complement of a multiplexor. One data input on the bottom, four data outputs
+on the top of which three are <code>0000</code> at any one time and the fourth one is a
+copy of the data input.</p>
+
+<p>The control signal is passed through from right to left and the low two bits
+determine the output: <code>**00</code> = A, <code>**01</code> = B, <code>**10</code> = C, <code>**11</code> = D.</p>
+
+<h3>Use</h3>
+
+<p>The basic use of a demultiplexor is to take a 2-bit input signal, which has 4
+possible values, and turn it into a 1-bit signal on any one of four outputs.
+In this way you can “decode” a signal: if it’s 00 then do this, if it’s 01 then
+do that etc. In this case the data input can be a fixed input component set to
+<code>0001</code>.</p>
+
+<h2>Input</h2>
+
+<figure>
+<img src="images/modules/input.png" alt="input">
+<figcaption>input</figcaption>
+</figure>
+
+<p>The input component has one data output on which it outputs whatever its
+switches are set to. It also contains a power source.</p>
+
+<h3>Use</h3>
+
+<p>The input provides a fixed input value. If you want a loop that always adds 1
+to a value on each pass, one way to do this is to use an input set to <code>0001</code>
+connected to an AU somewhere.</p>
+
+<p>Another use of an input is as a power source.
+All wires carry power as well as their 4 bit value so a component is powered if
+it is connected to any powered components by any wires, even if the 4-bit signal
+is not passed through in any way. Until you build something the size of the
+wall computer, you do not need to worry about power too much.</p>
+
+<h2>Chained OR</h2>
+
+<figure>
+<img src="images/modules/chained-or.png" alt="chained-or">
+<figcaption>chained-or</figcaption>
+</figure>
+
+<p>Performs a logical OR on 1-bit signals.</p>
+
+<p>The control output is <code>0001</code> if any of the four data inputs or the control input
+is <code>***1</code>, otherwise (if bit 0 is 0 on all inputs) the control output is <code>0000</code>.</p>
+
+<p>The four data outputs are simply the four data inputs passed through unchanged.</p>
+
+<h3>Use</h3>
+
+<p>Chained ORs are used to create a stateless control grid in the hex8 machine,
+a.k.a. “the bit on the bottom” of the wall computer. The basic idea is this.
+Suppose you want a register to be written two in exactly 5 different machine
+instructions. You make one signal (one wire) for each instruction. You make a
+chained OR with at least 5 inputs (i.e. you chain two of them together) and put
+these 5 instruction wires in the data inputs, then connect the control output to
+the place that controls the register in question (together with a clock signal).</p>
+
+<p>Maybe you want two of these instructions, along with a third one that should not
+activate the register from before, to do something else. You can place another
+chained OR and feed the wires for the 3 instructions in question into that one.
+And so on. The wire for a single instruction will take a path through all the
+chained ORs that are relevant to this instruction, so a “read from memory and
+write to the B register” instruction would have a wire that passes through the
+“read from memory” and “write to B” chained ORs.</p>
+
+<p>Chained ORs can be chained in two dimensions. To make a chained OR component
+with more than 4 data inputs, just chain control out of one chained OR to the
+control input of another. To make a signal for an instruction activate several
+different chained ORs, chain a data output of one chained OR to a data input of
+another.</p>
+
+<h2>Split/merge</h2>
+
+<figure>
+<img src="images/modules/split-merge.png" alt="split-merge">
+<figcaption>split-merge</figcaption>
+</figure>
+
+<p>The Swiss Army Knife component - it has many uses.</p>
+
+<p>On the one hand this is the simplest component (except perhaps the fanout) - it
+is just a bunch of wires. On the other hand, the pattern of the wires is quite
+complex.</p>
+
+<p>On a real split/merge component, the bits marked X on the different inputs are
+not connected to anything and the bits marked A-D are connected to all other
+bits with the same letter. For example, input “C” (second rightmost of the four
+ports in a row if you hold the split/merge so that the row of 4 is on the
+bottom) is marked <code>XXXB</code> and input “F” (rightmost of the two ports on top) is
+marked <code>DCBA</code>. This means that if you put a signal of <code>***1</code> in input “C”, i.e.
+any signal where bit 0 is 1 then bit 2 of the “F” port will be 1 (the others
+will be 0 unless some other port is doing something to them).</p>
+
+<h3>Use</h3>
+
+<p>The first use is to split or combine two 2-bit signals into one 4-bit signal.
+Holding the split-merge so that the row of 2 ports is on top, place the wire for
+the 4-bit signal in port “F” and the two two-bit signals in ports “B” and “D”.
+This assumes that the 2-bit signals both use bits 0 and 1.</p>
+
+<p>This is the recommended way to control a register. Recall that on the control
+input of a register, bit 1 is the reset signal and bits 0 (clock) and 2 (enable)
+togther enable writing. Bits 0 and 1 should come from the clock and bit 2 from
+wherever the register should be controlled from.</p>
+
+<p>So if you want a register that is enabled for writing in clock phase 4a only,
+take a split/merge and connect port “F” to the register’s control input. Connect
+the clock phase “a” to port “D” - this not only sends the clock bit in the “a”
+clock phases, but also the reset signal whenever you activate it - and connect
+the “phase 4” signal to port “B”. This way, bit 2 on port “F” will be enabled
+in clock phases 4a and 4b and bit 0 will be enabled in 1a, 2a, 3a, 4a with the
+result that both bits 0 and 2 are only on together in 4a - which is exactly when
+we want our register to write in this example.</p>
+
+<p>To avoid fanouts, you can chain the signals as follows. If you have created a
+register clocked at 4a with a split-merge, you can chain the register’s control
+output into another split merge at port “D” to recover the “a” signal, while
+passing the reset signal through correctly too. The “4” signal you can chain
+out of the “E” port since the “B” and “E” ports always carry the same signal.</p>
+
+<p>Another use of a split/merge is to combine or split two 1-bit signals into a
+2-bit signal. Put the 1-bit signals in “C” and “D” and the two-bit signal in “F”.
+This relies on the 1-bit signals really being 1-bit, particularly the signal
+on port “D” can vary between <code>0000</code> and <code>0001</code> but must never be <code>**1*</code> as this
+conflicts with the “C” port.</p>
+
+<p>To split one 4-bit signal into 4 1-bit signals (or combine them), put the 4-bit
+signal in port “F” and the 1-bit signals will be on ports A-D.</p>
+
+<h2>Arithmetic Unit</h2>
+
+<figure>
+<img src="images/modules/arithmetic-unit.png" alt="arithmetic-unit">
+<figcaption>arithmetic-unit</figcaption>
+</figure>
+
+<p>This component takes two data inputs A and B, performs arithmetic and comparison
+operations and outputs the result on two data outputs (top). The result of the
+arithmetic operation is a 4-bit signal that is also displayed on the group of 4
+LEDs; the comparison operation produces a 1-bit output that is also displayed on
+the single LED in the top left corner.</p>
+
+<p>The operations are controlled by the control input (right). The low two bits
+select an operation (carry bits will be discussed in a moment):</p>
+
+<table>
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+
+<thead>
+<tr>
+	<th>bits</th>
+	<th>arithmetic</th>
+	<th>comparison</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td><code>**00</code></td>
+	<td>A+B</td>
+	<td>A + B == 0</td>
+</tr>
+<tr>
+	<td><code>**01</code></td>
+	<td>A</td>
+	<td>A == 0</td>
+</tr>
+<tr>
+	<td><code>*110</code></td>
+	<td>A - B</td>
+	<td>A == B</td>
+</tr>
+<tr>
+	<td><code>*111</code></td>
+	<td>A - B</td>
+	<td>A &lt; B</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Carry bit</h3>
+
+<p>Bit 2 is the carry bit. Bit 3 (the leftmost) you can ignore for now.
+The control output on the left passes the low 2 bits through from the control
+input but sets or clears the carry bit depending on whether the arithmetic
+operation caused a carry out. This way, two chained AUs work as an 8-bit unit.</p>
+
+<h3>Use - arithmetic</h3>
+
+<p>In addition mode (<code>**00</code>), the actual computation is <code>A + B + carry_in</code> and the
+outputs are both the 4-bit value on the arithmetic data output and the carry bit
+of the control output, set if the computation caused a carry out. For example,
+A = <code>1110</code> and B = <code>0001</code> with carry in at 0 produces <code>1111</code> on the arithmetic
+output and 0 for carry out. If you set carry in to 1, the arithmetic output
+becomes <code>0000</code> and the carry out becomes 1 as you are now computing</p>
+
+<pre><code>1110 + 0001 + 1 = 10000
+</code></pre>
+
+<p>The control input <code>*001</code> ignores the B input and just passes the A input through
+to the output. This is useful when you just want to send a signal straight
+through the AU as if it were a wire. The control input <code>*101</code> (pass through A,
+carry one) adds 1 to A. This is a quick way to increment a number by 1 without
+having to create an <code>0001</code> data input.</p>
+
+<p>In subtraction mode, the AU by default does one’s complement (A + NOT B) but
+setting the carry bit produces (A + NOT B + 1) which is exactly two’s complement
+subtraction. Therefore to compute A - B you should set the control input to
+<code>*11*</code> (in practice, <code>0110</code>).</p>
+
+<h3>Use - comparison</h3>
+
+<p>The comparison output depends on the arithmetic output. It will be either <code>0000</code>
+or <code>1111</code>. The most useful control modes are <code>0001</code> which checks if the A input
+(plus a carry, if provided) is all zero and <code>0111</code> which checks if A &lt; B, to be
+precise whether bit 3 of (A - B) is set. If B is all zero then this mode simply
+checks whether bit 3 of A is set. (To check whether the low bit of A is set you
+could use a split-merge using ports “A” and “F”.)</p>
+
+<h3>Note - control bit 3</h3>
+
+<p>When chaining AUs and comparing say <code>0000 0001</code> and <code>0000 0000</code> for equality
+(control input <code>0000</code>) you might wonder how the “left” AU knows that it should
+output <code>0000</code> not <code>1111</code> on the comparison output, since the two inputs are
+different but the only difference is in the “right” 4 bits and there is no
+carry. This is what bit 3 of the control output is for: it is used to pass the
+comparison result up a chain of AUs. Since the right AU sees two different
+inputs it will set bit 3 on the control output, causing the left AU to report
+<code>0000</code> as the comparison result whatever its inputs are. The meaning of this bit
+depends on the comparison mode and you should not need to worry about the exact
+rules nor should you use this bit for anything except chaining two AUs.</p>
+
+<h2>Non-Volatile Memory</h2>
+
+<figure>
+<img src="images/modules/non-volatile-memory.png" alt="non-volatile-memory">
+<figcaption>non-volatile-memory</figcaption>
+</figure>
+
+<p>A non-volatile memory stores up to 2<sup>15</sup> 8-bit values. For the 8-bit hex machine
+we will only be able to address 2<sup>8</sup> = 256 of these values. For this, we use
+address inputs “A” and “B” and leave “C” and “D” unconnected.</p>
+
+<p>Like a register, the memory always outputs a stored value on its data outputs
+and it replaces a stored value with the one on its data inputs if the control
+signal (blue) is <code>*1*1</code>. The memory does not react to the “reset” signal <code>**1*</code>.
+Unlike a register, the memory also has address inputs that select which of the
+stored values to read/write.</p>
+
+<p>The memory also has a safety feature: it will only allow writing if the two pins
+forming the “write enable” switch are connected. In the simulator, this can be
+done by clicking the switch; on a real memory unit use a NAND board cable.</p>
+
+<h3>Use</h3>
+
+<p>To read a memory value, say the one at location <code>0000 0001</code>, set A = <code>0001</code> and
+B = <code>0000</code>, i.e. A is the least significant (rightmost) 4 bits of the address.
+The 8-bit value appears on the data output (top) ports.</p>
+
+<p>To write a memory value, set the address up the same, put the value to write on
+the data inputs and then set the control to <code>0101</code> - typically this will be a
+combination of a clock and an enable signal.</p>
+
+<p>Until you come to the point when you are implementing memory writes, leave the
+write enable switch off - but don’t forget to turn it on when you start building
+the write instruction circuitry.</p>
+
+<h3>Programming</h3>
+
+<p>To program a memory module in the simulator, right-click it and choose “View /
+Edit NRAM Data”. In the window that opens you can see the memory contents and
+changes to memory (writes) will show up in blue as a program executes. The menu
+lets you save and load hex-encoded data from files.</p>
+
+<h2>Logic Unit</h2>
+
+<figure>
+<img src="images/modules/logic-unit.png" alt="logic-unit">
+<figcaption>logic-unit</figcaption>
+</figure>
+
+<p>The logic unit takes two data inputs, performs a bitwise logical operation and
+outputs the result. The control signal is passed through from right to left and
+has the following meaning.</p>
+
+<table>
+<colgroup>
+<col>
+<col>
+</colgroup>
+
+<thead>
+<tr>
+	<th>signal</th>
+	<th>operation</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td><code>**00</code></td>
+	<td>NOT A</td>
+</tr>
+<tr>
+	<td><code>**01</code></td>
+	<td>A AND B</td>
+</tr>
+<tr>
+	<td><code>*110</code></td>
+	<td>A OR B</td>
+</tr>
+<tr>
+	<td><code>*111</code></td>
+	<td>A XOR B</td>
+</tr>
+</tbody>
+</table>
+
+<p>Bit 3 of the control signal is unused.</p>
+
+<h3>Use</h3>
+
+<p>You do not need a LU to build a hex8 computer - it would be useful if there were
+additional opcodes for logical operations.</p>
+
+<p>A LU is only needed if you want to do an operation on two inputs and the
+operation you want to do needs to be confogurable, i.e. you sometimes want to
+do A AND B and at other times A OR B. For a fixed operation on 1-bit signals,
+the most common case in the hex8 machine, you can do the following:</p>
+
+<ul>
+<li>For an OR of two 1-bit signals, use a chained OR.</li>
+<li>For an AND of two 1-bit signals, use a multiplexor with one signal on the
+control input and the other on the “B” data input, leaving the “A” data
+input unconnected (<code>0000</code>).</li>
+</ul>
+
+<h2>Shifters</h2>
+
+<figure>
+<img src="images/modules/left-shift.png" alt="left-shift">
+<figcaption>left-shift</figcaption>
+</figure>
+
+<figure>
+<img src="images/modules/right-shift.png" alt="right-shift">
+<figcaption>right-shift</figcaption>
+</figure>
+
+<p>The left and right shift units are not needed to create a hex8 machine. Here is
+nonetheless an explanation of how they work.</p>
+
+<p>The shifters take a data input, shift it by a number of bits and send it out
+again. The shift is “logical” not “arithmetic”, i.e. bits shifted in are always
+0 - shifting <code>1111</code> 2 bits to the right gives <code>0011</code>. The data input/output are
+the ports in the middle of the top and bottom of the shifter and marked “D” in
+the diagram.</p>
+
+<p>The control input on the right of the shifter takes a two-bit signal in the form
+<code>**XX</code> indicating the number of bits to shift, i.e. <code>**10</code> shifts by 2 bits.</p>
+
+<p>To chain multiple shifters to produce an 8-bit or higher shifter, two control
+chains are required: first you connect the left control out of the rightmost
+shifter to the right control in of the next one etc. This signal is simply
+passed through. Then, connect the top control output (marked “C” in the diagram)
+to the bottom control input of the next shifter; for left shifters this control
+signal flows right to left but for right shifters it flows left to right.</p>
+
+<p>The idea here is as follows. Suppose you want to shift <code>0011 0000</code> to the right
+by 2 bits. The leftmost of the two right shifters takes <code>0011</code>, shifts it to the
+right by two bits producing <code>0000</code> and outputs this. But this on its own would
+forget about the 1s. So the leftmost right shifter tells the one to its right
+over the “C” control path that goes left to right about these bits (the exact
+bit pattern is not important for us), resulting in these two bits appearing in
+the rightmost right shifter’s output to create the result <code>0000 1100</code>.</p>
+
+<h3>Use</h3>
+
+<p>Shifters are not required to build a hex8 machine.</p>
+
+
+
+</body></html>

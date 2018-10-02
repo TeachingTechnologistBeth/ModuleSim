@@ -1,0 +1,63 @@
+body {
+    margin: 0 auto;
+    max-width: 50em;
+    font-family: "Georgia";
+    line-height: 1.5em;
+    padding: 4em 1em;
+    color: #222;
+}
+h1, h2 {
+    font-family: "Helvetica", "sans-serif";
+    margin-top: 1em;
+    padding-top: 1em;
+    color: #000;
+}
+code, pre {
+    background: #fdf6e3;
+    color: #002b36;
+    font-size: 105%;
+}
+pre {
+    vertical-align: text-bottom;
+    padding: 1em;
+    border-left: 2px solid #002b36;
+    border-bottom: 1px solid #657b83;
+}
+
+pre .instruction {
+    color: #dc322f;
+}
+pre .comment {
+    color: #859900;
+}
+pre .address {
+    color: #268bd2;
+}
+
+pre .comment .instruction {
+    color: #859900;
+}
+
+table {
+    background-color: #f8f8f8;
+}
+
+table th {
+    text-align: left;
+    padding: 0.5em;
+}
+
+table td {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+table code {
+    background-color: #f8f8f8;
+    color: #424d00;
+}
+
+figcaption {
+    display: none;
+    visibility: hidden;
+}
