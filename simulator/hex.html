@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hex8 simulator</title>
+    <link rel="stylesheet" type="text/css" href="bulma.css" />
+    <link rel="stylesheet" type="text/css" href="hex.css" />
+    <script type="text/javascript" src="jquery-3.1.0.js"></script>
+    <script type="text/javascript" src="hex.js"></script>
+</head>
+<body>
+
+<section class="section">
+    <h1 class="title">Hex8 simulator</h1>
+</section>
+
+<section class="section">
+<div class="notification is-danger" id="messages">
+<button class="delete" id="clearmessage"></button>
+<div id="messages_content"></div>
+</div>
+
+<div id="mainpage" class="tile is-ancestor">
+    <div class="tile is-6 is-parent">
+        <div class="tile is-child box">
+    
+    <p class="title">Memory
+    <input type="button" class="button is-info" id="load" value="edit" />
+    </p>
+    <div id="memory"></div>
+
+        </div>
+    </div>
+
+    <div class="tile is-3 is-vertical">
+        <div class="tile is-parent">
+             <div class="tile is-child box">
+                <p class="title">Registers</p>
+
+    <div>
+    <table class="mem_table">
+        <tr>
+            <td class="row_header">RA</td>
+            <td id="areg" class="mem_cell">00</td>
+        </tr>
+        <tr>
+            <td class="row_header">RB</td>
+            <td id="breg" class="mem_cell">00</td>
+        </tr>
+        <tr>
+            <td class="row_header">RP</td>
+            <td id="preg" class="mem_cell">00</td>
+        </tr>
+        <tr>
+            <td class="row_header">RO</td>
+            <td id="oreg" class="mem_cell">00</td>
+        </tr>
+    </table>
+    </div>
+
+             </div>
+        </div>
+        <div class="tile is-parent">
+             <div class="tile is-child box">
+                <p class="title">Control</p>
+
+    <p id="is_running">Not running.</p>
+    <br />
+    <input type="button" class="button is-danger" value="Reset" id="reset" />
+    <input type="button" class="button is-warning" value="Step" id="step" />
+    <input type="button" class="button is-success" value="Run" id="run" />
+    <br />
+    <br />
+    <label class="label">Delay</label>
+    <p class="control">
+        <span class="select">
+            <select id="delay">
+                <option>10ms</option>
+                <option>20ms</option>
+                <option>50ms</option>
+                <option>100ms</option>
+                <option>200ms</option>
+                <option>500ms</option>
+                <option>1s</option>
+            </select>
+        </span>
+    </p>
+
+             </div>
+        </div>
+    </div>
+
+    <div class="tile is-3 is-parent">
+        <div class="tile is-child box" id="memory">
+            <p class="title">Disassembler</p>
+            <div id="disassembly"></div>
+        </div>
+    </div>
+</div>
+
+<div class="tile is-ancestor" id="editmem">
+    <div class="tile is-parent">
+        <div class="tile is-child box">
+
+    <p class="title">Memory Editor
+    <input type="button" class="button is-success" id="edityes" value="Accept" />
+    <input type="button" class="button is-danger" id="editno" value="Cancel" />
+    </p>
+    <textarea cols="60" rows="16" id="memory_editor"></textarea>
+
+        </div>
+    </div>
+</div>
+
+</section>
+
+<section class="section">
+<p>Written by csxdb. CSS: <a href="http://bulma.io">Bulma</a></p>
+</section>
+
+</body>
+</html>
+

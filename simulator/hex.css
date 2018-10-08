@@ -1,0 +1,62 @@
+.vwrap {
+    max-height: 80vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.mem_table, .dis_table {
+    font-family: monospace;
+}
+
+.col_header, .row_header {
+    background-color: #000;
+    color: #fff;
+    padding: 2px;
+}
+
+.mem_cell {
+    background-color: #ffe;
+    padding: 1px;
+    border: 1px solid #fff;
+}
+
+.mem_cell.r1 {
+    background-color: #efe;
+    border: #0f0 1px solid;
+}
+
+.mem_cell.w1 {
+    background-color: #fee;
+    border: #f00 1px solid;
+}
+
+pre {
+    margin: 0;
+}
+
+.dis_cell {
+    padding: 1px;
+    border: 1px solid #fff;
+    background-color: #fff;
+    white-space: pre;
+}
+
+.dis_cell.current_pc {
+    background-color: #efe;
+    border: 1px solid #0f0;
+}
+
+#disassembly {
+    max-height: 50vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+table.dis_table, table.mem_table {
+    border-collapse: separate;
+}
+
+#memory_editor {
+    font-family: monospace;
+}
+
