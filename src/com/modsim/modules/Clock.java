@@ -95,17 +95,21 @@ public class Clock extends BaseModule {
 
         // Phase 1
         BinData p1 = new BinData();
-        p1.setBit(0, (step == 1) ? 1 : 0);
+        p1.setBooleanBit(0, step == 1);
         phase1.setEnabled(step == 1);
 
         // Phase 2
         BinData p2 = new BinData();
-        p2.setBit(0, (step == 3) ? 1 : 0);
+        p2.setBooleanBit(0, step == 3);
         phase2.setEnabled(step == 3);
 
         // Reset signal
         p2.setBooleanBit(1, sendReset);
         p1.setBooleanBit(1, sendReset);
+
+        // Enable signal
+        p2.setBooleanBit(2, true);
+        p1.setBooleanBit(2, true);
 
         // Set the outputs
         outputs.get(0).setVal(p1);

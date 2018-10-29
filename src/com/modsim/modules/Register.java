@@ -35,7 +35,7 @@ public class Register extends BaseModule {
         h = 50;
 
         dataIn      = addInput("Data in", 0, Port.DATA);
-        controlIn   = addInput("Control in", 0, Port.CLOCK, new BinData(0, 1, 0, 0));
+        controlIn   = addInput("Control in", 0, Port.CLOCK, new BinData(0, 1, 0, 1));
 
         dataOut     = addOutput("Data out", 0, Port.DATA);
         controlOut  = addOutput("Control out", 0, Port.CLOCK);
