@@ -72,7 +72,7 @@ public class PlaceTool extends BaseTool {
     }
 
     @Override
-    public BaseTool lbDown(int x, int y) {
+    public BaseTool lbDown(int x, int y, boolean isShiftDown) {
         // Make sure the positions are up to date
         mouseMove(x, y);
 

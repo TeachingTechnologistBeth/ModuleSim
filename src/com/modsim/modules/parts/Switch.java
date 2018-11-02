@@ -36,7 +36,7 @@ public class Switch extends TogglePart {
     }
 
 	@Override
-	public boolean lbDown(int xPt, int yPt) {
+	public boolean lbDown(int xPt, int yPt, boolean isShiftDown) {
 		if (xPt > x-w/2 && xPt < x+w/2 && yPt > y-h/2 && yPt < y+h/2) {
 			// Clicked
 			toggleEnabled();

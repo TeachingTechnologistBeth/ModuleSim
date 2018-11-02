@@ -18,7 +18,7 @@ public abstract class BaseTool {
 	public BaseTool rbDown(int x, int y)  	{return this;}
 	public BaseTool rbUp(int x, int y)  	{return this;}
 
-	public BaseTool lbDown(int x, int y) 	{return this;}
+	public BaseTool lbDown(int x, int y, boolean isShiftDown) 	{return this;}
 	public BaseTool lbUp(int x, int y) 		{return this;}
 	public BaseTool mouseMove(int x, int y) {return this;}
 	public BaseTool mouseDrag(int x, int y) {return this;}

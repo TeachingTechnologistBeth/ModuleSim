@@ -147,7 +147,7 @@ public class ModuleClipboard {
 
                     newPort.link = null;
                     targetPort.link = null;
-                    Link newLink = Link.createLink(newPort, targetPort, new BezierPath(oldPort.link.path));
+                    Link newLink = Link.createLink(newPort, targetPort, oldPort.link.path.duplicate());
 
                     // Store the new link
                     if (newLink != null) {

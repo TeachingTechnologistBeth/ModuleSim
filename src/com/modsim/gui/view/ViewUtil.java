@@ -12,7 +12,7 @@ import com.modsim.modules.ports.Output;
 import com.modsim.modules.parts.Port;
 import com.modsim.simulator.*;
 import com.modsim.tools.*;
-import com.modsim.util.BezierPath;
+import com.modsim.util.Path;
 import com.modsim.util.Vec2;
 
 /**
@@ -34,7 +34,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
      */
     public static Link worldSpace_linkAt(Vec2 pt) {
         for (Link link : Main.sim.getLinks()) {
-            BezierPath.PointInfo info = link.path.approxClosestPoint(pt, 6);
+            Path.PointInfo info = link.path.approxClosestPoint(pt, 6);
 
             if (info.dist < 15.0) {
                 return link;
@@ -267,12 +267,12 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
             boolean handled = false;
             if (targ != null && targ.getType() == PickableEntity.MODULE) {
                 BaseModule m = (BaseModule) targ;
-                handled = m.lbDown(e.getX(), e.getY());
+                handled = m.lbDown(e.getX(), e.getY(), e.isShiftDown());
             }
 
             if (!handled) {
                 if (tool != null) {
-                    Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
+                    Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY(), e.isShiftDown());
                 }
                 else {
                     Port p = screenSpace_portAt(e.getX(), e.getY());
@@ -282,7 +282,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                     //Link behaviour
                     if (p != null) {
                         tool = new MakeLinkTool();
-                        Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
+                        Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY(), e.isShiftDown());
                     }
                     else {
                         // Link edit if we haven't hit a module
@@ -299,7 +299,7 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
 
                         // Finally, try selection behaviour
                         tool = new SelectTool();
-                        Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY());
+                        Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY(), e.isShiftDown());
                     }
                 }
             }

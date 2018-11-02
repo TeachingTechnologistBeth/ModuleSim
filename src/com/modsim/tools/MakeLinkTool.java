@@ -23,15 +23,15 @@ public class MakeLinkTool extends BaseTool {
 
 	public Vec2 start = new Vec2();
 	public Vec2 current = new Vec2();
-	public BezierPath curve;
+	public Path curve;
 
 	public boolean working = false;
 
 	@Override
-	public BaseTool lbDown(int x, int y) {
+	public BaseTool lbDown(int x, int y, boolean isShiftDown) {
 		// Get the clicked port, start linking from here
 		if (!working) {
-			if (!startLink(x, y)) {
+			if (!startLink(x, y, isShiftDown)) {
 				return null;
 			}
 		}
@@ -93,14 +93,18 @@ public class MakeLinkTool extends BaseTool {
 	 * @param y Y position to check
 	 * @return True if successful
 	 */
-	public boolean startLink(int x, int y) {
+	public boolean startLink(int x, int y, boolean isShiftDown) {
 		source = ViewUtil.screenSpace_portAt(x, y);
 		if (source != null) {
             Main.selection.clear();
 
             working = true;
 			start = new Vec2(x, y);
-			curve = new BezierPath();
+            if (isShiftDown) {
+	             curve = new BezierPath();
+            } else {
+                curve = new StraightPath();
+            }
 
 			curve.setEnd(source.getDisplayPosW());
 			curve.setStart(source);

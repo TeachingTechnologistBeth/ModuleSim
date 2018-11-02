@@ -560,7 +560,7 @@ public abstract class BaseModule extends PickableEntity {
      * @param iy Y coord in view space
      * @return Whether the input was handled
      */
-    public boolean lbDown(int ix, int iy) {
+    public boolean lbDown(int ix, int iy, boolean isShiftDown) {
         if (!enabled) return false;
 
         // Coords in object space
@@ -573,7 +573,7 @@ public abstract class BaseModule extends PickableEntity {
 
         synchronized (parts) {
             for (VisiblePart p : parts) {
-                if (p.lbDown(dx, dy)) {
+                if (p.lbDown(dx, dy, isShiftDown)) {
                     return true;
                 }
             }
