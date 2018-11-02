@@ -236,11 +236,11 @@ public class SplitMerge extends BaseModule {
             a1_val.setBit(0, b2_val.getBit(0)); // c0-B0
 
             // Resolution of 3-state logic for merges
-            int val = b2_val.getBit(1) | b3_val.getBit(0);
+            int val = BinData.mergeBits(b2_val.getBit(1), b3_val.getBit(0));
             a1_val.setBit(1, val);
             a0_val.setBit(3, val);
             
-            val = b0_val.getBit(1) | b1_val.getBit(0);
+            val = BinData.mergeBits(b0_val.getBit(1), b1_val.getBit(0));
             a0_val.setBit(1, val);
         }
 
