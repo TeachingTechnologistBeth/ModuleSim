@@ -207,7 +207,7 @@ public class SplitMerge extends BaseModule {
         if (portA0.wasUpdated() || portA1.wasUpdated()) {
         	if(portA0.isConnected() && portA1.isConnected())
         	{
-        		JOptionPane.showMessageDialog(Main.ui.pane, "Error: There must only be one connection to that size of split/merge.");
+        		JOptionPane.showMessageDialog(Main.ui.pane, "Error: There must only be one connection to that side of a split/merge.");
         		Port port = portA0.wasUpdated()?portA0:portA1;
         		synchronized (Main.sim)
 				{
