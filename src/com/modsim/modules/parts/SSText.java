@@ -11,6 +11,7 @@ public class SSText extends VisiblePart {
     private String text;
     private Font font;
     private Color color;
+    private RefreshMode refreshMode = RefreshMode.Static;
 
     /**
      * Create a label
@@ -45,7 +46,18 @@ public class SSText extends VisiblePart {
                 fontSize);
         color = col;
     }
-    
+
+    public SSText(int x, int y, String txt, int fontSize, Color col, RefreshMode refreshMode) {
+        this.x = x;
+        this.y = y;
+        text = txt;
+        font = new Font(Fonts.moduleLabel.getFamily(),
+                Fonts.moduleLabel.getStyle(),
+                fontSize);
+        color = col;
+        this.refreshMode = refreshMode;
+    }
+
     public SSText(int x, int y, String txt, int fontSize, Color col, String font_name) {
         this.x = x;
         this.y = y;
@@ -55,7 +67,26 @@ public class SSText extends VisiblePart {
                 fontSize);
         color = col;
     }
-    
+
+    public SSText(int x, int y, String txt, int fontSize, Color col, String font_name, RefreshMode refreshMode) {
+        this.x = x;
+        this.y = y;
+        text = txt;
+        font = new Font(font_name,
+                Fonts.moduleLabel.getStyle(),
+                fontSize);
+        color = col;
+        this.refreshMode = refreshMode;
+    }
+
+    public void setText(String value) {
+        text = value;
+    }
+
+    public void setRefreshMode(RefreshMode value) {
+        refreshMode = value;
+    }
+
     @Override
     public void paint(Graphics2D g) {
         // Draw the text
@@ -71,6 +102,6 @@ public class SSText extends VisiblePart {
 
     @Override
     public RefreshMode getRefreshMode() {
-        return RefreshMode.Static;
+        return refreshMode;
     }
 }
