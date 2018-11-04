@@ -10,7 +10,9 @@ import com.modsim.modules.parts.Port;
 import com.modsim.Main;
 import com.modsim.res.Colors;
 import com.modsim.operations.DeleteOperation;
+import com.modsim.util.Path;
 import com.modsim.util.BezierPath;
+import com.modsim.util.StraightPath;
 import com.modsim.util.BinData;
 
 /**
@@ -22,7 +24,7 @@ public class Link {
 
     public Port src;
     public Port targ;
-    public BezierPath path;
+    public Path path;
 
     public boolean highlight = false;
 
@@ -47,7 +49,7 @@ public class Link {
      * @param path A bezier path to display for the link
      * @return New link, or null if link was invalid
      */
-    public static Link createLink(Port source, Port target, BezierPath path) {
+    public static Link createLink(Port source, Port target, Path path) {
         // Check error conditions first
 
     	if (source == null || target == null) {

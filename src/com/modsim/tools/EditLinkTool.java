@@ -6,7 +6,7 @@ import com.modsim.modules.Link;
 import com.modsim.operations.CreateOperation;
 import com.modsim.operations.MoveOperation;
 import com.modsim.res.Colors;
-import com.modsim.util.BezierPath.PointInfo;
+import com.modsim.util.Path.PointInfo;
 import com.modsim.util.CtrlPt;
 import com.modsim.util.Vec2;
 
@@ -77,7 +77,7 @@ public class EditLinkTool extends BaseTool {
     }
 
     @Override
-    public BaseTool lbDown(int x, int y) {
+    public BaseTool lbDown(int x, int y, boolean isShiftDown) {
         // Try picking nearest control point
         Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y));
         CtrlPt pickCtrl = link.path.closestCtrlPt(worldPoint);

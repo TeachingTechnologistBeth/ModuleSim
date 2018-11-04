@@ -145,6 +145,9 @@ public class XMLReader {
             NodeList links = doc.getElementsByTagName("link");
             int badLinks = 0;
 
+            String BezierPathTagName = new BezierPath().XMLTagName();
+            String StraightPathTagName = new StraightPath().XMLTagName();
+
             for (int i = 0; i < links.getLength(); i++) {
                 Node n = links.item(i);
 
@@ -153,6 +156,7 @@ public class XMLReader {
 
                     int srcID = Integer.parseInt(link.getAttribute("src"));
                     int targID = Integer.parseInt(link.getAttribute("targ"));
+                    String tagName = link.getAttribute("type");
 
                     if (srcID == targID) {
                         System.err.println("Warning: Link's source and target are the same ("+srcID+"). Skipping link");
@@ -172,7 +176,16 @@ public class XMLReader {
                     }
 
                     // Generate the bezier path
-                    BezierPath curve = new BezierPath();
+                    Path curve;
+                    if (tagName.equals(BezierPathTagName)) {
+                        curve = new BezierPath();
+                    }
+                    else if (tagName.equals(StraightPathTagName)) {
+                        curve = new StraightPath();
+                    }
+                    else {
+                        curve = new BezierPath();
+                    }
 
                     NodeList points = link.getElementsByTagName("ctrlPt");
                     for (int j = 0; j < points.getLength(); j++) {

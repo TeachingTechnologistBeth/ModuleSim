@@ -157,6 +157,7 @@ public class XMLWriter {
                     Element lElem = doc.createElement("link");
                     lElem.setAttribute("src", "" + l.src.ID);
                     lElem.setAttribute("targ", "" + l.targ.ID);
+                    lElem.setAttribute("type", l.path.XMLTagName());
 
                     // Curve points
                     for (CtrlPt c : l.path.ctrlPts) {

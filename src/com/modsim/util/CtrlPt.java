@@ -10,7 +10,7 @@ import com.modsim.operations.DeleteOperation;
 
 public class CtrlPt extends PickableEntity {
 
-    public BezierPath parent = null;
+    public Path parent = null;
 
     /**
      * Create a control point at the specified position

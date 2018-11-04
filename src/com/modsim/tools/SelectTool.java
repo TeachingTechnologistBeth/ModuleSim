@@ -61,7 +61,7 @@ public class SelectTool extends BaseTool {
 
     // This just fixes the weird delayed-start drag bug
     @Override
-    public BaseTool lbDown(int x, int y) {
+    public BaseTool lbDown(int x, int y, boolean isShiftDown) {
         synchronized (this) {
             // Don't actually set dragging=true till we get a mouseDrag() event
             screenDragStart.set(x, y);

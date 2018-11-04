@@ -20,7 +20,7 @@ public abstract class VisiblePart {
 	public BaseModule owner;
 
 	// Interaction
-	public boolean lbDown(int x, int y) {return false;}
+	public boolean lbDown(int x, int y, boolean isShiftDown) {return false;}
 	public boolean lbUp(int x, int y) {return false;}
 
 	// Display
