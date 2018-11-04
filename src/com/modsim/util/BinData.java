@@ -233,4 +233,21 @@ public class BinData {
         mask = v.mask;
     }
 
+    public static int mergeBits(byte b0, byte b1) {
+        if (b0 == 2 && b1 == 2) {
+            return 2;
+        }
+        else if (b0 == 2) {
+            return b1;
+        }
+        else if (b1 == 2) {
+            return b0;
+        }
+        else if (b0 == b1) {
+            return b0;
+        }
+        else {
+            return 2;
+        }
+    }
 }

@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import com.modsim.modules.parts.VisiblePart;
 import com.modsim.modules.ports.BidirPort;
 import com.modsim.Main;
 import com.modsim.modules.parts.Port;
@@ -25,6 +26,9 @@ public class SplitMerge extends BaseModule {
 
     private final BidirPort portA0, portA1;
     private final BidirPort portB0, portB1, portB2, portB3;
+
+    private final SSText portA0Text, portA1Text;
+    private final SSText portB0Text, portB1Text, portB2Text, portB3Text;
 
     private final List<BezierCurve> curves;
 
@@ -79,14 +83,22 @@ public class SplitMerge extends BaseModule {
         cs[8] = new BezierCurve(new Vec2(B + b1,  23),  new Vec2(d - b0, -23), // B1-d0
                                 new Vec2(B + b1, -15),  new Vec2(d - b0, 15));
         curves = Collections.unmodifiableList(Arrays.asList(cs));
-        
-        parts.add(new SSText(A-8, 24, "DCBA", 7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
-        parts.add(new SSText(B-8, 24, "XXDC", 7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
-        parts.add(new SSText(a+8, -24, "XXBA", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
-        parts.add(new SSText(b+8, -24, "XXXB", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
-        parts.add(new SSText(c+8, -24, "XXDC", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
-        parts.add(new SSText(d+8, -24, "XXXD", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily()));
 
+        portA0Text = new SSText(A-8, 24, "DCBA", 7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily(), VisiblePart.RefreshMode.Dynamic);
+        portA1Text = new SSText(B-8, 24, "XXDC", 7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily(), VisiblePart.RefreshMode.Dynamic);
+
+        portB0Text = new SSText(a+8, -24, "XXBA", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily(), VisiblePart.RefreshMode.Dynamic);
+        portB1Text = new SSText(b+8, -24, "XXXB", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily(), VisiblePart.RefreshMode.Dynamic);
+        portB2Text = new SSText(c+8, -24, "XXDC", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily(), VisiblePart.RefreshMode.Dynamic);
+        portB3Text = new SSText(d+8, -24, "XXXD", -7, Colors.splitMergeLabel, Fonts.splitMergeLabel.getFamily(), VisiblePart.RefreshMode.Dynamic);
+
+        parts.add(portA0Text);
+        parts.add(portA1Text);
+
+        parts.add(portB0Text);
+        parts.add(portB1Text);
+        parts.add(portB2Text);
+        parts.add(portB3Text);
     }
 
     @Override
@@ -95,42 +107,89 @@ public class SplitMerge extends BaseModule {
         g.setColor(Colors.moduleFill);
         drawBox(g, 10);
 
+        drawStaticParts(g);
+    }
+
+    @Override
+    public void paintDynamic(Graphics2D g) {
         // Show drawing
         g.setStroke(new BasicStroke(2));
         for (int i = 0; i < curves.size(); i++) {
             int grad = 0;
             switch (i) {
-            case 0:
-                grad = 120;
-                break;
-            case 1:
-            case 2:
-                grad = 140;
-                break;
-            case 3:
-                grad = 160;
-                break;
-            case 4:
-            case 5:
-                grad = 180;
-                break;
-            case 6:
-                grad = 200;
-                break;
-            case 7:
-            case 8:
-                grad = 220;
-                break;
+                case 0:
+                    grad = 120;
+                    break;
+                case 1:
+                case 2:
+                    grad = 140;
+                    break;
+                case 3:
+                    grad = 160;
+                    break;
+                case 4:
+                case 5:
+                    grad = 180;
+                    break;
+                case 6:
+                    grad = 200;
+                    break;
+                case 7:
+                case 8:
+                    grad = 220;
+                    break;
             }
             g.setColor(new Color(grad, grad, grad));
             curves.get(i).draw(g);
+        }
+
+        if (portA0.isConnected()) {
+            portA0Text.setText(portA0.getVal().toString());
+        }
+        else {
+            portA0Text.setText("DCBA");
+        }
+
+        if (portA1.isConnected()) {
+            portA1Text.setText(portA1.getVal().toString());
+        }
+        else {
+            portA1Text.setText("XXDC");
+        }
+
+        if (portB0.isConnected()) {
+            portB0Text.setText(portB0.getVal().toString());
+        }
+        else {
+            portB0Text.setText("XXBA");
+        }
+
+        if (portB1.isConnected()) {
+            portB1Text.setText(portB1.getVal().toString());
+        }
+        else {
+            portB1Text.setText("XXXB");
+        }
+
+        if (portB2.isConnected()) {
+            portB2Text.setText(portB2.getVal().toString());
+        }
+        else {
+            portB2Text.setText("XXDC");
+        }
+
+        if (portB3.isConnected()) {
+            portB3Text.setText(portB3.getVal().toString());
+        }
+        else {
+            portB3Text.setText("XXXD");
         }
 
         // Show output/input
         g.setColor(Colors.modulePorts);
         drawBidir(g);
 
-        drawStaticParts(g);
+        drawDynamicParts(g);
     }
 
     @Override
@@ -148,7 +207,7 @@ public class SplitMerge extends BaseModule {
         if (portA0.wasUpdated() || portA1.wasUpdated()) {
         	if(portA0.isConnected() && portA1.isConnected())
         	{
-        		JOptionPane.showMessageDialog(Main.ui.pane, "Error: There must only be one connection to that size of split/merge.");
+        		JOptionPane.showMessageDialog(Main.ui.pane, "Error: There must only be one connection to that side of a split/merge.");
         		Port port = portA0.wasUpdated()?portA0:portA1;
         		synchronized (Main.sim)
 				{
@@ -177,11 +236,11 @@ public class SplitMerge extends BaseModule {
             a1_val.setBit(0, b2_val.getBit(0)); // c0-B0
 
             // Resolution of 3-state logic for merges
-            int val = b2_val.getBit(1) | b3_val.getBit(0);
+            int val = BinData.mergeBits(b2_val.getBit(1), b3_val.getBit(0));
             a1_val.setBit(1, val);
             a0_val.setBit(3, val);
             
-            val = b0_val.getBit(1) | b1_val.getBit(0);
+            val = BinData.mergeBits(b0_val.getBit(1), b1_val.getBit(0));
             a0_val.setBit(1, val);
         }
 
