@@ -28,7 +28,7 @@ public class PlaceTool extends BaseTool {
         Main.opStack.pushOp(new CreateOperation(e));
 
         Vec2 p = new Vec2(-200, -200);
-        p = ViewUtil.screenToWorld(p);
+        p = ViewUtil.screenToWorld(p, false);
         e.move(p);
     }
 
@@ -47,7 +47,7 @@ public class PlaceTool extends BaseTool {
 
     @Override
     public BaseTool mouseMove(int x, int y) {
-        Vec2 cur = ViewUtil.screenToWorld(new Vec2(x, y));
+        Vec2 cur = ViewUtil.screenToWorld(new Vec2(x, y), false);
 
         if (start == null) {
             start = new Vec2(cur);

@@ -27,6 +27,9 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     private double oldCX, oldCY;
     private boolean camDrag = false;
 
+    public static boolean snap = true;
+    public static int snapGridSize = 25;
+
     /**
      * Finds a clicked link by approximate (binary-search) closest point on curve
      * @param pt World-space point to check
@@ -208,12 +211,17 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     /**
      * Adjusts an on-screen point to world-space
      */
-    public static Vec2 screenToWorld(Vec2 p) {
+    public static Vec2 screenToWorld(Vec2 p, boolean noSnap) {
         double[] pt = p.asArray();
 
         try {Main.ui.view.wToV.inverseTransform(pt, 0, pt, 0, 1);}
         catch (Exception e) {
             return null;
+        }
+
+        if (snap && !noSnap) {
+            pt[0] = snapGridSize*(Math.round(pt[0]/snapGridSize));
+            pt[1] = snapGridSize*(Math.round(pt[1]/snapGridSize));
         }
 
         return new Vec2(pt);
@@ -277,20 +285,22 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 else {
                     Port p = screenSpace_portAt(e.getX(), e.getY());
 
-                    Main.selection.clear();
-
                     //Link behaviour
                     if (p != null) {
+                        Main.selection.clear();
+
                         tool = new MakeLinkTool();
                         Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY(), e.isShiftDown());
                     }
                     else {
                         // Link edit if we haven't hit a module
                         if (targ == null) {
-                            Vec2 worldSpace = screenToWorld(new Vec2(e.getX(), e.getY()));
+                            Vec2 worldSpace = screenToWorld(new Vec2(e.getX(), e.getY()) , true);
                             Link l = worldSpace_linkAt(worldSpace);
 
                             if (l != null) {
+                                Main.selection.clear();
+
                                 tool = new EditLinkTool(l);
                                 Main.ui.view.curTool = tool.mouseMove(e.getX(), e.getY());
                                 return;

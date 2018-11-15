@@ -300,7 +300,7 @@ public class View extends JPanel {
      * @param y Y-coordinate
      */
     public void zoom(int x, int y, double amount) {
-        Vec2 zmPt = ViewUtil.screenToWorld(new Vec2(x, y));
+        Vec2 zmPt = ViewUtil.screenToWorld(new Vec2(x, y), true);
 
         zoom -= zoom * amount * ZOOM_MULTIPLIER;
         if (zoom < minZoom) {

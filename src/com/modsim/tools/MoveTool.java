@@ -17,7 +17,7 @@ public class MoveTool extends BaseTool {
 	 * Start a move operation. Assumes a selection exists in the View.
 	 */
 	public MoveTool(int x, int y) {
-		startPt = ViewUtil.screenToWorld(new Vec2(x,y));
+		startPt = ViewUtil.screenToWorld(new Vec2(x,y), false);
 		entities = Main.selection.getEntities();
 
 		for (PickableEntity e : entities) {
@@ -28,7 +28,7 @@ public class MoveTool extends BaseTool {
 
 	@Override
 	public BaseTool mouseDrag(int x, int y) {
-		Vec2 p = ViewUtil.screenToWorld(new Vec2(x, y));
+		Vec2 p = ViewUtil.screenToWorld(new Vec2(x, y), false);
         p.sub(startPt);
 
         for (PickableEntity e : entities) {
@@ -40,7 +40,7 @@ public class MoveTool extends BaseTool {
 
 	@Override
 	public BaseTool lbUp(int x, int y) {
-		Vec2 p = ViewUtil.screenToWorld(new Vec2(x, y));
+		Vec2 p = ViewUtil.screenToWorld(new Vec2(x, y), false);
 		p.sub(startPt);
 
 		// We're done - store the operation

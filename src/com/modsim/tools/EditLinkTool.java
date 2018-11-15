@@ -38,7 +38,7 @@ public class EditLinkTool extends BaseTool {
 
     @Override
     public BaseTool mouseMove(int x, int y) {
-        Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y));
+        Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y), false);
 
         CtrlPt pickCtrl = link.path.closestCtrlPt(worldPoint);
         nearbyInfo = link.path.approxClosestPoint(worldPoint, 10);
@@ -65,7 +65,7 @@ public class EditLinkTool extends BaseTool {
     public BaseTool rbDown(int x, int y) {
         if (placePoint != null) return this; // do nothing if we're placing a point
 
-        Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y));
+        Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y), false);
         CtrlPt pickCtrl = link.path.closestCtrlPt(worldPoint);
 
         if (pickCtrl != null && pickCtrl.pos.dist(worldPoint) < 25) {
@@ -79,7 +79,7 @@ public class EditLinkTool extends BaseTool {
     @Override
     public BaseTool lbDown(int x, int y, boolean isShiftDown) {
         // Try picking nearest control point
-        Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y));
+        Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y), false);
         CtrlPt pickCtrl = link.path.closestCtrlPt(worldPoint);
 
         if (pickCtrl != null && pickCtrl.pos.dist(worldPoint) < 25) {
@@ -109,7 +109,7 @@ public class EditLinkTool extends BaseTool {
     @Override
     public BaseTool mouseDrag(int x, int y) {
         if (placePoint != null) {
-            Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y));
+            Vec2 worldPoint = ViewUtil.screenToWorld(new Vec2(x, y), false);
             placePoint.pos.set(worldPoint);
             editPoint.set(placePoint.pos);
             link.path.calcCurves();
