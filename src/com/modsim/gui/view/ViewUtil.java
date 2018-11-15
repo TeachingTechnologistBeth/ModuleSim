@@ -277,10 +277,10 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                 else {
                     Port p = screenSpace_portAt(e.getX(), e.getY());
 
-                    Main.selection.clear();
-
                     //Link behaviour
                     if (p != null) {
+                        Main.selection.clear();
+
                         tool = new MakeLinkTool();
                         Main.ui.view.curTool = tool.lbDown(e.getX(), e.getY(), e.isShiftDown());
                     }
@@ -291,6 +291,8 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
                             Link l = worldSpace_linkAt(worldSpace);
 
                             if (l != null) {
+                                Main.selection.clear();
+
                                 tool = new EditLinkTool(l);
                                 Main.ui.view.curTool = tool.mouseMove(e.getX(), e.getY());
                                 return;
