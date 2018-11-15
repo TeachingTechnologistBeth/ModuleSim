@@ -65,7 +65,7 @@ public class SelectTool extends BaseTool {
         synchronized (this) {
             // Don't actually set dragging=true till we get a mouseDrag() event
             screenDragStart.set(x, y);
-            dragStart.set(ViewUtil.screenToWorld(screenDragStart));
+            dragStart.set(ViewUtil.screenToWorld(screenDragStart, true));
 
             // Need to base contextual action on the item at the START of the drag
             pickedEntity = ViewUtil.screenSpace_entityAt(x, y);
@@ -95,7 +95,7 @@ public class SelectTool extends BaseTool {
                     dragging = true;
 
                     // N.B. dragStart is already set thanks to lbDown() handler
-                    dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y)));
+                    dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y), true));
                 }
             }
         }
@@ -127,7 +127,7 @@ public class SelectTool extends BaseTool {
         }
 
         //System.out.println("More dragging " + x + ", " + y);
-        dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y)));
+        dragPos.set(ViewUtil.screenToWorld(new Vec2(x, y), true));
 
         Vec2 delta = new Vec2(dragPos);
         delta.sub(dragStart);

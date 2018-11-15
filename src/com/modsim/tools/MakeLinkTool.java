@@ -48,7 +48,7 @@ public class MakeLinkTool extends BaseTool {
 	@Override
 	public BaseTool mouseMove(int x, int y) {
 		if (working) {
-			current = ViewUtil.screenToWorld(new Vec2(x, y));
+			current = ViewUtil.screenToWorld(new Vec2(x, y), false);
 
 			Port p = ViewUtil.screenSpace_portAt(x, y);
 			if (p != null) {

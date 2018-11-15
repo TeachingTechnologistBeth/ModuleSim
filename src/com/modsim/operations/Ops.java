@@ -2,6 +2,7 @@ package com.modsim.operations;
 
 import com.modsim.Main;
 import com.modsim.gui.HelpWindow;
+import com.modsim.gui.view.ViewUtil;
 import com.modsim.modules.BaseModule;
 import com.modsim.simulator.PickableEntity;
 import com.modsim.tools.PlaceTool;
@@ -134,7 +135,11 @@ public class Ops {
     }
 
     // Core application actions
-    public static final DesignAction undo, redo, copy, paste, delete, rotateCW, rotateCCW, rotate180,
+    public static final DesignAction
+            undo, redo,
+            copy, paste, delete,
+            rotateCW, rotateCCW, rotate180,
+            toggleSnap,
             labelEdit, labelBig, labelSmall,
             pause, run, step, toggleRun, zoomIn, zoomOut, resetView, toggleAA, open, save, saveAs, fileNew, quit;
 
@@ -203,6 +208,8 @@ public class Ops {
                 "Rotate counter-clockwise", null, lBracket);
         rotate180 = new DesignAction(event -> doRotate(BaseModule.rotationDir.ROT_180),
                 "Rotate 180");
+
+        toggleSnap = new DesignAction(event -> ViewUtil.snap = !ViewUtil.snap, "Toggle Snap");
 
         // Label editing
         labelEdit = new DesignAction(event -> {
