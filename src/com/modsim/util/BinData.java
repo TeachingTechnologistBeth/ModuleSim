@@ -243,11 +243,8 @@ public class BinData {
         else if (b1 == 2) {
             return b0;
         }
-        else if (b0 == b1) {
-            return b0;
-        }
         else {
-            return 2;
+            return b0 | b1;
         }
     }
 }
