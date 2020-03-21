@@ -98,6 +98,8 @@ public class SwitchInput extends BaseModule {
 
 	@Override
 	public void dataIn(HashMap<String, String> data) {
+        super.dataIn(data);
+
 		if (data.containsKey("switch_set")) {
 			// Parse switch setting
 			String str = data.get("switch_set");
@@ -121,7 +123,7 @@ public class SwitchInput extends BaseModule {
 
 	@Override
 	public HashMap<String, String> dataOut() {
-		HashMap<String, String> data = new HashMap<>();
+		HashMap<String, String> data = super.dataOut();
 		String setting;
 		setting  = s1.getEnabled() ? "1" : "0";
 		setting += s2.getEnabled() ? "1" : "0";

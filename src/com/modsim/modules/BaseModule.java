@@ -704,7 +704,20 @@ public abstract class BaseModule extends PickableEntity {
      * Called by XMLReader and copy routines. Default behaviour is no-op.
      * @param data Structure containing state to load (module-defined elements)
      */
-    public void dataIn(HashMap<String, String> data) {}
+    public void dataIn(HashMap<String, String> data) {
+        if (data.containsKey("label")) {
+            label = data.get("label");
+        }
+        if (data.containsKey("label_size")) {
+            String sizeStr = data.get("label_size");
+            try {
+                labelSize = Integer.parseInt(sizeStr);
+            } catch (NumberFormatException e) {
+                System.err.println("Warning: unable to parse label_size:");
+                e.printStackTrace();
+            }
+        }
+    }
 
     /**
      * Fill a string-string hash map with module-specific data for retrieval with dataIn.
@@ -712,7 +725,12 @@ public abstract class BaseModule extends PickableEntity {
      * data is contained in the module.
      * @return A filled hash map structure, or null if no state is stored
      */
-    public HashMap<String, String> dataOut() { return null; }
+    public HashMap<String, String> dataOut() {
+        HashMap<String, String> dataMap = new HashMap<>();
+        dataMap.put("label", label);
+        dataMap.put("label_size", Integer.toString(labelSize));
+        return dataMap;
+     }
 
     public enum AvailableModules {
         // Enum members should not be renamed!

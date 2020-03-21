@@ -187,7 +187,13 @@ public class Ops {
             Main.ui.view.cancelTool();
 
             if (!Main.clipboard.isEmpty()) {
-                Main.ui.view.setTool(new PlaceTool(Main.clipboard));
+                try {
+                    Main.ui.view.setTool(new PlaceTool(Main.clipboard));
+                }
+                catch (Exception e) {
+                    // Clipboard contents may not be valid
+                    System.out.println(e.getMessage());
+                }
             }
             else {
                 System.out.println("Nothing to paste");

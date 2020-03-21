@@ -118,6 +118,8 @@ public class Clock extends BaseModule {
 
     @Override
     public void dataIn(HashMap<String, String> data) {
+        super.dataIn(data);
+
         if (data.containsKey("clock_phase")) {
             String phaseStr = data.get("clock_phase");
             try {
@@ -131,7 +133,7 @@ public class Clock extends BaseModule {
 
     @Override
     public HashMap<String, String> dataOut() {
-        HashMap<String, String> dataMap = new HashMap<>();
+        HashMap<String, String> dataMap = super.dataOut();
         dataMap.put("clock_phase", String.valueOf(step));
         return dataMap;
     }

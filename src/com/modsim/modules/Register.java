@@ -109,7 +109,7 @@ public class Register extends BaseModule {
 
     @Override
     public HashMap<String, String> dataOut() {
-        HashMap<String, String> dataMap = new HashMap<>();
+        HashMap<String, String> dataMap = super.dataOut();
         String latched = myData.toString();
         dataMap.put("latched_value", latched);
         return dataMap;
@@ -117,6 +117,8 @@ public class Register extends BaseModule {
 
     @Override
     public void dataIn(HashMap<String, String> data) {
+        super.dataIn(data);
+
         if (data.containsKey("latched_value")) {
             // Parse latched value
             String str = data.get("latched_value");

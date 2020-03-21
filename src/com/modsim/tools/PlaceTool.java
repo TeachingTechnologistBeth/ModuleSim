@@ -34,9 +34,11 @@ public class PlaceTool extends BaseTool {
 
     /**
      * Acts as a 'pasteInto' tool for the given clipboard
+     * 
      * @param clipboard Clipboard containing com.modsim.modules to 'pasteInto'
+     * @throws Exception
      */
-    public PlaceTool(ModuleClipboard clipboard) {
+    public PlaceTool(ModuleClipboard clipboard) throws Exception {
         Main.opStack.beginCompoundOp();
         entities = clipboard.paste();
 

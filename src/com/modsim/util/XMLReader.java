@@ -3,9 +3,11 @@ package com.modsim.util;
 import com.modsim.gui.view.View;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
@@ -18,37 +20,150 @@ import com.modsim.modules.ports.BidirPort;
 import com.modsim.modules.parts.Port;
 
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 
 import com.modsim.Main;
 
-public class XMLReader {
+final class ResultData {
+    public List<BaseModule> modules;
+    public List<Link> links;
+    public int badLinks;
 
+    public double camX;
+    public double camY;
+    public int zoom;
+
+    public ResultData() {
+        modules = new ArrayList<BaseModule>();
+        links = new ArrayList<Link>();
+        badLinks = 0;
+    }
+}
+
+public class XMLReader {
     /**
      * Reads an XML-format file
      *
      * @param path
      */
-    public static void readFile(File xmlFile) {
+    public static ResultData readFile(File xmlFile) {
+        ResultData result = new ResultData();
+
         Main.sim.beginDeferPropagations();
+
+        // Read the document elements into the program
+        Main.sim.newSim();
 
         try {
             DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbF.newDocumentBuilder();
             Document doc = db.parse(xmlFile);
 
+            result = readXML(doc);
+
+            View v = Main.ui.view;
+            v.init_camX = v.camX = result.camX;
+            v.init_camY = v.camY = result.camY;
+            v.init_zoomI = v.zoomI = result.zoom;
+            v.zoom = View.ZOOM_MULTIPLIER * v.zoomI;
+            v.calcXForm();
+
+            // Notify user of partially corrupted file
+            if (result.badLinks != 0) {
+                JOptionPane.showMessageDialog(null,
+                        "Detected " + result.badLinks + " bad links in the file. These were ignored.\n"
+                                + "A known bug in an older version of ModuleSim may have corrupted your file - "
+                                + "there may be other incorrect or missing links.");
+            }
+
+            // Save the file path
+            Main.sim.filePath = xmlFile.getPath();
+            Main.ui.updateTitle();
+        } catch (
+
+        Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Error while loading XML file " + xmlFile.getPath() + " : " + e.getMessage());
+        }
+
+        Main.sim.endDeferPropagations();
+        Main.ui.view.flagStaticRedraw();
+
+        return result;
+    }
+
+    public static ResultData readString(String xmlStr) {
+        ResultData result = new ResultData();
+
+        Main.sim.beginDeferPropagations();
+
+        try {
+            DocumentBuilderFactory dbF = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbF.newDocumentBuilder();
+            Document doc = db.parse(new InputSource(new StringReader(xmlStr)));
+
+            result = readXML(doc);
+
+            // Notify user of partially corrupted file
+            if (result.badLinks != 0) {
+                JOptionPane.showMessageDialog(null,
+                        "Detected " + result.badLinks + " bad links in the file. These were ignored.\n"
+                                + "A known bug in an older version of ModuleSim may have corrupted your file - "
+                                + "there may be other incorrect or missing links.");
+            }
+        } catch (
+
+        Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null,
+                    "Error while loading XML data: " + e.getMessage());
+        }
+
+        Main.sim.endDeferPropagations();
+        Main.ui.view.flagStaticRedraw();
+
+        return result;
+    }
+
+    /**
+     * Finds the maximum ID number for entities in the simulation.
+     */
+    private static int findMaxID(List<BaseModule> modules) {
+        synchronized (Main.sim) {
+            int id = 0;
+
+            for (BaseModule m : modules) {
+                if (m.ID > id) {
+                    id = m.ID;
+                }
+
+                for (Port p : m.ports) {
+                    if (p.ID > id) {
+                        id = p.ID;
+                    }
+                }
+            }
+
+            return id;
+        }
+    }
+
+    private static ResultData readXML(Document doc) {
+        ResultData result = new ResultData();
+
+        try {
             doc.getDocumentElement().normalize();
 
-            // Read the document elements into the program
-            Main.sim.newSim();
+            // Identity remapping
+            Map<Integer, Integer> idRemap = new HashMap<Integer, Integer>();
+            int remapAtId = findMaxID(Main.sim.getModules()) + 1;
 
             // View load
             Element view = (Element) doc.getElementsByTagName("view").item(0);
-            View v = Main.ui.view;
-            v.init_camX = v.camX = Double.parseDouble(view.getAttribute("camX"));
-            v.init_camY = v.camY = Double.parseDouble(view.getAttribute("camY"));
-            v.init_zoomI = v.zoomI = Integer.parseInt(view.getAttribute("zoom"));
-            v.zoom = View.ZOOM_MULTIPLIER * v.zoomI;
-            v.calcXForm();
+            result.camX = Double.parseDouble(view.getAttribute("camX"));
+            result.camY = Double.parseDouble(view.getAttribute("camY"));
+            result.zoom = Integer.parseInt(view.getAttribute("zoom"));
 
             // Module load
             NodeList mods = doc.getElementsByTagName("module");
@@ -67,12 +182,13 @@ public class XMLReader {
                     try {
                         am = AvailableModules.valueOf(modType);
                     } catch (IllegalArgumentException iae) {
-                        System.err.println("Warning: Skipping unrecognized module '"+modType+"'");
+                        System.err.println("Warning: Skipping unrecognized module '" + modType + "'");
                         continue;
                     }
 
                     BaseModule m = (BaseModule) am.getSrcModule().createNew();
-                    m.ID = id;
+                    m.ID = remapAtId++;
+                    idRemap.put(id, m.ID);
 
                     // Set the dimensions
                     Element dim = (Element) module.getElementsByTagName("dim").item(0);
@@ -81,6 +197,8 @@ public class XMLReader {
                     m.orientation = Integer.parseInt(dim.getAttribute("orient"));
 
                     // Set the label
+                    // Note: This is left for legacy file formats.
+                    // Newer versions store label information in the data tags.
                     Element label = (Element) module.getElementsByTagName("label").item(0);
                     if (label != null) {
                         m.label = label.getTextContent();
@@ -88,10 +206,13 @@ public class XMLReader {
                     }
 
                     // HAX: backwards-compatibility is fun for the whole family!
-                    //   Previous versions of the program made no real distinction between normal ports and the
-                    //   split-merge's bidirectional ports - they were stored in the input/output lists based on
-                    //   which side they were supposed to appear on. Now we have to deal with that by picking out
-                    //   the bidirectional ports and appending them to the input and output lists.
+                    // Previous versions of the program made no real distinction between normal
+                    // ports and the
+                    // split-merge's bidirectional ports - they were stored in the input/output
+                    // lists based on
+                    // which side they were supposed to appear on. Now we have to deal with that by
+                    // picking out
+                    // the bidirectional ports and appending them to the input and output lists.
                     ArrayList<Port> moduleInputs = new ArrayList<>();
                     moduleInputs.addAll(m.inputs);
                     ArrayList<Port> moduleOutputs = new ArrayList<>();
@@ -100,8 +221,7 @@ public class XMLReader {
                     for (BidirPort p : m.bidirs) {
                         if (p.side == 1) {
                             moduleInputs.add(p);
-                        }
-                        else {
+                        } else {
                             moduleOutputs.add(p);
                         }
                     }
@@ -109,21 +229,38 @@ public class XMLReader {
                     // Set input IDs
                     NodeList inputs = module.getElementsByTagName("input");
                     for (int j = 0; j < inputs.getLength(); j++) {
-                        Element inID = (Element) inputs.item(j);
-                        moduleInputs.get(j).ID = Integer.parseInt(inID.getAttribute("ID"));
+                        Element inIDElem = (Element) inputs.item(j);
+                        int inID = Integer.parseInt(inIDElem.getAttribute("ID"));
+                        int inIDRemapped;
+                        if (!idRemap.containsKey(inID)) {
+                            inIDRemapped = remapAtId++;
+                            idRemap.put(inID, inIDRemapped);
+                        } else {
+                            inIDRemapped = idRemap.get(inID);
+                        }
+                        moduleInputs.get(j).ID = inIDRemapped;
                         loadedPorts.add(moduleInputs.get(j));
                     }
 
                     // Set output IDs
                     NodeList outputs = module.getElementsByTagName("output");
                     for (int j = 0; j < outputs.getLength(); j++) {
-                        Element outID = (Element) outputs.item(j);
-                        moduleOutputs.get(j).ID = Integer.parseInt(outID.getAttribute("ID"));
+                        Element outIDElem = (Element) outputs.item(j);
+                        int outID = Integer.parseInt(outIDElem.getAttribute("ID"));
+                        int outIDRemapped;
+                        if (!idRemap.containsKey(outID)) {
+                            outIDRemapped = remapAtId++;
+                            idRemap.put(outID, outIDRemapped);
+                        } else {
+                            outIDRemapped = idRemap.get(outID);
+                        }
+                        moduleOutputs.get(j).ID = outIDRemapped;
                         loadedPorts.add(moduleOutputs.get(j));
                     }
 
                     // Additional module data (for NRAM and inputs)
                     NodeList data = module.getElementsByTagName("data");
+                    // - Parse data map
                     HashMap<String, String> dataMap = new HashMap<>();
                     for (int j = 0; j < data.getLength(); j++) {
                         NamedNodeMap nodeMap = data.item(j).getAttributes();
@@ -132,18 +269,22 @@ public class XMLReader {
                             dataMap.put(item.getNodeName(), item.getNodeValue());
                         }
                     }
+                    // - Load data map
                     m.dataIn(dataMap);
+
+                    // Update module
                     m.propagate();
 
                     // Add to the simulation
                     Main.sim.addEntity(m);
                     m.enabled = true;
+
+                    result.modules.add(m);
                 }
             }
 
             // Link load
             NodeList links = doc.getElementsByTagName("link");
-            int badLinks = 0;
 
             String BezierPathTagName = new BezierPath().XMLTagName();
             String StraightPathTagName = new StraightPath().XMLTagName();
@@ -159,9 +300,16 @@ public class XMLReader {
                     String tagName = link.getAttribute("type");
 
                     if (srcID == targID) {
-                        System.err.println("Warning: Link's source and target are the same ("+srcID+"). Skipping link");
+                        System.err.println(
+                                "Warning: Link's source and target are the same (" + srcID + "). Skipping link");
                         continue;
+                    } else if (!idRemap.containsKey(srcID) || !idRemap.containsKey(targID)) {
+                        continue;
+                        // Link may simply have been to a module that wasn't copied
                     }
+
+                    srcID = idRemap.get(srcID);
+                    targID = idRemap.get(targID);
 
                     Port src = null, targ = null;
 
@@ -169,8 +317,7 @@ public class XMLReader {
                     for (Port p : loadedPorts) {
                         if (p.ID == srcID) {
                             src = p;
-                        }
-                        else if (p.ID == targID) {
+                        } else if (p.ID == targID) {
                             targ = p;
                         }
                     }
@@ -179,11 +326,9 @@ public class XMLReader {
                     Path curve;
                     if (tagName.equals(BezierPathTagName)) {
                         curve = new BezierPath();
-                    }
-                    else if (tagName.equals(StraightPathTagName)) {
+                    } else if (tagName.equals(StraightPathTagName)) {
                         curve = new StraightPath();
-                    }
-                    else {
+                    } else {
                         curve = new BezierPath();
                     }
 
@@ -197,35 +342,22 @@ public class XMLReader {
 
                     // Create the link
                     Link l = Link.createLink(src, targ, curve);
+                    result.links.add(l);
 
                     // Add to the simulation
                     if (l != null) {
                         Main.sim.addLink(l);
                         Main.sim.propagate(l.targ.owner);
-                    }
-                    else {
-                        badLinks++;
+                    } else {
+                        result.badLinks++;
                     }
                 }
             }
-
-            // Notify user of partially corrupted file
-            if (badLinks != 0) {
-                JOptionPane.showMessageDialog(null, "Detected " + badLinks + " bad links in the file. These were ignored.\n"+
-                                                    "A known bug in an older version of ModuleSim may have corrupted your file - "+
-                                                    "there may be other incorrect or missing links.");
-            }
-
-            // Save the file path
-            Main.sim.filePath = xmlFile.getPath();
-            Main.ui.updateTitle();
-
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error while loading file "+xmlFile.getName()+": " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Error while loading XML data: " + e.getMessage());
         }
 
-        Main.sim.endDeferPropagations();
-        Main.ui.view.flagStaticRedraw();
+        return result;
     }
 }
