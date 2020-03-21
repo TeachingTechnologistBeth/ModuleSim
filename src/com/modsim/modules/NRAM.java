@@ -175,6 +175,8 @@ public class NRAM extends BaseModule {
 
     @Override
     public void dataIn(HashMap<String, String> data) {
+        super.dataIn(data);
+
         if (data.containsKey("memory_store")) {
             String storeStr = data.get("memory_store");
             HexReader.readString(storeStr, this);
@@ -192,9 +194,9 @@ public class NRAM extends BaseModule {
     @Override
     public HashMap<String, String> dataOut() {
         String storeStr = HexWriter.hexString(this, false);
-        if (storeStr.isEmpty()) return null;
+        if (storeStr.isEmpty()) return super.dataOut();
 
-        HashMap<String, String> data = new HashMap<>();
+        HashMap<String, String> data = super.dataOut();
         data.put("memory_store", storeStr);
         data.put("write_jumper", (writeJumper.getEnabled()) ? "1" : "0");
 

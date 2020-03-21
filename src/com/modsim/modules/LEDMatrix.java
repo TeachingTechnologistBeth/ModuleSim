@@ -124,9 +124,9 @@ public class LEDMatrix extends BaseModule {
 	
 	@Override
     public HashMap<String, String> dataOut() {
-        if (!isPersistEnabled()) return null;
+        if (!isPersistEnabled()) return super.dataOut();
 
-        HashMap<String, String> data = new HashMap<>();
+        HashMap<String, String> data = super.dataOut();
         data.put("persist", "1");
         
         return data;
@@ -134,6 +134,8 @@ public class LEDMatrix extends BaseModule {
 	
 	@Override
     public void dataIn(HashMap<String, String> data) {
+        super.dataIn(data);
+
         if (data.containsKey("persist")) {
             String storeStr = data.get("persist");
             try{
