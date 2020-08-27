@@ -56,15 +56,18 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
     public static Port screenSpace_portAt(double x, double y) {
         double portR = 10;
 
+        //Converting to worldspace enforces snap-to-grid (or not).
+        Vec2 worldPos = screenToWorld(new Vec2(x, y), false);
+
         synchronized (Main.sim) {
             int i = Main.sim.getModules().size() - 1;
             for (; i >= 0; i--) {
                 BaseModule m = Main.sim.getModules().get(i);
 
-                double[] pt = {x, y};
+                double[] pt = {worldPos.x, worldPos.y};
 
                 // Get clicked point in object space
-                try {m.toView.inverseTransform(pt, 0, pt, 0, 1);}
+                try {m.toWorld.inverseTransform(pt, 0, pt, 0, 1);}
                 catch (Exception e) {
                     System.err.println("Non invertible transform");
                 }
