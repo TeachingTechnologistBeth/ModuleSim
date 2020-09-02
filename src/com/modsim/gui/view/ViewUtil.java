@@ -36,15 +36,21 @@ public class ViewUtil implements MouseListener, MouseMotionListener, MouseWheelL
      * @return Link at point, or null if there is none
      */
     public static Link worldSpace_linkAt(Vec2 pt) {
+        Link closest = null;
+        double dist = 15.0;
         for (Link link : Main.sim.getLinks()) {
             Path.PointInfo info = link.path.approxClosestPoint(pt, 6);
 
-            if (info.dist < 15.0) {
-                return link;
+            if (info.dist < dist) {
+                if (info.dist < 2.0) {
+                    return link;
+                }
+                closest = link;
+                dist = info.dist;
             }
         }
 
-        return null;
+        return closest;
     }
 
     /**
