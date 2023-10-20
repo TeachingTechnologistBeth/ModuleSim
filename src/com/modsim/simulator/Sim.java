@@ -12,7 +12,6 @@ import com.modsim.Main;
 import com.modsim.modules.*;
 import static com.modsim.modules.BaseModule.AvailableModules;
 import com.modsim.modules.parts.Port;
-import sun.awt.Mutex;
 
 import com.modsim.util.BinData;
 import com.modsim.util.CtrlPt;
@@ -20,7 +19,7 @@ import com.modsim.util.CtrlPt;
 public class Sim implements Runnable {
 
     private Thread thread;
-    public final Mutex lock = new Mutex();
+    public final Object lock = new Object();
 
     private int lastLinkInd = 0;
 
