@@ -185,6 +185,7 @@ public final class ModuleClipboard implements ClipboardOwner {
         
         if (hasTransferableFiles) {
             try {
+                @SuppressWarnings("unchecked")
                 List<File> files = (List<File>) contents.getTransferData(DataFlavor.javaFileListFlavor);
                 if (files.size() == 1) {
                     File file = files.get(0);
