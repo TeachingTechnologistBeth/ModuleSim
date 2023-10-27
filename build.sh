@@ -1,4 +1,4 @@
-mkdir ./out
+[ -d ./out ] || mkdir ./out
 find -name "*.java" > sources.txt
 javac -d ./out @sources.txt
 cd ./out
